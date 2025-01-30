@@ -1,0 +1,18 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
+@import "tailwindcss";
+@layer base {
+  html {
+    font-family: 'Poppins', sans-serif;
+  }
+  .sidebar{
+    width: 300px;
+    z-index: -1;
+  }
+  body{
+    background-color: #F7F7FC;
+  }
+  .input{
+    margin: 10px 0;
+  }
+
+}
