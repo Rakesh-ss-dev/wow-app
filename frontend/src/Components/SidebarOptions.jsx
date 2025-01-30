@@ -8,7 +8,7 @@ const SidebarOptions = (props) => {
             <p>{props.title}</p>
             </div>
             {
-              props.backIcon.length==0?'':<div><img src={props.backIcon} alt="" /></div>
+              props.backIcon.length!=0?<div><img src={props.backIcon} alt="" /></div>:''
             }
           </div>
   )
