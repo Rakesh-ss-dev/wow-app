@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import Topbar from "../Components/Topbar";
 import Sidebar from "../Components/Sidebar";
+import Content from "../Components/Content";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -15,8 +16,11 @@ const Dashboard = () => {
 
   return (
     <>
-    <Topbar/>
-    <Sidebar/>
+      <Topbar />
+      <div>
+        <Sidebar />
+        <Content/>
+      </div>
     </>
   );
 };
