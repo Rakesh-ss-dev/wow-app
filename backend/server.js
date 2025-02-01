@@ -16,7 +16,8 @@ mongoose
 
 const authRoutes = require("./routes/auth");
 const packageRoutes = require('./routes/package');
-const paymentRoutes = require("./routes/payment"); 
+const paymentRoutes = require("./routes/payment");
+
 app.use("/api/auth", authRoutes);
 app.use("/api/package", packageRoutes);
 app.use('/api/payment',paymentRoutes);

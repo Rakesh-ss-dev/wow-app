@@ -22,9 +22,9 @@ const Login = () => {
   };
 
   return (
-    <div class="grid sm:grid-cols-1 lg:grid-cols-2 overflow-y-auto">
-      <div class="bg-red-500">w-first</div>
-      <div class="p-20">
+    <div className="grid sm:grid-cols-1 lg:grid-cols-2 overflow-y-auto">
+      <div className="bg-green-500"></div>
+      <div className="p-20">
         <p className="text-3xl">WELCOME to WOW Coach Dashboard</p>
         <form onSubmit={handleLogin}>
           <div className="flex h-[60vh] flex-col justify-between">
