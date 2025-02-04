@@ -16,7 +16,7 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v2
       with:
-        node-version: '20'
+        node-version: '16'
 
     - name: Install backend dependencies
       run: |
@@ -32,6 +32,8 @@ jobs:
       run: |
         cd frontend
         npm run build
+        echo "Build completed"
+        ls -l /home/ubuntu/wow-app/frontend/build
 
     - name: Set up SSH key for EC2
       uses: webfactory/ssh-agent@v0.5.3
@@ -44,13 +46,12 @@ jobs:
           cd /home/ubuntu/wow-app/backend
           git pull origin main
           npm install
-          pm2 restart all
+          pm2 restart backend-app
         EOF
 
     - name: Deploy to EC2 (frontend)
       run: |
         ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
-          cd /home/ubuntu/wow-app/frontend
           sudo rm -rf /var/www/html/*
           sudo cp -r /home/ubuntu/wow-app/frontend/build/* /var/www/html/
         EOF
