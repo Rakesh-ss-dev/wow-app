@@ -32,3 +32,4 @@ jobs:
             npm install
             npm run build
             sudo cp -r dist/* /var/www/html/wow-frontend/
+ 
