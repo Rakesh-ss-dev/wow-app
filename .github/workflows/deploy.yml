@@ -18,8 +18,10 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install Dependencies
-        run: npm install
+     - name: Install Dependencies
+        run: |
+          cd ./your-subfolder  # Change to the correct folder if your project is inside a subfolder
+          npm install
 
       - name: Build the Project
         run: npm run build
