@@ -18,7 +18,7 @@ jobs:
       - name: Set up SSH
         uses: webfactory/ssh-agent@v0.5.3
         with:
-          ssh-private-key: ${{ secrets.AWS_SSH_KEY }}  # Use the AWS_SSH_KEY secret for the private key
+          ssh-private-key: ${{ secrets.EC2_SSH }}  # Use the EC2_SSH secret for the private key
 
       # Set up Node.js and npm (Updated to version 20)
       - name: Set up Node.js
@@ -36,7 +36,7 @@ jobs:
       - name: Build frontend
         run: |
           cd frontend
-          npm run build
+          npm run build  # Ensure that 'npm run build' generates the correct build artifacts (usually in 'dist')
 
       # Install dependencies for backend
       - name: Install backend dependencies
@@ -44,24 +44,25 @@ jobs:
           cd backend
           npm install
 
-
       # Deploy frontend to Nginx on EC2
       - name: Deploy frontend to EC2
         run: |
           ssh -o StrictHostKeyChecking=no -i ${{ secrets.AWS_SSH_KEY }} ubuntu@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
+            # Ensure we're in the right directory and the 'frontend' build folder is correct
             cd /var/www/html
             rm -rf *
-            cp -r /home/ubuntu/wow-app/frontend/dist/* /var/www/html
-            sudo systemctl restart nginx
+            cp -r /home/ubuntu/wow-app/frontend/dist/* /var/www/html  # Adjust if needed, based on build folder name
+            sudo systemctl restart nginx  # Restart Nginx to serve new frontend build
           EOF
 
       # Deploy backend to EC2 (if needed, using pm2 or similar)
       - name: Deploy backend to EC2
         run: |
           ssh -o StrictHostKeyChecking=no -i ${{ secrets.AWS_SSH_KEY }} ubuntu@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
+            # Ensure you're pulling the latest code from the backend
             cd /home/ubuntu/wow-app/backend
             git pull origin main  # Ensure you're pulling the latest code
-            npm install
+            npm install  # Install backend dependencies
             pm2 restart server.js  # Restart the backend with pm2 or any other process manager
           EOF
 
