@@ -19,6 +19,7 @@ jobs:
           username: ${{ secrets.AWS_SSH_USER }}
           key: ${{ secrets.AWS_SSH_KEY }}
           script: |
+          
             cd ~/wow-app || git clone https://github.com/Rakesh-ss-dev/wow-app.git ~/wow-app && cd ~/wow-app
             git pull origin main
 
@@ -32,4 +33,3 @@ jobs:
             npm install
             npm run build
             sudo cp -r dist/* /var/www/html/wow-frontend/
- 
