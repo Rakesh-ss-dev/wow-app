@@ -36,7 +36,7 @@ const Content = () => {
     const handleSubmit= async (e)=>{
         e.preventDefault();
         try {
-            const res = await axios.post(`${SERVER_URL}/api/payment/create-payment-link`, {
+            const res = await axios.post(`${SERVER_URL}/payment/create-payment-link`, {
               name,
               phone,
               category
