@@ -1,57 +1,75 @@
-name: Deploy to EC2
+name: Deploy MERN App to EC2
 
 on:
   push:
     branches:
-      - main
+      - main  # Trigger deployment on changes to the main branch
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
+    
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      # Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '20'
+      # Set up SSH for accessing the server
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.AWS_SSH_KEY }}  # Use the AWS_SSH_KEY secret for the private key
 
-    - name: Install backend dependencies
-      run: |
-        cd backend
-        npm install
+      # Set up Node.js and npm (Updated to version 20)
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '20'  # Updated to Node.js version 20
 
-    - name: Install frontend dependencies
-      run: |
-        cd frontend
-        npm install
-
-    - name: Build frontend
-      run: |
-        cd frontend
-        npm run build
-        echo "Build completed"
-        ls -l /home/ubuntu/wow-app/frontend/dist
-
-    - name: Set up SSH key for EC2
-      uses: webfactory/ssh-agent@v0.5.3
-      with:
-        ssh-private-key: ${{ secrets.AWS_SSH_KEY }}
-
-    - name: Deploy to EC2 (backend)
-      run: |
-        ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
-          cd /home/ubuntu/wow-app/backend
-          git pull origin main
+      # Install dependencies for frontend
+      - name: Install frontend dependencies
+        run: |
+          cd frontend
           npm install
-          pm2 restart all
-        EOF
 
-    - name: Deploy to EC2 (frontend)
-      run: |
-        ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
-          sudo rm -rf /var/www/html/*
-          sudo cp -r /home/ubuntu/wow-app/frontend/dist/* /var/www/html/
-        EOF
+      # Build the frontend with Vite
+      - name: Build frontend
+        run: |
+          cd frontend
+          npm run build
+
+      # Install dependencies for backend
+      - name: Install backend dependencies
+        run: |
+          cd backend
+          npm install
+
+      # Build backend (optional, if any build step is required)
+      - name: Build backend (if needed)
+        run: |
+          cd backend
+          npm run build
+
+      # Deploy frontend to Nginx on EC2
+      - name: Deploy frontend to EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ${{ secrets.AWS_SSH_KEY }} ubuntu@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
+            cd /var/www/html
+            rm -rf *
+            cp -r /home/ubuntu/wow-app/frontend/dist/* /var/www/html
+            sudo systemctl restart nginx
+          EOF
+
+      # Deploy backend to EC2 (if needed, using pm2 or similar)
+      - name: Deploy backend to EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ${{ secrets.AWS_SSH_KEY }} ubuntu@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
+            cd /home/ubuntu/wow-app/backend
+            git pull origin main  # Ensure you're pulling the latest code
+            npm install
+            pm2 restart server.js  # Restart the backend with pm2 or any other process manager
+          EOF
+
+      # Success message
+      - name: Success
+        run: echo "App deployed successfully!"
