@@ -8,7 +8,7 @@ const Topbar = () => {
       <nav className="fixed top-0 z-50 border-[#243c5a] border-1 container mx-auto px-12 bg-white">
         <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
           <a
-            href="https://flowbite.com/"
+            href="#"
             className="flex items-center space-x-3 rtl:space-x-reverse"
           >
             <img src={wowlogo} alt="Wow Logo" />

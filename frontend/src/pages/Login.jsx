@@ -6,11 +6,11 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-
+  const SERVER_URL = import.meta.env.VITE_SERVER_URL;
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/login", {
+      const res = await axios.post(`${SERVER_URL}/api/auth/login`, {
         email,
         password,
       });

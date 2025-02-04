@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import axios from 'axios';
+const SERVER_URL = import.meta.env.VITE_SERVER_URL;
 const Content = () => {
     const [name,setName]=useState('');
     const [phone,setPhone]=useState('');
@@ -35,7 +36,7 @@ const Content = () => {
     const handleSubmit= async (e)=>{
         e.preventDefault();
         try {
-            const res = await axios.post("http://localhost:5000/api/payment/create-payment-link", {
+            const res = await axios.post(`${SERVER_URL}/api/payment/create-payment-link`, {
               name,
               phone,
               category
