@@ -7,6 +7,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const SERVER_URL = import.meta.env.VITE_SERVER_URL;
+  console.log(SERVER_URL)
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
