@@ -16,7 +16,7 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v2
       with:
-        node-version: '16'
+        node-version: '20'
 
     - name: Install backend dependencies
       run: |
@@ -46,7 +46,7 @@ jobs:
           cd /home/ubuntu/wow-app/backend
           git pull origin main
           npm install
-          pm2 restart backend-app
+          pm2 restart all
         EOF
 
     - name: Deploy to EC2 (frontend)
