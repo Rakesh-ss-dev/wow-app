@@ -44,11 +44,6 @@ jobs:
           cd backend
           npm install
 
-      # Build backend (optional, if any build step is required)
-      - name: Build backend (if needed)
-        run: |
-          cd backend
-          npm run build
 
       # Deploy frontend to Nginx on EC2
       - name: Deploy frontend to EC2
