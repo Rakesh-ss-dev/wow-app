@@ -25,13 +25,13 @@ jobs:
 
             # Backend setup
             cd backend
-            npm install
+            sudo npm install
             pm2 restart wow-backend || pm2 start server.js --name "wow-backend"
 
             # Frontend setup
             cd ../frontend
-            npm install
-            npm run build
+            sudo npm install
+            sudo npm run build
             sudo cp -r dist/* /var/www/html/wow-frontend/
 
             #Update Nginx Configuration
