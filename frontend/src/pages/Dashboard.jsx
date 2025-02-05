@@ -18,7 +18,7 @@ const Dashboard = () => {
   return (
     <>
       <Topbar />
-      <div className="relative top-32">
+      <div className="relative top-36">
         <ToggleButton />
         <Sidebar />
         <Content />

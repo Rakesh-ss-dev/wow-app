@@ -71,13 +71,6 @@ const Login = () => {
                 >
                   Sign in
                 </button>
-                <p className="text-center">or</p>
-                <button
-                  className="w-full rounded-[8px] px-[7px] py-[12px] bg-white text-[#2C5F2E]"
-                  type="submit"
-                >
-                  Sign in with google
-                </button>
               </div>
             </div>
           </div>

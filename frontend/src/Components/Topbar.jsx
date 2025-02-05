@@ -96,11 +96,11 @@ const Topbar = () => {
             </div>
           </div>
           <div className="flex items-center gap-3 md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
-            <div className="text-[#373737] font-bold pr-2.5">
+            <div className="text-[#373737] hidden md:block font-bold pr-2.5">
               Mr. WOW Coach
             </div>
             <img className="w-8 h-8" src={userIcon} alt="user photo" />
-            <img src={notificationIcon} alt="Notification Icon" />
+            <img className="hidden md:block" src={notificationIcon} alt="Notification Icon" />
           </div>
         </div>
       </nav>
