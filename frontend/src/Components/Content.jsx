@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
 import axios from 'axios';
+import { Button } from "flowbite-react";
+import { Clipboard, ClipboardCheck } from "lucide-react";
 const SERVER_URL = import.meta.env.VITE_SERVER_URL;
 const Content = () => {
     const [name,setName]=useState('');
@@ -10,8 +12,17 @@ const Content = () => {
     const [phoneError,setPhoneError]=useState('Please enter a valid Indian mobile number.');
     const [categoryError,setCategoryError]=useState('Please select any of the option');
     const [paymentLink,setPaymentLink]=useState('')
+    const [copied, setCopied] = useState(false);
+    const copyToClipboard = () => {
+      if (typeof paymentLink === "string") {
+        navigator.clipboard.writeText(paymentLink);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000); // Reset after 2 sec
+      } else {
+        console.error("Error: link is not a string", paymentLink);
+      }
+    };
     const validateSelect=(value)=>{
-        console.log(value);
         if(value==''){
             setIsCategoryValid(false);
             setCategoryError('Please select any of the option');
@@ -35,14 +46,21 @@ const Content = () => {
       };
     const handleSubmit= async (e)=>{
         e.preventDefault();
+        const token = localStorage.getItem("token");
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`, // Send token in headers
+          },
+        };
         try {
             const res = await axios.post(`${SERVER_URL}/payment/create-payment-link`, {
               name,
               phone,
               category
-            });
+            },config);
+            setPaymentLink(res.data.payment_link)
             alert("Payment link sent to you number");
-            setPaymentLink(res.payment_link)
+            
           } catch (err) {
             alert(err.message);
           }
@@ -87,6 +105,14 @@ const Content = () => {
                 </form>
             </div>
         </div>
+        {paymentLink==''?'': <div className="p-4 bg-white rounded-lg shadow-md flex items-center justify-between">
+      <span className="text-blue-600 font-medium truncate">{paymentLink}</span>
+      <Button color="green" onClick={copyToClipboard} className="flex items-center">
+        {copied ? <ClipboardCheck size={18} /> : <Clipboard size={18} />}
+        <span className="ml-2">{copied ? "Copied!" : "Copy Link"}</span>
+      </Button>
+    </div>}
+       
     </div>
    </div>
     

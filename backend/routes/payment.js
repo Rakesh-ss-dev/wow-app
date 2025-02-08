@@ -2,6 +2,8 @@ const express = require("express");
 const Razorpay = require("razorpay");
 const crypto = require("crypto");
 const Package = require('../models/Package')
+const Patient = require('../models/Patients');
+const authMiddleware = require("../middleware/authMiddleware");
 const router = express.Router();
 
 require("dotenv").config();
@@ -12,7 +14,7 @@ const razorpay = new Razorpay({
 });
 
 // Generate Razorpay Payment Link
-router.post("/create-payment-link", async (req, res) => {
+router.post("/create-payment-link", authMiddleware, async (req, res) => {
   try {
     const { name, phone , category } = req.body;
     const category_from_db = await Package.findOne({name:category});
@@ -35,6 +37,8 @@ router.post("/create-payment-link", async (req, res) => {
       callback_method: "get",
     }
     const order = await razorpay.paymentLink.create(options);
+    const patient = await new Patient({name:name,phone:phone,package:category_from_db,paymentId:order.id,createdBy:req.user})
+    await patient.save()
     res.json({ success: true,payment_link:order.short_url });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
