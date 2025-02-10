@@ -14,13 +14,33 @@ const Content = () => {
     const [paymentLink,setPaymentLink]=useState('')
     const [copied, setCopied] = useState(false);
     const copyToClipboard = () => {
-      if (typeof paymentLink === "string") {
-        navigator.clipboard.writeText(paymentLink);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000); // Reset after 2 sec
-      } else {
-        console.error("Error: link is not a string", paymentLink);
+      if (!navigator.clipboard) {
+        console.warn("Clipboard API not supported, using fallback.");
+        copyToClipboardFallback();
+        return;
       }
+  
+      if (typeof paymentLink === "string") {
+        navigator.clipboard.writeText(paymentLink)
+          .then(() => {
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+          })
+          .catch((err) => console.error("Failed to copy:", err));
+      } else {
+        console.error("Error: link is not a string", link);
+      }
+    };
+  
+    const copyToClipboardFallback = () => {
+      const textArea = document.createElement("textarea");
+      textArea.value = paymentLink;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textArea);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     };
     const validateSelect=(value)=>{
         if(value==''){
