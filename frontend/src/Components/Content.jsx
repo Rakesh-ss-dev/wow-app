@@ -33,6 +33,7 @@ const Content = () => {
     };
   
     const copyToClipboardFallback = () => {
+
       const textArea = document.createElement("textarea");
       textArea.value = paymentLink;
       document.body.appendChild(textArea);
@@ -41,6 +42,7 @@ const Content = () => {
       document.body.removeChild(textArea);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+      
     };
     const validateSelect=(value)=>{
         if(value==''){
