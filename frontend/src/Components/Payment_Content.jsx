@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Button } from "flowbite-react";
 import { Clipboard, ClipboardCheck } from "lucide-react";
 const SERVER_URL = import.meta.env.VITE_SERVER_URL;
-const Content = () => {
+const Payment_Content = () => {
     const [name,setName]=useState('');
     const [phone,setPhone]=useState('');
     const [category,setCategory]=useState('');
@@ -142,4 +142,4 @@ const Content = () => {
   )
 }
 
-export default Content
+export default Payment_Content

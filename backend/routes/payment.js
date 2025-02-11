@@ -4,6 +4,7 @@ const crypto = require("crypto");
 const Package = require('../models/Package')
 const Patient = require('../models/Patients');
 const authMiddleware = require("../middleware/authMiddleware");
+const { request } = require("http");
 const router = express.Router();
 
 require("dotenv").config();
@@ -45,4 +46,34 @@ router.post("/create-payment-link", authMiddleware, async (req, res) => {
   }
 });
 
+router.get("/payment-status/:plink_id",authMiddleware, async (req, res) => {
+  try {
+    const { plink_id } = req.params;
+    const paymentLink = await razorpay.paymentLink.fetch(plink_id);
+    res.json({
+      success: true,
+      payment_id: paymentLink.id,
+      status: paymentLink.status, // Possible values: created, sent, paid, expired
+      amount: paymentLink.amount / 100, // Convert from paise
+      currency: paymentLink.currency,
+      email: paymentLink.customer?.email,
+      created_at: new Date(paymentLink.created_at * 1000).toLocaleString(),
+      updated_at: new Date(paymentLink.updated_at * 1000).toLocaleString(),
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+
+router.get('/get_requests',authMiddleware,async(req,res)=>{
+  try{
+  const user =req.user;
+  const requests = await Patient.find({ createdBy: user._id }).populate('package').exec();
+  res.json({success:true,requests:requests})
+  }
+  catch(error){
+    res.status(500).json({success:false,message:error.message})
+  }
+})
 module.exports = router;

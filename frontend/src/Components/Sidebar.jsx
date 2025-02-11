@@ -3,7 +3,8 @@ import dashboardIcon from "../assets/dashboard.svg";
 import boardsIcon from "../assets/boards.svg";
 import messageIcon from "../assets/messageIcon.svg";
 import calenderIcon from "../assets/calender.svg";
-import { useNavigate } from "react-router-dom";
+import infoIcon from '../assets/info.svg'
+import { Link, useNavigate } from "react-router-dom";
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -17,13 +18,22 @@ const Sidebar = () => {
         <div className="h-full px-3 py-4 overflow-y-auto bg-gray-50 dark:bg-gray-800">
           <ul className="space-y-2 font-medium">
             <li>
-              <a
-                href="#"
+              <Link
+                to={{pathname:'/dashboard'}}
                 className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
               >
                 <img src={dashboardIcon} alt="Dashboard Icon" />
                 <span className="ms-3">Dashboard</span>
-              </a>
+              </Link>
+            </li>
+            <li>
+            <Link
+                to={{pathname:'/payment-requests'}}
+                className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+              >
+                <img src={infoIcon} alt="Dashboard Icon" />
+                <span className="ms-3">Requests</span>
+              </Link>
             </li>
             <li>
             <button type="button" className="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700" aria-controls="dropdown-example" data-collapse-toggle="dropdown-example">
@@ -67,15 +77,6 @@ const Sidebar = () => {
               >
                 <img src={calenderIcon} alt="Calender Icon" />
                 <span className="flex-1 ms-3 whitespace-nowrap">Calendar</span>
-              </a>
-            </li>
-            <li>
-              <a
-                href="#"
-                className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-              >
-                
-                <span className="flex-1 ms-3 whitespace-nowrap">Team members</span>
               </a>
             </li>
             

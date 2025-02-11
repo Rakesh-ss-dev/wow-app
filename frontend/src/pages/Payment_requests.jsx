@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import Topbar from "../Components/Topbar";
 import Sidebar from "../Components/Sidebar";
 import ToggleButton from "../Components/ToggleButton";
-import Payment_Content from "../Components/Payment_Content";
+import Requests_Content from "../Components/Requests_Content";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -21,7 +21,7 @@ const Dashboard = () => {
       <div className="relative top-36">
         <ToggleButton />
         <Sidebar />
-        <Payment_Content />
+        <Requests_Content/>
       </div>
     </>
   );
