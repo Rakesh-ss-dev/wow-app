@@ -65,7 +65,7 @@ const Requests_Content = () => {
    {
     requests.length > 0 ? (
       <div className="overflow-x-auto">
-        <Table>
+        <Table striped>
           <Table.Head>
             <Table.HeadCell>Name</Table.HeadCell>
             <Table.HeadCell>Phone</Table.HeadCell>
