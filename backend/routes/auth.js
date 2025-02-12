@@ -2,6 +2,7 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const authMiddleware = require("../middleware/authMiddleware");
 
 const router = express.Router();
 // Login
@@ -25,13 +26,12 @@ router.post("/login", async (req, res) => {
 
 
 // Create a new user (manually adding credentials)
-router.post("/add-user", async (req, res) => {
-  const { email, password } = req.body;
-
+router.post("/add-user",authMiddleware, async (req, res) => {
+  const { email, password,mobile ,name } = req.body;
   try {
     // Check if the user already exists
     let user = await User.findOne({ email });
-    if (user) return res.status(400).json({ error: "User already exists" });
+    if (user) return res.status(400).json({ success:false,error: "User already exists" });
 
     // Hash the password
     const salt = await bcrypt.genSalt(10);
@@ -41,15 +41,24 @@ router.post("/add-user", async (req, res) => {
     user = new User({
       email,
       password: hashedPassword,
+      mobile:mobile,
+      name,
     });
-
-    // Save to MongoDB
     await user.save();
-
-    res.json({ message: "User created successfully!" });
+    res.json({success:true, message: "User created successfully!" });
   } catch (error) {
-    res.status(500).json({ error: "Server error" });
+    res.status(500).json({success:false, error: "Server error" });
   }
 });
+
+router.get('/users',authMiddleware,async(req,res)=>{
+  try{
+    const users= await User.find({isSuperUser:false}).exec();
+    res.json({success:true,users:users})
+  }
+  catch(error){
+    res.status(500).json({error:error.message})
+  }
+})
 
 module.exports = router;
