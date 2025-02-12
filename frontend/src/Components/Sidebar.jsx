@@ -5,7 +5,7 @@ import messageIcon from "../assets/messageIcon.svg";
 import calenderIcon from "../assets/calender.svg";
 import infoIcon from '../assets/info.svg'
 import { Link, useNavigate } from "react-router-dom";
-import { Users } from "lucide-react";
+import { LayoutDashboard, List, Users } from "lucide-react";
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -23,7 +23,7 @@ const Sidebar = () => {
                 to={{pathname:'/dashboard'}}
                 className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
               >
-                <img src={dashboardIcon} alt="Dashboard Icon" />
+                <LayoutDashboard />
                 <span className="ms-3">Dashboard</span>
               </Link>
             </li>
@@ -32,7 +32,7 @@ const Sidebar = () => {
                 to={{pathname:'/payment-requests'}}
                 className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
               >
-                <img src={infoIcon} alt="Requests Icon" />
+                <List/>
                 <span className="ms-3">Requests</span>
               </Link>
             </li>
