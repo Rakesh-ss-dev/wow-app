@@ -9,6 +9,7 @@ import { LayoutDashboard, List, Users } from "lucide-react";
 
 const Sidebar = () => {
   const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem('user'));
   return (
     <>
       <aside
@@ -36,15 +37,17 @@ const Sidebar = () => {
                 <span className="ms-3">Requests</span>
               </Link>
             </li>
+            { user.isSuperUser &&
             <li>
             <Link
                 to={{pathname:'/users'}}
                 className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
               >
                 <Users/>
-                <span className="ms-3">Users</span>
+                <span className="ms-3">Coaches</span>
               </Link>
             </li>
+             } 
             <li>
             <button type="button" className="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700" aria-controls="dropdown-example" data-collapse-toggle="dropdown-example">
                   <img src={boardsIcon} alt="Borads Icon" />

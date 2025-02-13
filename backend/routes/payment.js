@@ -5,6 +5,7 @@ const Package = require('../models/Package')
 const Patient = require('../models/Patients');
 const authMiddleware = require("../middleware/authMiddleware");
 const { request } = require("http");
+const User = require("../models/User");
 const router = express.Router();
 
 require("dotenv").config();
@@ -69,7 +70,14 @@ router.get("/payment-status/:plink_id",authMiddleware, async (req, res) => {
 router.get('/get_requests',authMiddleware,async(req,res)=>{
   try{
   const user =req.user;
-  const requests = await Patient.find({ createdBy: user._id }).populate('package').exec();
+  const userData= await User.findById(user);
+  let requests
+  if(userData.isSuperUser){
+    requests = await Patient.find({}).populate(['package','createdBy']).exec();
+  }
+  else{
+    requests = await Patient.find({ createdBy: user._id }).populate('package').exec();
+  }
   res.json({success:true,requests:requests})
   }
   catch(error){

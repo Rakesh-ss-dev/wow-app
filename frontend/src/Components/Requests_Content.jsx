@@ -9,7 +9,7 @@ const Requests_Content = () => {
   const [statuses, setStatuses] = useState({});
   const SERVER_URL = import.meta.env.VITE_SERVER_URL;
   const token = localStorage.getItem("token");
-
+  const user = JSON.parse(localStorage.getItem('user'));
   const config = {
     headers: {
       Authorization: `Bearer ${token}`, // Send token in headers
@@ -94,6 +94,7 @@ const Requests_Content = () => {
               <Table.HeadCell>Price</Table.HeadCell>
               <Table.HeadCell>Status</Table.HeadCell>
               <Table.HeadCell>Created At</Table.HeadCell>
+              {user.isSuperUser && <Table.HeadCell>Created By</Table.HeadCell>}
             </Table.Head>
             <Table.Body className="divide-y">
               {requests.map((req) => (
@@ -111,6 +112,7 @@ const Requests_Content = () => {
                     {statuses[req.paymentId] || "Loading..."}
                   </Table.Cell>
                   <Table.Cell>{formatReadableDate(req.createdAt)}</Table.Cell>
+                  {user.isSuperUser && <Table.Cell>{req.createdBy.name?req.createdBy.name:"Super Admin"}</Table.Cell>}
                 </Table.Row>
               ))}
             </Table.Body>

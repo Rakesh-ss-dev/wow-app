@@ -3,6 +3,7 @@ import wowlogo from "../assets/WOW_Badge.svg";
 import userIcon from "../assets/User_Icon.svg";
 import notificationIcon from "../assets/Notification_Bell.svg";
 const Topbar = () => {
+  const user = JSON.parse(localStorage.getItem('user'))
   return (
     <>
       <nav className="fixed top-0 z-50 border-[#243c5a] border w-full px-12 bg-white">
@@ -97,7 +98,7 @@ const Topbar = () => {
           </div>
           <div className="flex items-center gap-3 md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
             <div className="text-[#373737] hidden md:block font-bold pr-2.5">
-              Mr. WOW Coach
+             {user.isSuperUser?"Super Admin":user.name}
             </div>
             <img className="w-8 h-8" src={userIcon} alt="user photo" />
             <img className="hidden md:block" src={notificationIcon} alt="Notification Icon" />
