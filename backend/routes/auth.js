@@ -25,19 +25,15 @@ router.post("/login", async (req, res) => {
 });
 
 
-// Create a new user (manually adding credentials)
 router.post("/add-user",authMiddleware, async (req, res) => {
   const { email, password,mobile ,name } = req.body;
   try {
-    // Check if the user already exists
     let user = await User.findOne({ email });
     if (user) return res.status(400).json({ success:false,error: "User already exists" });
 
-    // Hash the password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Create new user
     user = new User({
       email,
       password: hashedPassword,
