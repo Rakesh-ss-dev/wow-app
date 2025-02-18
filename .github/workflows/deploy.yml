@@ -16,14 +16,14 @@ jobs:
     - name: Set up SSH key for AWS access
       run: |
         mkdir -p ~/.ssh
-        echo "$AWS_PRIVATE_KEY" > ~/.ssh/aws_key.pem
+        echo "$AWS_SSH_KEY" > ~/.ssh/aws_key.pem
         chmod 600 ~/.ssh/aws_key.pem
         # Disable strict host checking to prevent interactive prompts during SSH
         echo -e "Host *\n  StrictHostKeyChecking no\n  UserKnownHostsFile=/dev/null" >> ~/.ssh/config
 
     - name: SSH into AWS and deploy
       run: |
-        ssh -i ~/.ssh/aws_key.pem -o StrictHostKeyChecking=no $AWS_USER@$AWS_HOST << 'EOF'
+        ssh -i ~/.ssh/aws_key.pem -o StrictHostKeyChecking=no $AWS_SSH_USER@$AWS_SSH_HOST << 'EOF'
         cd /home/ubuntu/wow-app
         git pull origin main
         cd backend && npm install && pm2 restart wow-backend
