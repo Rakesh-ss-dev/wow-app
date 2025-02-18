@@ -1,33 +1,33 @@
-name: Deploy to AWS
+name: Deploy MERN App to AWS
 
 on:
   push:
     branches:
       - main
 
-defaults:
-  run:
-    working-directory: ./
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Deploy to Server
-        run: |
-          ssh -o StrictHostKeyChecking=no ubuntu@13.235.70.194 << 'EOF'
-            cd /home/ubuntu/wow-app
-            git pull origin main
-            cd backend
-            npm install
-            pm2 restart wow-backend
-            cd ../frontend
-            npm install
-            npm run build
-            sudo cp -r dist/* /var/www/html/wow-frontend
-            sudo systemctl restart nginx
-          EOF
+    - name: Set up SSH key for AWS access
+      run: |
+        mkdir -p ~/.ssh
+        echo "$AWS_PRIVATE_KEY" > ~/.ssh/aws_key.pem
+        chmod 600 ~/.ssh/aws_key.pem
+        # Disable strict host checking to prevent interactive prompts during SSH
+        echo -e "Host *\n  StrictHostKeyChecking no\n  UserKnownHostsFile=/dev/null" >> ~/.ssh/config
+
+    - name: SSH into AWS and deploy
+      run: |
+        ssh -i ~/.ssh/aws_key.pem -o StrictHostKeyChecking=no $AWS_USER@$AWS_HOST << 'EOF'
+        cd /home/ubuntu/wow-app
+        git pull origin main
+        cd backend && npm install && pm2 restart wow-backend
+        cd ../frontend && npm install && npm run build
+        sudo cp -r dist/* /var/www/html/wow-frontend/
+        sudo systemctl restart nginx
+        EOF
