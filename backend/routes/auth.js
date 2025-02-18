@@ -26,7 +26,7 @@ router.post("/login", async (req, res) => {
 
 
 // Create a new user (manually adding credentials)
-router.post("/add-user",authMiddleware, async (req, res) => {
+router.post("/add-user", async (req, res) => {
   const { email, password,mobile ,name } = req.body;
   try {
     // Check if the user already exists
