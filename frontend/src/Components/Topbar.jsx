@@ -12,7 +12,7 @@ const Topbar = () => {
             href="#"
             className="flex items-center space-x-3 rtl:space-x-reverse"
           >
-            <img src={wowlogo} alt="Wow Logo" />
+            {/* <img src={wowlogo} alt="Wow Logo" /> */}
           </a>
           <div className="flex md:order-2">
             <button

@@ -1,8 +1,8 @@
 const express = require("express");
 const Razorpay = require("razorpay");
 const crypto = require("crypto");
-const Package = require('../models/Package')
-const Patient = require('../models/Patients');
+const Package = require("../models/Package");
+const Patient = require("../models/Patients");
 const authMiddleware = require("../middleware/authMiddleware");
 const { request } = require("http");
 const User = require("../models/User");
@@ -18,36 +18,42 @@ const razorpay = new Razorpay({
 // Generate Razorpay Payment Link
 router.post("/create-payment-link", authMiddleware, async (req, res) => {
   try {
-    const { name, phone , category } = req.body;
-    const category_from_db = await Package.findOne({name:category});
-    const amount=category_from_db.amount;
-    const options={
+    const { name, phone, category } = req.body;
+    const category_from_db = await Package.findOne({ name: category });
+    const amount = category_from_db.amount;
+    const options = {
       amount: amount * 100, // Amount in paise (1 INR = 100 paise)
       currency: category_from_db.currency,
       accept_partial: false,
       description: `Payment for your Golden 90 ${category_from_db.name}`,
       customer: {
-        name:name,
-        contact:`+91${phone}`,
+        name: name,
+        contact: `+91${phone}`,
       },
       notify: {
         sms: true,
         email: true,
-        whatsapp:true,
+        whatsapp: true,
       },
       reminder_enable: true,
       callback_method: "get",
-    }
+    };
     const order = await razorpay.paymentLink.create(options);
-    const patient = await new Patient({name:name,phone:phone,package:category_from_db,paymentId:order.id,createdBy:req.user})
-    await patient.save()
-    res.json({ success: true,payment_link:order.short_url });
+    const patient = await new Patient({
+      name: name,
+      phone: phone,
+      package: category_from_db,
+      paymentId: order.id,
+      createdBy: req.user,
+    });
+    await patient.save();
+    res.json({ success: true, payment_link: order.short_url });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 });
 
-router.get("/payment-status/:plink_id",authMiddleware, async (req, res) => {
+router.get("/payment-status/:plink_id", authMiddleware, async (req, res) => {
   try {
     const { plink_id } = req.params;
     const paymentLink = await razorpay.paymentLink.fetch(plink_id);
@@ -66,22 +72,31 @@ router.get("/payment-status/:plink_id",authMiddleware, async (req, res) => {
   }
 });
 
-
-router.get('/get_requests',authMiddleware,async(req,res)=>{
-  try{
-  const user =req.user;
-  const userData= await User.findById(user);
-  let requests
-  if(userData.isSuperUser){
-    requests = await Patient.find({}).populate(['package','createdBy']).exec();
+router.get("/get_requests", authMiddleware, async (req, res) => {
+  try {
+    const user = req.user;
+    const userData = await User.findById(user);
+    let requests;
+    if (userData.isSuperUser) {
+      requests = await Patient.find({})
+        .populate(["package", "createdBy"])
+        .exec();
+    } else {
+      requests = await Patient.find({ createdBy: user._id })
+        .populate("package")
+        .exec();
+    }
+    let output = [];
+    await Promise.all(
+      requests.map(async (request) => {
+        const paymentLink = await razorpay.paymentLink.fetch(request.paymentId);
+        let tempoutput = { ...request._doc, status: paymentLink.status };
+        output.push(tempoutput);
+      })
+    );
+    res.json({ success: true, requests: output });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
-  else{
-    requests = await Patient.find({ createdBy: user._id }).populate('package').exec();
-  }
-  res.json({success:true,requests:requests})
-  }
-  catch(error){
-    res.status(500).json({success:false,message:error.message})
-  }
-})
+});
 module.exports = router;

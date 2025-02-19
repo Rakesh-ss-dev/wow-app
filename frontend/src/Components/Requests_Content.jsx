@@ -39,35 +39,6 @@ const Requests_Content = () => {
     }
   };
 
-  // Fetch payment statuses
-  const fetchStatuses = async () => {
-    if (requests.length === 0) return;
-
-    try {
-      const statusPromises = requests.map(async (req) => {
-        if (req.paymentId) {
-          try {
-            const response = await axios.get(
-              `${SERVER_URL}/payment/payment-status/${req.paymentId}`,
-              config,
-            );
-            return { [req.paymentId]: response.data.status };
-          } catch (error) {
-            console.error(`Error fetching status for ${req.paymentId}:`, error);
-            return { [req.paymentId]: "Error" };
-          }
-        }
-        return { [req.paymentId]: "N/A" };
-      });
-
-      const results = await Promise.all(statusPromises);
-      const statusUpdates = Object.assign({}, ...results);
-      setStatuses(statusUpdates);
-    } catch (error) {
-      console.error("Error fetching statuses:", error);
-    }
-  };
-
   useEffect(() => {
     if (!token) {
       navigate("/");
@@ -76,11 +47,9 @@ const Requests_Content = () => {
 
   useEffect(() => {
     getRequest();
+    console.log(requests);
   }, []);
 
-  useEffect(() => {
-    fetchStatuses();
-  }, [requests]);
 
   return (
     <div className="flex h-full items-center justify-center bg-slate-300 p-4 sm:ml-64">
@@ -109,10 +78,10 @@ const Requests_Content = () => {
                     {req.package.amount} ({req.package.currency})
                   </Table.Cell>
                   <Table.Cell>
-                    {statuses[req.paymentId] || "Loading..."}
+                    {req.status}
                   </Table.Cell>
                   <Table.Cell>{formatReadableDate(req.createdAt)}</Table.Cell>
-                  {user.isSuperUser && <Table.Cell>{req.createdBy.name?req.createdBy.name:"Super Admin"}</Table.Cell>}
+                  {user.isSuperUser && <Table.Cell>{req.createdBy?.name ?? "Super Admin"}</Table.Cell>}
                 </Table.Row>
               ))}
             </Table.Body>
