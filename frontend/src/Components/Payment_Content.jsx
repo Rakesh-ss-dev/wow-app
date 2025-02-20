@@ -67,15 +67,15 @@ const Payment_Content = () => {
     const selectedOption = options.find((option) => option.value === category);
     if (selectedOption) {
       const amount = parseInt(selectedOption.price);
-      const taxAmount = (selectedOption.price * (18 / 100));
+      const taxAmount = parseFloat((selectedOption.price * (18 / 100)));
       setPrice(amount.toFixed(2));
       setTax(taxAmount.toFixed(2));
       setFinalAmount((amount + taxAmount).toFixed(2));
     }
   }, [category]);
   useEffect(() => {
-    const discountPrice = price * (discount / 100);
-    const taxAmount = (price - discountPrice) * (18 / 100);
+    const discountPrice = parseFloat(price * (discount / 100));
+    const taxAmount = parseFloat((price - discountPrice) * (18 / 100));
     setDiscountAmount(discountPrice.toFixed(2));
     setTax(taxAmount.toFixed(2));
     setFinalAmount((price - discountPrice + taxAmount).toFixed(2));
