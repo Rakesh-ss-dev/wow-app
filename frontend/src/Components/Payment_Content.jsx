@@ -67,14 +67,14 @@ const Payment_Content = () => {
     const selectedOption = options.find((option) => option.value === category);
     if (selectedOption) {
       const amount = parseInt(selectedOption.price);
-      const taxAmount = parseFloat((selectedOption.price * (18 / 100)));
+      const taxAmount = parseFloat(selectedOption.price * (18 / 100));
       setPrice(amount.toFixed(2));
       setTax(taxAmount.toFixed(2));
       setFinalAmount((amount + taxAmount).toFixed(2));
     }
   }, [category]);
   useEffect(() => {
-    const amount= parseInt(price);
+    const amount = parseInt(price);
     const discountPrice = parseFloat(amount * (discount / 100));
     const taxAmount = parseFloat((amount - discountPrice) * (18 / 100));
     setDiscountAmount(discountPrice.toFixed(2));
@@ -130,7 +130,7 @@ const Payment_Content = () => {
           phone,
           category,
           discount,
-          finalAmount
+          finalAmount,
         },
         config,
       );
@@ -229,6 +229,8 @@ const Payment_Content = () => {
                   </label>
                   <input
                     type="number"
+                    min="0"
+                    max="100"
                     value={discount}
                     onChange={(e) => setDiscount(e.target.value)}
                     name="discount"
@@ -271,28 +273,28 @@ const Payment_Content = () => {
             </div>
           )}
         </div>
-        <div className="p-4 w-[30%]">
-              <Table striped>
-                <Table.Body>
-                  <Table.Row>
-                    <Table.Cell>Amount</Table.Cell>
-                    <Table.Cell>{price}</Table.Cell>
-                  </Table.Row>
-                  <Table.Row>
-                    <Table.Cell>Discount</Table.Cell>
-                    <Table.Cell>{discountAmount}</Table.Cell>
-                  </Table.Row>
-                  <Table.Row>
-                    <Table.Cell>Tax(18%)</Table.Cell>
-                    <Table.Cell>{tax}</Table.Cell>
-                  </Table.Row>
-                  <Table.Row>
-                    <Table.Cell>Final Price</Table.Cell>
-                    <Table.Cell>{finalAmount}</Table.Cell>
-                  </Table.Row>
-                </Table.Body>
-              </Table>
-            </div>
+        <div className="w-[30%] p-4">
+          <Table striped>
+            <Table.Body>
+              <Table.Row>
+                <Table.Cell>Amount</Table.Cell>
+                <Table.Cell>{price}</Table.Cell>
+              </Table.Row>
+              <Table.Row>
+                <Table.Cell>Discount</Table.Cell>
+                <Table.Cell>{discountAmount}</Table.Cell>
+              </Table.Row>
+              <Table.Row>
+                <Table.Cell>Tax(18%)</Table.Cell>
+                <Table.Cell>{tax}</Table.Cell>
+              </Table.Row>
+              <Table.Row>
+                <Table.Cell>Final Price</Table.Cell>
+                <Table.Cell>{finalAmount}</Table.Cell>
+              </Table.Row>
+            </Table.Body>
+          </Table>
+        </div>
       </div>
     </>
   );
