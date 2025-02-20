@@ -18,14 +18,21 @@ const razorpay = new Razorpay({
 // Generate Razorpay Payment Link
 router.post("/create-payment-link", authMiddleware, async (req, res) => {
   try {
-    const { name, phone, category } = req.body;
+    const { name, phone, category, discount } = req.body;
     const category_from_db = await Package.findOne({ name: category });
     const amount = category_from_db.amount;
+    const discountAmount = amount * (discount / 100);
+    const tax = (amount - discountAmount) * (18 / 100);
+    const finalAmount = amount - discountAmount + tax;
+    let description = `Payment for your Golden 90 ${category_from_db.name} | Tax: 18%`;
+    if (discount > 0) {
+      description += ` | Discount: ${discount}%`;
+    }
     const options = {
-      amount: amount * 100, // Amount in paise (1 INR = 100 paise)
+      amount: finalAmount * 100,
       currency: category_from_db.currency,
       accept_partial: false,
-      description: `Payment for your Golden 90 ${category_from_db.name}`,
+      description: description,
       customer: {
         name: name,
         contact: `+91${phone}`,
@@ -44,6 +51,7 @@ router.post("/create-payment-link", authMiddleware, async (req, res) => {
       phone: phone,
       package: category_from_db,
       paymentId: order.id,
+      discount:discount,
       createdBy: req.user,
     });
     await patient.save();
@@ -90,7 +98,11 @@ router.get("/get_requests", authMiddleware, async (req, res) => {
     await Promise.all(
       requests.map(async (request) => {
         const paymentLink = await razorpay.paymentLink.fetch(request.paymentId);
-        let tempoutput = { ...request._doc, status: paymentLink.status };
+        let tempoutput = {
+          ...request._doc,
+          status: paymentLink.status,
+          url: paymentLink.short_url,
+        };
         output.push(tempoutput);
       })
     );

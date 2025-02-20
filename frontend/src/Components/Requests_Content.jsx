@@ -1,12 +1,11 @@
 import axios from "axios";
 import { Table } from "flowbite-react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const Requests_Content = () => {
   const navigate = useNavigate();
   const [requests, setRequests] = useState([]);
-  const [statuses, setStatuses] = useState({});
   const SERVER_URL = import.meta.env.VITE_SERVER_URL;
   const token = localStorage.getItem("token");
   const user = JSON.parse(localStorage.getItem('user'));
@@ -21,11 +20,11 @@ const Requests_Content = () => {
     return date.toLocaleString("en-IN", {
       timeZone: "Asia/Kolkata",
       day: "numeric",
-      month: "short",
+      month: "numeric",
       year: "numeric",
       hour: "2-digit",
       minute: "2-digit",
-      hour12: true,
+      hour12: false,
     });
   };
 
@@ -38,7 +37,20 @@ const Requests_Content = () => {
       console.error("Error fetching requests:", error);
     }
   };
+  const tableRef = useRef(null);
 
+  useEffect(() => {
+    if (tableRef.current) {
+      $(tableRef.current).DataTable({
+        paging: true,
+        searching: true,
+        ordering: true,
+        info: true,
+        destroy: true,
+        order:[[5,'desc']]
+      });
+    }
+  }, [requests]);
   useEffect(() => {
     if (!token) {
       navigate("/");
@@ -47,7 +59,6 @@ const Requests_Content = () => {
 
   useEffect(() => {
     getRequest();
-    console.log(requests);
   }, []);
 
 
@@ -55,32 +66,32 @@ const Requests_Content = () => {
     <div className="flex h-full items-center justify-center bg-slate-300 p-4 sm:ml-64">
       {requests.length > 0 ? (
         <div className="overflow-x-auto">
-          <Table striped>
+          <Table ref={tableRef} striped>
             <Table.Head>
               <Table.HeadCell>Name</Table.HeadCell>
               <Table.HeadCell>Phone</Table.HeadCell>
               <Table.HeadCell>Package</Table.HeadCell>
-              <Table.HeadCell>Price</Table.HeadCell>
+              <Table.HeadCell>Discount</Table.HeadCell>
               <Table.HeadCell>Status</Table.HeadCell>
               <Table.HeadCell>Created At</Table.HeadCell>
+              <Table.HeadCell>URL</Table.HeadCell>
               {user.isSuperUser && <Table.HeadCell>Created By</Table.HeadCell>}
             </Table.Head>
             <Table.Body className="divide-y">
-              {requests.map((req) => (
+              {requests.map((req,id) => (
                 <Table.Row
-                  key={req.id}
+                  key={id}
                   className="bg-white dark:border-gray-700 dark:bg-gray-800"
                 >
                   <Table.Cell>{req.name}</Table.Cell>
                   <Table.Cell>{req.phone}</Table.Cell>
                   <Table.Cell>{req.package.name}</Table.Cell>
-                  <Table.Cell>
-                    {req.package.amount} ({req.package.currency})
-                  </Table.Cell>
+                  <Table.Cell>{req.discount}</Table.Cell>
                   <Table.Cell>
                     {req.status}
                   </Table.Cell>
                   <Table.Cell>{formatReadableDate(req.createdAt)}</Table.Cell>
+                  <Table.Cell>{req.url}</Table.Cell>
                   {user.isSuperUser && <Table.Cell>{req.createdBy?.name ?? "Super Admin"}</Table.Cell>}
                 </Table.Row>
               ))}
