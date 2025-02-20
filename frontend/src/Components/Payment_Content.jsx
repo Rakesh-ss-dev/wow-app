@@ -74,11 +74,12 @@ const Payment_Content = () => {
     }
   }, [category]);
   useEffect(() => {
-    const discountPrice = parseFloat(price * (discount / 100));
-    const taxAmount = parseFloat((price - discountPrice) * (18 / 100));
+    const amount= parseInt(price);
+    const discountPrice = parseFloat(amount * (discount / 100));
+    const taxAmount = parseFloat((amount - discountPrice) * (18 / 100));
     setDiscountAmount(discountPrice.toFixed(2));
     setTax(taxAmount.toFixed(2));
-    setFinalAmount((price - discountPrice + taxAmount).toFixed(2));
+    setFinalAmount((amount - discountPrice + taxAmount).toFixed(2));
   }, [discount]);
   const options = [
     { label: "Select category", value: "", price: 0 },
