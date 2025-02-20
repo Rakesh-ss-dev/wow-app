@@ -142,7 +142,7 @@ const Payment_Content = () => {
   };
   return (
     <>
-      <div className="flex h-full items-center justify-center bg-slate-300 p-4 sm:ml-64">
+      <div className="flex h-full items-center justify-center flex-col md:flex-row bg-slate-300 p-4 sm:ml-64">
         <div className="relative max-h-full w-full max-w-md p-4">
           <div className="rounded-lg bg-white shadow-sm dark:bg-gray-700">
             <div className="flex items-center justify-between rounded-t border-b border-gray-200 p-4 dark:border-gray-600 md:p-5">
@@ -273,7 +273,7 @@ const Payment_Content = () => {
             </div>
           )}
         </div>
-        <div className="w-[30%] p-4">
+        <div className="w-full md:w-[30%] p-4">
           <Table striped>
             <Table.Body>
               <Table.Row>
