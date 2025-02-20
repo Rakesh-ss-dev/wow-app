@@ -9,7 +9,7 @@ const Payment_Content = () => {
   const [category, setCategory] = useState("");
   const [isPhoneValid, setIsPhoneValid] = useState(false);
   const [isCategoryValid, setIsCategoryValid] = useState(false);
-  const [price, setPrice] = useState();
+  const [price, setPrice] = useState(0);
   const [discount, setDiscount] = useState(0);
   const [discountAmount, setDiscountAmount] = useState(0);
   const [tax, setTax] = useState(0);
