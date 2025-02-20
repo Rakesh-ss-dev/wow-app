@@ -18,12 +18,8 @@ const razorpay = new Razorpay({
 // Generate Razorpay Payment Link
 router.post("/create-payment-link", authMiddleware, async (req, res) => {
   try {
-    const { name, phone, category, discount } = req.body;
+    const { name, phone, category, discount,finalAmount } = req.body;
     const category_from_db = await Package.findOne({ name: category });
-    const amount = category_from_db.amount;
-    const discountAmount = amount * (discount / 100);
-    const tax = (amount - discountAmount) * (18 / 100);
-    const finalAmount = amount - discountAmount + tax;
     let description = `Payment for your Golden 90 ${category_from_db.name} | Tax: 18%`;
     if (discount > 0) {
       description += ` | Discount: ${discount}%`;

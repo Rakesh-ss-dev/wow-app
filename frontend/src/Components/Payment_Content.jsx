@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Button } from "flowbite-react";
+import { Button, Table, TableHead } from "flowbite-react";
 import { Clipboard, ClipboardCheck } from "lucide-react";
 const SERVER_URL = import.meta.env.VITE_SERVER_URL;
 const Payment_Content = () => {
@@ -9,7 +9,11 @@ const Payment_Content = () => {
   const [category, setCategory] = useState("");
   const [isPhoneValid, setIsPhoneValid] = useState(false);
   const [isCategoryValid, setIsCategoryValid] = useState(false);
-  const [discount,setDiscount] = useState(0) 
+  const [price, setPrice] = useState();
+  const [discount, setDiscount] = useState(0);
+  const [discountAmount, setDiscountAmount] = useState(0);
+  const [tax, setTax] = useState(0);
+  const [finalAmount, setFinalAmount] = useState(0);
   const [phoneError, setPhoneError] = useState(
     "Please enter a valid Indian mobile number.",
   );
@@ -59,6 +63,45 @@ const Payment_Content = () => {
     }
     setCategory(value);
   };
+  useEffect(() => {
+    const selectedOption = options.find((option) => option.value === category);
+    if (selectedOption) {
+      const amount = parseInt(selectedOption.price);
+      const taxAmount = (selectedOption.price * (18 / 100));
+      setPrice(amount.toFixed(2));
+      setTax(taxAmount.toFixed(2));
+      setFinalAmount((amount + taxAmount).toFixed(2));
+    }
+  }, [category]);
+  useEffect(() => {
+    const discountPrice = price * (discount / 100);
+    const taxAmount = (price - discountPrice) * (18 / 100);
+    setDiscountAmount(discountPrice.toFixed(2));
+    setTax(taxAmount.toFixed(2));
+    setFinalAmount((price - discountPrice + taxAmount).toFixed(2));
+  }, [discount]);
+  const options = [
+    { label: "Select category", value: "", price: 0 },
+    { label: "Golden 90 - 9,110", value: "Basic", price: 9110 },
+    { label: "Golden 90 Premium - 11,665", value: "Premium", price: 11665 },
+    { label: "Golden 90 Elite - 16,665", value: "Elite", price: 16665 },
+    { label: "Golden 90 Couple - 12,833", value: "Couple", price: 12833 },
+    {
+      label: "Golden 90-Premium Couple - 16,448",
+      value: "Premium_Couple",
+      price: 16448,
+    },
+    {
+      label: "Golden 90 Elite Couple - 23,498",
+      value: "Elite_Couple",
+      price: 23498,
+    },
+    {
+      label: "Golden 90 International (USA) - $200",
+      value: "International_USA",
+      price: 200,
+    },
+  ];
   const validateMobile = (number) => {
     const mobilePattern = /^[6-9]\d{9}$/;
     if (mobilePattern.test(number)) {
@@ -86,6 +129,7 @@ const Payment_Content = () => {
           phone,
           category,
           discount,
+          finalAmount
         },
         config,
       );
@@ -163,20 +207,11 @@ const Payment_Content = () => {
                     className="focus:ring-primary-500 focus:border-primary-500 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-500 dark:bg-gray-600 dark:text-white dark:placeholder-gray-400"
                     required
                   >
-                    <option value="">Select category</option>
-                    <option value="Basic">Golden 90 - 9,110</option>
-                    <option value="Premium">Golden 90 Premium - 11,665</option>
-                    <option value="Elite">Golden 90 Elite - 16,665</option>
-                    <option value="Couple">Golden 90 Couple - 12,833</option>
-                    <option value="Premium_Couple">
-                      Golden 90-Premium Couple - 16,448
-                    </option>
-                    <option value="Elite_Couple">
-                      Golden 90 Elite Couple - 23,498
-                    </option>
-                    <option value="International_USA">
-                      Golden 90 International (USA) - $200
-                    </option>
+                    {options.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
                   </select>
                   {isCategoryValid ? (
                     ""
@@ -235,6 +270,28 @@ const Payment_Content = () => {
             </div>
           )}
         </div>
+        <div className="p-4 w-[30%]">
+              <Table striped>
+                <Table.Body>
+                  <Table.Row>
+                    <Table.Cell>Amount</Table.Cell>
+                    <Table.Cell>{price}</Table.Cell>
+                  </Table.Row>
+                  <Table.Row>
+                    <Table.Cell>Discount</Table.Cell>
+                    <Table.Cell>{discountAmount}</Table.Cell>
+                  </Table.Row>
+                  <Table.Row>
+                    <Table.Cell>Tax(18%)</Table.Cell>
+                    <Table.Cell>{tax}</Table.Cell>
+                  </Table.Row>
+                  <Table.Row>
+                    <Table.Cell>Final Price</Table.Cell>
+                    <Table.Cell>{finalAmount}</Table.Cell>
+                  </Table.Row>
+                </Table.Body>
+              </Table>
+            </div>
       </div>
     </>
   );
