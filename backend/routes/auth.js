@@ -8,7 +8,6 @@ const router = express.Router();
 // Login
 router.post("/login", async (req, res) => {
     const { email, password } = req.body;
-
     try {
       const user = await User.findOne({ email });
       if (!user) return res.status(400).json({ error: "User not found" });

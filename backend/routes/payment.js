@@ -25,7 +25,7 @@ router.post("/create-payment-link", authMiddleware, async (req, res) => {
       description += ` | Discount: ${discount}%`;
     }
     const options = {
-      amount: finalAmount * 100,
+      amount: parseInt(finalAmount) * 100,
       currency: category_from_db.currency,
       accept_partial: false,
       description: description,
@@ -53,6 +53,7 @@ router.post("/create-payment-link", authMiddleware, async (req, res) => {
     await patient.save();
     res.json({ success: true, payment_link: order.short_url });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ success: false, message: error.message });
   }
 });
