@@ -7,13 +7,13 @@ import AppSidebar from "./AppSidebar";
 
 const LayoutContent: React.FC = () => {
   const { isExpanded, isHovered, isMobileOpen } = useSidebar();
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem("token");
   const navigate = useNavigate();
-  useEffect(()=>{
-    if(!token){
-      navigate('/')
+  useEffect(() => {
+    if (!token) {
+      navigate("/");
     }
-  },[token,navigate])
+  }, [token, navigate]);
   return (
     <div className="min-h-screen xl:flex">
       <div>

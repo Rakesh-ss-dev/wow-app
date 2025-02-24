@@ -18,6 +18,7 @@ type Request = {
   discount: number;
   status: string;
   url: string;
+  createdAt: string;
   createdBy?: {
     name: string;
   };
@@ -26,12 +27,24 @@ type Request = {
 interface RequestDataTableProps {
   data: Request[];
 }
+const formatReadableDate = (isoString: string): string => {
+  if (!isoString) return "Invalid Date"; // Prevent errors for empty values
+
+  const date = new Date(isoString);
+  return date.toLocaleString("en-IN", {
+    timeZone: "Asia/Kolkata",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false, // Keep 24-hour format
+  });
+};
 
 const RequestDataTable: React.FC<RequestDataTableProps> = ({ data }) => {
   const user = localStorage.getItem("user");
-  const parsedUser = user ? JSON.parse(user) : null; // Ensure null safety
-
-
+  const parsedUser = user ? JSON.parse(user) : null;
   const columns = [
     {
       accessorKey: "name",
@@ -50,12 +63,18 @@ const RequestDataTable: React.FC<RequestDataTableProps> = ({ data }) => {
       header: "Discount",
     },
     {
-        accessorKey: "url",
-        header: "URI",
+      accessorKey: "url",
+      header: "URI",
     },
     {
       accessorKey: "status",
       header: "Status",
+    },
+    {
+      accessorKey: "createdAt",
+      header: "Created At",
+      cell: (info: CellContext<Request, string | undefined>) =>
+        formatReadableDate(info.getValue()||''),
     },
     ...(parsedUser?.isSuperUser
       ? [
@@ -138,7 +157,9 @@ const RequestDataTable: React.FC<RequestDataTableProps> = ({ data }) => {
         >
           Previous
         </button>
-        <span className="text-gray-700">Page {table.getState().pagination.pageIndex + 1}</span>
+        <span className="text-gray-700">
+          Page {table.getState().pagination.pageIndex + 1}
+        </span>
         <button
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
