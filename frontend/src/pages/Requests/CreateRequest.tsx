@@ -150,7 +150,7 @@ const CreateRequest: React.FC = () => {
               type="number"
               min="0"
               max="100"
-              value={discount}
+              value={discount==0?"":discount}
               onChange={(e) => setDiscount(Number(e.target.value))}
               placeholder="Discount (%)"
               required
