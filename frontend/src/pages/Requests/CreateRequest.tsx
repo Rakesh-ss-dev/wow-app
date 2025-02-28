@@ -20,7 +20,6 @@ interface Option {
 }
 
 const options: Option[] = [
-  { label: "Select category", value: "", price: 0 },
   { label: "Golden 90 - 9,110", value: "Basic", price: 9110 },
   { label: "Golden 90 Premium - 11,665", value: "Premium", price: 11665 },
   { label: "Golden 90 Elite - 16,665", value: "Elite", price: 16665 },
@@ -40,6 +39,17 @@ const options: Option[] = [
     value: "International_USA",
     price: 200,
   },
+  {
+    label:"DHMPC - DIAMOND HEALTH MASTERY PLAN - 24999",
+    value: "DHMPC",
+    price:24999
+  },
+  {
+    label:"DHMPC - DIAMOND HEALTH MASTERY PLAN for COUPLE - 39999",
+    value: "DHMPC_Couple",
+    price:39999
+  },
+  
 ];
 
 const CreateRequest: React.FC = () => {
@@ -123,7 +133,7 @@ const CreateRequest: React.FC = () => {
 
   return (
     <div className="flex h-full items-center justify-center flex-col md:flex-row p-4">
-      <div className="relative max-h-full w-full max-w-md p-4">
+      <div className="relative max-h-full w-full max-w-[34rem] p-4">
         <div className="rounded-lg bg-white shadow-sm dark:bg-gray-700 p-5">
           <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
             Initiate Payment
