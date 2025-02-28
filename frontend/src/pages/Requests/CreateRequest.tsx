@@ -153,7 +153,7 @@ const copyToClipboard = () => {
 
   return (
     <div className="flex h-full items-center justify-center flex-col md:flex-row p-4">
-      <div className="relative max-h-full w-full max-w-[34rem] p-4">
+      <div className="relative max-h-full w-full max-w-md p-4">
         <div className="rounded-lg bg-white shadow-sm dark:bg-gray-700 p-5">
           <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
             Initiate Payment
