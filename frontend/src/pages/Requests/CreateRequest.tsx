@@ -67,14 +67,34 @@ const CreateRequest: React.FC = () => {
   const [copied, setCopied] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
-  const copyToClipboard = () => {
+  const copyFallback = (text:string) => {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand("copy");
+    document.body.removeChild(textarea);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+};
+
+const copyToClipboard = () => {
     if (paymentLink) {
-      navigator.clipboard.writeText(paymentLink).then(() => {
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-      });
+        if (navigator.clipboard?.writeText) {
+            navigator.clipboard.writeText(paymentLink)
+                .then(() => {
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                })
+                .catch(() => copyFallback(paymentLink));
+        } else {
+            copyFallback(paymentLink);
+        }
+    } else {
+        console.error("paymentLink is undefined.");
     }
-  };
+};
+
 
   const validateMobile = (number: string) => {
     const mobilePattern = /^[6-9]\d{9}$/;
