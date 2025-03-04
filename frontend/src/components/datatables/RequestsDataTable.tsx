@@ -17,6 +17,7 @@ type Request = {
   };
   discount: number;
   status: string;
+  amount:number;
   createdAt: string;
   createdBy?: {
     name: string;
@@ -58,8 +59,8 @@ const RequestDataTable: React.FC<RequestDataTableProps> = ({ data }) => {
       header: "Package",
     },
     {
-      accessorKey: "discount",
-      header: "Discount",
+      accessorKey:"amount",
+      header:"Amount",
     },
     {
       accessorKey: "status",

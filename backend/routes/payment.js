@@ -99,6 +99,7 @@ router.get("/get_requests", authMiddleware, async (req, res) => {
           ...request._doc,
           status: paymentLink.status,
           url: paymentLink.short_url,
+          amount: (paymentLink.amount/100).toFixed(2)
         };
         output.push(tempoutput);
       })
