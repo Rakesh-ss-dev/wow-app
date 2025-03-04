@@ -7,7 +7,7 @@ interface Request {
   package: {
     name: string;
   };
-  discount: number;
+  amount:string;
   status: string;
   createdAt: string;
   createdBy?: {

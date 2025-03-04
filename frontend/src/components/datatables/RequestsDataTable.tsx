@@ -15,9 +15,8 @@ type Request = {
   package: {
     name: string;
   };
-  discount: number;
   status: string;
-  amount:number;
+  amount:string;
   createdAt: string;
   createdBy?: {
     name: string;
