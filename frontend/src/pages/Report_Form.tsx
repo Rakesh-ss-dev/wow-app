@@ -21,7 +21,7 @@ const MyComponent = () => {
     e.preventDefault();
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/payment/user-status/${selectedUser}`,
+        `${SERVER_URL}/api/payment/user-status/${selectedUser}`,
         {
           responseType: "blob",
         }
