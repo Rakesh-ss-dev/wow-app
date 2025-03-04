@@ -10,7 +10,6 @@ interface Request {
   discount: number;
   status: string;
   createdAt: string;
-  url: string;
   createdBy?: {
     name: string;
   };
