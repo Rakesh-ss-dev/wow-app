@@ -6,6 +6,7 @@ const Patient = require("../models/Patients");
 const authMiddleware = require("../middleware/authMiddleware");
 const { request } = require("http");
 const User = require("../models/User");
+const Patients = require("../models/Patients");
 const router = express.Router();
 
 require("dotenv").config();
@@ -58,20 +59,27 @@ router.post("/create-payment-link", authMiddleware, async (req, res) => {
   }
 });
 
-router.get("/payment-status/:plink_id", authMiddleware, async (req, res) => {
+router.get("/user-status/:user_id", async (req, res) => {
   try {
-    const { plink_id } = req.params;
-    const paymentLink = await razorpay.paymentLink.fetch(plink_id);
-    res.json({
-      success: true,
-      payment_id: paymentLink.id,
-      status: paymentLink.status, // Possible values: created, sent, paid, expired
-      amount: paymentLink.amount / 100, // Convert from paise
-      currency: paymentLink.currency,
-      email: paymentLink.customer?.email,
-      created_at: new Date(paymentLink.created_at * 1000).toLocaleString(),
-      updated_at: new Date(paymentLink.updated_at * 1000).toLocaleString(),
-    });
+    const { user_id } = req.params;
+    const coach = await User.findById(user_id);
+    const requests = await Patients.find({createdBy:coach});
+    let output = [];
+    await Promise.all(
+      requests.map(async (request) => {
+        const paymentLink = await razorpay.paymentLink.fetch(request.paymentId);
+        if(paymentLink?.status=='paid'){
+        let tempoutput = {
+          ...request._doc,
+          status: paymentLink.status,
+          url: paymentLink.short_url,
+          amount: (paymentLink.amount/100).toFixed(2)
+        };
+        output.push(tempoutput);
+      }
+      })
+    );
+    res.json({success:true,output})
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
