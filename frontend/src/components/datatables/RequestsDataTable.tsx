@@ -47,7 +47,7 @@ const RequestDataTable: React.FC<RequestDataTableProps> = ({ data }) => {
   const columns = [
     {
       accessorKey: "name",
-      header: "Name",
+      header: "Client",
     },
     {
       accessorKey: "phone",
