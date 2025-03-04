@@ -18,6 +18,7 @@ import RequestList from "./pages/Requests/RequestList";
 import UserDataTableRes from "./pages/UserDataTable/UserDataTableRes";
 import CreateRequest from "./pages/Requests/CreateRequest";
 import CreateCoach from "./pages/UserDataTable/CreateCoach";
+import Report_Form from "./pages/Report_Form";
 
 export default function App() {
   return (
@@ -33,6 +34,7 @@ export default function App() {
             <Route path="/blank" element={<Blank />} />
             <Route path="/requests" element={<RequestList />} />
             <Route path="/create-request" element={<CreateRequest />} />
+            <Route path='/generate-report' element={<Report_Form/>}/>
 
             {/* Forms */}
             <Route path="/form-elements" element={<FormElements />} />
