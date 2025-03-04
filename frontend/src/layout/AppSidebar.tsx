@@ -37,6 +37,12 @@ const navItems: NavItem[] = [
     path: "/coaches",
     role: "Super-User",
   },
+  {
+    icon: <UserCircleIcon />,
+    name: "Reports",
+    path: "/generate-report",
+    role: "Super-User",
+  },
 
   // {
   //   name: "Forms",
