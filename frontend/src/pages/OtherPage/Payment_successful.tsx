@@ -36,7 +36,7 @@ const Payment_successful = () => {
           <p className="text-center uppercase text-[#04A593] font-bold">
             Payment Successfull!
           </p>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col md:flex-row items-center gap-4">
             <div className="w-2/3">
               <p className="font-bold">Welcome to WoW!</p>
               <p>
@@ -44,7 +44,7 @@ const Payment_successful = () => {
                 happier you. Our team will reach out soon with the next steps.
               </p>
             </div>
-            <div className="w-1/3">
+            <div className="w-1/3 hidden md:block">
               <img src=".\images\wowshape.svg" alt="" />
             </div>
           </div>
