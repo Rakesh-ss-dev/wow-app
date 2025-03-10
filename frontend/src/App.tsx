@@ -19,6 +19,7 @@ import UserDataTableRes from "./pages/UserDataTable/UserDataTableRes";
 import CreateRequest from "./pages/Requests/CreateRequest";
 import CreateCoach from "./pages/UserDataTable/CreateCoach";
 import Report_Form from "./pages/Report_Form";
+import Payment_successful from "./pages/OtherPage/Payment_successful";
 
 export default function App() {
   return (
@@ -59,6 +60,7 @@ export default function App() {
           </Route>
           {/* Fallback Route */}
           <Route path="*" element={<NotFound />} />
+          <Route path="/payment_success" element={<Payment_successful/>}/>
         </Routes>
       </Router>
     </>

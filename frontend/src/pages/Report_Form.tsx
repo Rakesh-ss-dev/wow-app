@@ -75,10 +75,8 @@ const MyComponent = () => {
           <Label>User</Label>
           <Select options={options} onChange={changeUser} required={true} />
         </div>
-
         <Button type="submit">Generate Report</Button>
       </Form>
-      {selectedUser && <p>Selected User ID: {selectedUser}</p>}
     </div>
   );
 };

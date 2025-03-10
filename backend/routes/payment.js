@@ -8,6 +8,7 @@ const Patients = require("../models/Patients");
 const XLSX = require("xlsx");
 const fs = require("fs");
 const path = require("path");
+const nodemailer = require("nodemailer");
 const router = express.Router();
 
 require("dotenv").config();
@@ -59,6 +60,7 @@ router.post("/create-payment-link", authMiddleware, async (req, res) => {
       },
       reminder_enable: true,
       callback_method: "get",
+      callback_url: `${process.env.FRONTEND_URL}/payment_success`,
     };
     const order = await razorpay.paymentLink.create(options);
     const patient = await new Patient({
@@ -76,7 +78,59 @@ router.post("/create-payment-link", authMiddleware, async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 });
-
+function replacePlaceholders(template, data) {
+  return template.replace(/\[([^\]]+)\]/g, (match, key) => data[key] || match);
+}
+router.post("/success", async (req, res) => {
+  try {
+    const payment = await Patient.findOne({
+      paymentId: req.body.razorpay_payment_link_id,
+    })
+      .populate(["createdBy", "package"])
+      .exec();
+    const amount = payment.package.amount;
+    const discount = payment.discount;
+    const discountAmount = (amount * (discount / 100)).toFixed();
+    const taxAmount = ((amount - discountAmount) * 0.18).toFixed();
+    const finalAmount = (
+      parseFloat(amount) -
+      parseFloat(discountAmount) +
+      parseFloat(taxAmount)
+    ).toFixed();
+    const emailData = {
+      "Client Name": payment.name,
+      "Coach's Name": payment.createdBy.name,
+      "Package Name": payment.package.name,
+      "Base Amount": amount.toFixed(2),
+      "Discount Amount": parseFloat(discountAmount).toFixed(2),
+      "GST Amount": parseFloat(taxAmount).toFixed(2),
+      "Final Amount": parseFloat(finalAmount).toFixed(2),
+    };
+    let emailTemplate = fs.readFileSync(
+      "mailers/successful_payment.html",
+      "utf8"
+    );
+    const emailContent = replacePlaceholders(emailTemplate, emailData);
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+    const mailOptions = {
+      from: `"WOW Purchase" <${process.env.EMAIL_USER}>`,
+      to: `${payment.createdBy.email}`,
+      subject: `Payment Confirmation – ${payment.name}`,
+      html: emailContent,
+    };
+    await transporter.sendMail(mailOptions);
+    res.json({ success: true, message: "Email sent successfully!" });
+  } catch (error) {
+    console.error("Error sending email:", error);
+    res.status(500).json({ success: false, message: "Failed to send email" });
+  }
+});
 router.get("/user-status/:user_id", async (req, res) => {
   try {
     const { user_id } = req.params;
@@ -140,17 +194,19 @@ router.get("/get_requests", authMiddleware, async (req, res) => {
   try {
     const user = req.user;
     const userData = await User.findById(user);
+
     let requests;
     if (userData.isSuperUser) {
       requests = await Patient.find({})
         .populate(["package", "createdBy"])
         .exec();
     } else {
-      requests = await Patient.find({ createdBy: user._id })
+      requests = await Patient.find({ createdBy: userData._id })
         .populate("package")
         .exec();
     }
     const output = await getPaymentDetails(requests);
+    console.log(output);
     res.json({ success: true, requests: output });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
