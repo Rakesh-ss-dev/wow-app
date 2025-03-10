@@ -7,6 +7,7 @@ const PatientSchema = new mongoose.Schema(
       paymentId: { type: String, required: true, unique: true },
       package: { type: mongoose.Schema.Types.ObjectId, ref: "Package" },
       discount:{type:Number,default:0},
+      notified:{type:Boolean,default:false},
       createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, // Track who added the patient
     },
     { timestamps: true } // Automatically adds createdAt & updatedAt

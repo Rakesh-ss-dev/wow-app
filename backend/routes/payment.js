@@ -88,6 +88,8 @@ router.post("/success", async (req, res) => {
     })
       .populate(["createdBy", "package"])
       .exec();
+    if(payment.notified===false)
+    {
     const amount = payment.package.amount;
     const discount = payment.discount;
     const discountAmount = (amount * (discount / 100)).toFixed();
@@ -125,7 +127,13 @@ router.post("/success", async (req, res) => {
       html: emailContent,
     };
     await transporter.sendMail(mailOptions);
+    payment.notified=true;
+    await payment.save();
     res.json({ success: true, message: "Email sent successfully!" });
+  }
+  else{
+    res.json({ success: true, message: "Already Notified!" });
+  }
   } catch (error) {
     console.error("Error sending email:", error);
     res.status(500).json({ success: false, message: "Failed to send email" });
