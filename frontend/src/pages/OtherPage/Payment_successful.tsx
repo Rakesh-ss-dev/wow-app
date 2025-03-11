@@ -1,33 +1,61 @@
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router";
 import GridShape from "../../components/common/GridShape";
+import Button from "../../components/ui/button/Button";
+
 const Payment_successful = () => {
+
   const [searchParams] = useSearchParams();
+  const [isDownloadActive, setIsDownloadActive] = useState(false);
   const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
   const paramsObject = Object.fromEntries(searchParams.entries());
+  const hasRun = useRef(false);
+
+  const handleDownloadInvoice = async () => {
+    try {
+      const response = await fetch(`${SERVER_URL}/payment/generate-invoice`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(paramsObject),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to download invoice");
+      }
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "invoice.pdf";
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      setIsDownloadActive(false)
+    } catch (error) {
+      console.error("Error downloading invoice:", error);
+    }
+  };
   useEffect(() => {
+    if (hasRun.current) return;
+    hasRun.current = true;
     const sendDataToBackend = async () => {
       try {
         const response = await fetch(`${SERVER_URL}/payment/success`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(paramsObject),
         });
-
-        if (!response.ok) {
-          throw new Error("Failed to send data");
-        }
-
+        if (!response.ok) throw new Error("Failed to send data");
         const result = await response.json();
         console.log("Response from backend:", result);
+        setIsDownloadActive(true);
       } catch (error) {
         console.error("Error sending data:", error);
       }
     };
+
     sendDataToBackend();
-  }, []);
+  }, [paramsObject, SERVER_URL]);
   return (
     <>
       <div className="relative flex flex-col items-center justify-center min-h-screen p-6 overflow-hidden z-1">
@@ -50,9 +78,13 @@ const Payment_successful = () => {
           </div>
         </div>
         <div className="mx-auto w-full max-w-[242px] text-center sm:max-w-[472px]">
-          <button className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-5 py-3.5 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200">
+          <Button
+            onClick={() => handleDownloadInvoice()}
+            disabled={!isDownloadActive}
+            className="btn btn-primary"
+          >
             Download Invoice
-          </button>
+          </Button>
         </div>
         {/* <!-- Footer --> */}
         <p className="absolute text-sm text-center text-gray-500 -translate-x-1/2 bottom-6 left-1/2 dark:text-gray-400">

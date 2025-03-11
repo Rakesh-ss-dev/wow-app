@@ -8,11 +8,25 @@ const Patients = require("../models/Patients");
 const XLSX = require("xlsx");
 const fs = require("fs");
 const path = require("path");
+const { loadImage } = require("canvas");
+const PDFDocument = require("pdfkit");
 const nodemailer = require("nodemailer");
 const router = express.Router();
 
 require("dotenv").config();
+function formatToISTDate(timestamp) {
+  const date = new Date(timestamp);
 
+  return date.toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    timeZone: "Asia/Kolkata",
+  });
+}
+function replacePlaceholders(template, data) {
+  return template.replace(/\[([^\]]+)\]/g, (match, key) => data[key] || match);
+}
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET,
@@ -78,9 +92,7 @@ router.post("/create-payment-link", authMiddleware, async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 });
-function replacePlaceholders(template, data) {
-  return template.replace(/\[([^\]]+)\]/g, (match, key) => data[key] || match);
-}
+
 router.post("/success", async (req, res) => {
   try {
     const payment = await Patient.findOne({
@@ -88,55 +100,112 @@ router.post("/success", async (req, res) => {
     })
       .populate(["createdBy", "package"])
       .exec();
-    if(payment.notified===false)
-    {
-    const amount = payment.package.amount;
-    const discount = payment.discount;
-    const discountAmount = (amount * (discount / 100)).toFixed();
-    const taxAmount = ((amount - discountAmount) * 0.18).toFixed();
+    if (payment.notified === false) {
+      const amount = payment.package.amount.toFixed(2);
+      const discount = payment.discount.toFixed(2);
+      const discountAmount = (amount * (discount / 100)).toFixed(2);
+      const taxAmount = ((amount - discountAmount) * 0.18).toFixed(2);
+      const finalAmount = (
+        parseFloat(amount) -
+        parseFloat(discountAmount) +
+        parseFloat(taxAmount)
+      ).toFixed(2);
+      const emailData = {
+        "Client Name": payment.name,
+        "Coach's Name": payment.createdBy.name,
+        "Package Name": payment.package.name,
+        "Base Amount": amount.toFixed(2),
+        "Discount Amount": parseFloat(discountAmount).toFixed(2),
+        "GST Amount": parseFloat(taxAmount).toFixed(2),
+        "Final Amount": parseFloat(finalAmount).toFixed(2),
+      };
+      let emailTemplate = fs.readFileSync(
+        "mailers/successful_payment.html",
+        "utf8"
+      );
+      const emailContent = replacePlaceholders(emailTemplate, emailData);
+      const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS,
+        },
+      });
+      const mailOptions = {
+        from: `"WOW Purchase" <${process.env.EMAIL_USER}>`,
+        to: `${payment.createdBy.email}`,
+        subject: `Payment Confirmation - ${payment.name}`,
+        html: emailContent,
+      };
+      await transporter.sendMail(mailOptions);
+      payment.notified = true;
+      await payment.save();
+      res.json({ success: true, message: "Email sent successfully!" });
+    } else {
+      res.json({ success: true, message: "Already Notified!" });
+    }
+  } catch (error) {
+    console.error("Error sending email:", error);
+    res.status(500).json({ success: false, message: "Failed to send email" });
+  }
+});
+
+router.post("/generate-invoice", async (req, res) => {
+  try {
+    const payment = await Patient.findOne({
+      paymentId: req.body.razorpay_payment_link_id,
+    })
+      .populate(["createdBy", "package"])
+      .exec();
+    const amount = payment.package.amount.toFixed(2);
+    const discount = payment.discount.toFixed(2);
+    const discountAmount = (amount * (discount / 100)).toFixed(2);
+    const tempAmount = (amount - discountAmount).toFixed(2);
+    const taxAmount = (tempAmount * 0.18).toFixed(2);
     const finalAmount = (
       parseFloat(amount) -
       parseFloat(discountAmount) +
       parseFloat(taxAmount)
-    ).toFixed();
-    const emailData = {
-      "Client Name": payment.name,
-      "Coach's Name": payment.createdBy.name,
-      "Package Name": payment.package.name,
-      "Base Amount": amount.toFixed(2),
-      "Discount Amount": parseFloat(discountAmount).toFixed(2),
-      "GST Amount": parseFloat(taxAmount).toFixed(2),
-      "Final Amount": parseFloat(finalAmount).toFixed(2),
-    };
-    let emailTemplate = fs.readFileSync(
-      "mailers/successful_payment.html",
-      "utf8"
-    );
-    const emailContent = replacePlaceholders(emailTemplate, emailData);
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
+    ).toFixed(2);
+    const paymentDate = formatToISTDate(payment.createdAt);
+    const paymentStatus = req.body.razorpay_payment_link_status;
+    const image = await loadImage("invoice/Invoice.jpg");
+    const invoiceData = [
+      { text: req.body.razorpay_payment_id, x: 240, y: 465 },
+      { text: paymentDate, x: 130, y: 490 },
+      { text: "1", x: 90, y: 730 },
+      { text: paymentDate, x: 200, y: 730 },
+      { text: payment.package.name, x: 450, y: 730 },
+      { text: "1", x: 730, y: 730 },
+      { text: amount, x: 880, y: 730 },
+      { text: amount, x: 800, y: 880 },
+      { text: discountAmount, x: 800, y: 915 },
+      { text: tempAmount, x: 800, y: 970 },
+      { text: taxAmount, x: 800, y: 1005 },
+      { text: finalAmount, x: 800, y: 1060 },
+      { text: finalAmount, x: 800, y: 1095 },
+      { text: "1", x: 150, y: 1300 },
+      { text: finalAmount, x: 430, y: 1300 },
+      { text: paymentDate, x: 660, y: 1300 },
+      { text: paymentStatus, x: 880, y: 1300 },
+    ];
+    const pdfDoc = new PDFDocument({ size: [image.width, image.height] });
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", "attachment; filename=invoice.pdf");
+    pdfDoc.pipe(res);
+    pdfDoc.image("invoice/Invoice.jpg", 0, 0, {
+      width: image.width,
+      height: image.height,
     });
-    const mailOptions = {
-      from: `"WOW Purchase" <${process.env.EMAIL_USER}>`,
-      to: `${payment.createdBy.email}`,
-      subject: `Payment Confirmation – ${payment.name}`,
-      html: emailContent,
-    };
-    await transporter.sendMail(mailOptions);
-    payment.notified=true;
-    await payment.save();
-    res.json({ success: true, message: "Email sent successfully!" });
-  }
-  else{
-    res.json({ success: true, message: "Already Notified!" });
-  }
+    pdfDoc.registerFont("Poppins", 'fonts/Poppins-Regular.ttf');
+    pdfDoc.font("Poppins").fontSize(20).fillColor("black");
+    invoiceData.forEach(({ text, x, y }) => {
+      pdfDoc.text(text, x, y);
+    });
+    pdfDoc.end();
   } catch (error) {
-    console.error("Error sending email:", error);
-    res.status(500).json({ success: false, message: "Failed to send email" });
+    console.error("Error generating invoice:", error);
+    res.status(500).json({ error: "Failed to generate invoice" });
   }
 });
 router.get("/user-status/:user_id", async (req, res) => {
