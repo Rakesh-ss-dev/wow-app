@@ -1,27 +1,21 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import axios from "axios";
-import Select from "../components/form/Select";
 import Label from "../components/form/Label";
 import Form from "../components/form/Form";
 import Button from "../components/ui/button/Button";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
-interface Option {
-  label: string;
-  value: string;
-}
 
 const MyComponent = () => {
-  const [options, setOptions] = useState<Option[]>([]);
-  const [selectedUser, setSelectedUser] = useState<string>("");
-
-  const changeUser = (value: any) => {
-    setSelectedUser(value);
-  };
+  const [startDate, setStartDate] = useState(new Date());
+  const [endDate, setEndDate] = useState(new Date());
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.get(
-        `${SERVER_URL}/payment/user-status/${selectedUser}`,
+      const response = await axios.post(
+        `${SERVER_URL}/payment/user-status/`,
+        { startDate, endDate },
         {
           responseType: "blob",
         }
@@ -47,33 +41,27 @@ const MyComponent = () => {
       alert("Failed to download the report. Please try again.");
     }
   };
-  useEffect(() => {
-    const getUsers = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const res = await axios.get(`${SERVER_URL}/auth/users`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        const formattedOptions: Option[] = res.data.users.map((user: any) => ({
-          label: user.name,
-          value: user._id,
-        }));
-
-        setOptions(formattedOptions);
-      } catch (error) {
-        console.error("Error fetching users:", error);
-      }
-    };
-    getUsers();
-  }, []);
 
   return (
     <div>
       <Form onSubmit={handleSubmit}>
         <div className="mb-3">
-          <Label>User</Label>
-          <Select options={options} onChange={changeUser} required={true} />
+          <Label>Start Date</Label>
+          <DatePicker
+            selected={startDate}
+            onChange={(date: any) => setStartDate(date)}
+            className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            dateFormat="dd/MM/yyyy"
+          />
+        </div>
+        <div className="mb-3">
+          <Label>End Date</Label>
+          <DatePicker
+            selected={endDate}
+            onChange={(date: any) => setEndDate(date)}
+            className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            dateFormat="dd/MM/yyyy"
+          />
         </div>
         <Button type="submit">Generate Report</Button>
       </Form>

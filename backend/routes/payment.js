@@ -100,6 +100,7 @@ router.post("/success", async (req, res) => {
     })
       .populate(["createdBy", "package"])
       .exec();
+    console.log(payment);
     if (payment.notified === false) {
       const amount = payment.package.amount.toFixed(2);
       const discount = payment.discount.toFixed(2);
@@ -114,7 +115,7 @@ router.post("/success", async (req, res) => {
         "Client Name": payment.name,
         "Coach's Name": payment.createdBy.name,
         "Package Name": payment.package.name,
-        "Base Amount": amount.toFixed(2),
+        "Base Amount": parseFloat(amount).toFixed(2),
         "Discount Amount": parseFloat(discountAmount).toFixed(2),
         "GST Amount": parseFloat(taxAmount).toFixed(2),
         "Final Amount": parseFloat(finalAmount).toFixed(2),
@@ -197,7 +198,7 @@ router.post("/generate-invoice", async (req, res) => {
       width: image.width,
       height: image.height,
     });
-    pdfDoc.registerFont("Poppins", 'fonts/Poppins-Regular.ttf');
+    pdfDoc.registerFont("Poppins", "fonts/Poppins-Regular.ttf");
     pdfDoc.font("Poppins").fontSize(20).fillColor("black");
     invoiceData.forEach(({ text, x, y }) => {
       pdfDoc.text(text, x, y);
@@ -208,63 +209,61 @@ router.post("/generate-invoice", async (req, res) => {
     res.status(500).json({ error: "Failed to generate invoice" });
   }
 });
-router.get("/user-status/:user_id", async (req, res) => {
+router.post("/user-status/", async (req, res) => {
   try {
-    const { user_id } = req.params;
-    const coach = await User.findById(user_id);
-    const requests = await Patients.find({ createdBy: coach })
-      .populate("package")
-      .exec();
-    const output = await getPaymentDetails(requests);
-    const paidOutput = output.filter((item) => item.status === "paid");
-    if (paidOutput.length == 0) {
-      res.json({
-        success: true,
-        message: "No successful payments found in the selected date range.",
-      });
-    } else {
-      const data = paidOutput.map((item) => ({
-        Name: item.name,
-        Phone: item.phone,
-        PaymentID: item.paymentId,
-        Package: item.package.name,
-        Discount: item.discount + "%",
-        Amount: parseFloat(item.amount),
-      }));
-      const totalAmount = data.reduce(
-        (sum, row) => parseFloat(sum.toFixed(2)) + parseFloat(row.Amount),
-        0
-      );
-      data.push({
-        Name: "TOTAL",
-        Phone: "",
-        PaymentID: "",
-        Package: "",
-        Discount: "",
-        Amount: totalAmount,
-      });
-      // Create a new workbook and worksheet
-      const wb = XLSX.utils.book_new();
-      const ws = XLSX.utils.json_to_sheet(data);
+    const users = await User.find({ isSuperUser: false }).exec();
+    const wb = XLSX.utils.book_new();
 
-      // Append the worksheet to the workbook
-      XLSX.utils.book_append_sheet(wb, ws, "Payments");
+    for (const user of users) {
+        const requests = await Patients.find({ createdBy: user._id })
+            .populate("package")
+            .exec();
 
-      // Define file path
-      const filePath = path.join(__dirname, "payments.xlsx");
+        const output = await getPaymentDetails(requests);
+        const paidOutput = output.filter((item) => item.status === "paid");
 
-      // Write Excel file
-      XLSX.writeFile(wb, filePath);
+        if (paidOutput.length > 0) {
+            const data = paidOutput.map((item) => ({
+                Name: item.name,
+                Phone: item.phone,
+                PaymentID: item.paymentId,
+                Package: item.package.name,
+                Discount: item.discount + "%",
+                Date: formatToISTDate(item.createdAt),
+                Amount: parseFloat(item.amount),
+            }));
 
-      // Send file to frontend
-      res.download(filePath, `payments.xlsx`, (err) => {
+            const totalAmount = data.reduce(
+                (sum, row) => parseFloat(sum.toFixed(2)) + parseFloat(row.Amount),
+                0
+            );
+
+            data.push({
+                Name: "TOTAL",
+                Phone: "",
+                PaymentID: "",
+                Package: "",
+                Discount: "",
+                Date:"",
+                Amount: totalAmount,
+            });
+
+            const ws = XLSX.utils.json_to_sheet(data);
+            XLSX.utils.book_append_sheet(wb, ws, user.name);
+        }
+    }
+
+    const filePath = path.join(__dirname, "payments.xlsx");
+    XLSX.writeFile(wb, filePath);
+
+    res.download(filePath, `payments.xlsx`, (err) => {
         if (err) console.error("Error sending file:", err);
         fs.unlinkSync(filePath); // Delete the file after sending
-      });
-    }
-  } catch (error) {
+    });
+
+} catch (error) {
     res.status(500).json({ success: false, message: error.message });
-  }
+}
 });
 
 router.get("/get_requests", authMiddleware, async (req, res) => {
