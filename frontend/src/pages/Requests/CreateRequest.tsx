@@ -100,11 +100,13 @@ const copyToClipboard = () => {
     const mobilePattern = /^[6-9]\d{9}$/;
     setIsPhoneValid(mobilePattern.test(number));
     setPhone(number);
+    setPaymentLink('');
   };
 
   const validateSelect = (value: string) => {
     setIsCategoryValid(value !== "");
     setCategory(value);
+    setPaymentLink('');
   };
 
   useEffect(() => {
@@ -115,6 +117,7 @@ const copyToClipboard = () => {
       setPrice(amount);
       setTax(taxAmount);
       setFinalAmount(amount + taxAmount);
+      setPaymentLink('');
     }
   }, [category]);
 
@@ -124,6 +127,7 @@ const copyToClipboard = () => {
     setDiscountAmount(discountPrice);
     setTax(taxAmount);
     setFinalAmount(price - discountPrice + taxAmount);
+    setPaymentLink('');
   }, [discount, price]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -183,7 +187,7 @@ const copyToClipboard = () => {
               value={discount==0?"":discount}
               onChange={(e) => setDiscount(Number(e.target.value))}
               placeholder="Discount (%)"
-              required
+              step=".01"
               className="input"
             />
             <Button

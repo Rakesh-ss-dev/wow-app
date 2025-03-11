@@ -45,7 +45,7 @@ router.post("/create-payment-link", authMiddleware, async (req, res) => {
       description += ` | Discount: ${discount}%`;
     }
     const options = {
-      amount: parseInt(finalAmount) * 100,
+      amount: parseFloat(finalAmount) * 100,
       currency: category_from_db.currency,
       accept_partial: false,
       description: description,
