@@ -38,7 +38,7 @@ const MyComponent = () => {
       document.body.removeChild(link);
     } catch (error) {
       console.error("Error downloading file:", error);
-      alert("Failed to download the report. Please try again.");
+      alert("No Entries present between the dates.");
     }
   };
 

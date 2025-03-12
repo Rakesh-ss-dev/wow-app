@@ -209,13 +209,17 @@ router.post("/generate-invoice", async (req, res) => {
     res.status(500).json({ error: "Failed to generate invoice" });
   }
 });
+
+
 router.post("/user-status/", async (req, res) => {
   try {
+    const {startDate,endDate}=req.body;
     const users = await User.find({ isSuperUser: false }).exec();
     const wb = XLSX.utils.book_new();
 
     for (const user of users) {
-        const requests = await Patients.find({ createdBy: user._id })
+        const requests = await Patients.find({ createdBy: user._id,createdAt:{$gte: startDate, 
+          $lt: endDate} })
             .populate("package")
             .exec();
 
@@ -258,7 +262,7 @@ router.post("/user-status/", async (req, res) => {
 
     res.download(filePath, `payments.xlsx`, (err) => {
         if (err) console.error("Error sending file:", err);
-        fs.unlinkSync(filePath); // Delete the file after sending
+        fs.unlinkSync(filePath);
     });
 
 } catch (error) {
