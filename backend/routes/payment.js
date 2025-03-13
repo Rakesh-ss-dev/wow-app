@@ -214,6 +214,7 @@ router.post("/generate-invoice", async (req, res) => {
 router.post("/user-status/", async (req, res) => {
   try {
     const {startDate,endDate}=req.body;
+    console.log(startDate,endDate);
     const users = await User.find({ isSuperUser: false }).exec();
     const wb = XLSX.utils.book_new();
 
