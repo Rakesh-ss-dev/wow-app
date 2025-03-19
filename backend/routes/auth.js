@@ -3,8 +3,14 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const authMiddleware = require("../middleware/authMiddleware");
+const generator = require("generate-password");
+const fs = require("fs");
+const nodemailer = require("nodemailer");
 
 const router = express.Router();
+function replacePlaceholders(template, data) {
+  return template.replace(/\[([^\]]+)\]/g, (match, key) => data[key] || match);
+}
 // Login
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
@@ -80,22 +86,34 @@ router.post("/change-password", authMiddleware, async (req, res) => {
 
     // Validate inputs
     if (!oldPassword || !newPassword) {
-      return res.status(400).json({ error: "Both old and new passwords are required." });
+      return res
+        .status(400)
+        .json({ error: "Both old and new passwords are required." });
     }
     if (newPassword.length < 8) {
-      return res.status(400).json({ error: "New password must be at least 8 characters long." });
+      return res
+        .status(400)
+        .json({ error: "New password must be at least 8 characters long." });
     }
     if (!/[A-Z]/.test(newPassword)) {
-      return res.status(400).json({ error: "New password must contain at least one uppercase letter." });
+      return res.status(400).json({
+        error: "New password must contain at least one uppercase letter.",
+      });
     }
     if (!/[a-z]/.test(newPassword)) {
-      return res.status(400).json({ error: "New password must contain at least one lowercase letter." });
+      return res.status(400).json({
+        error: "New password must contain at least one lowercase letter.",
+      });
     }
     if (!/\d/.test(newPassword)) {
-      return res.status(400).json({ error: "New password must contain at least one number." });
+      return res
+        .status(400)
+        .json({ error: "New password must contain at least one number." });
     }
     if (!/[!@#$%^&*]/.test(newPassword)) {
-      return res.status(400).json({ error: "New password must contain at least one special character." });
+      return res.status(400).json({
+        error: "New password must contain at least one special character.",
+      });
     }
 
     // Find user by ID
@@ -119,6 +137,50 @@ router.post("/change-password", authMiddleware, async (req, res) => {
   } catch (error) {
     console.error("Error changing password:", error);
     res.status(500).json({ error: "Internal server error." });
+  }
+});
+
+router.post("/forgot", async (req, res) => {
+  try {
+    const user = await User.findOne({ email: req.body.email });
+    if (user) {
+      const password = generator.generate({
+        length: 10,
+        numbers: true,
+      });
+      const salt = await bcrypt.genSalt(10);
+      const encPwd = await bcrypt.hash(password, salt);
+      const emailData = {
+        "User's Name": user.name,
+        TemporaryPassword: password,
+      };
+      let emailTemplate = fs.readFileSync(
+        "mailers/forgot_password.html",
+        "utf8"
+      );
+      const emailContent = replacePlaceholders(emailTemplate, emailData);
+      const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS,
+        },
+      });
+      const mailOptions = {
+        from: `"WOW" <${process.env.EMAIL_USER}>`,
+        to: `${user.email}`,
+        subject: `Forgot Password || WOW`,
+        html: emailContent,
+      };
+      await transporter.sendMail(mailOptions);
+      user.password = encPwd;
+      await user.save();
+      res.json({ success: true, message: "Temporary Password Sent Successfully!" });
+    } else {
+      res.status(404).json({ error: "User not Found" });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 
