@@ -63,7 +63,7 @@ export default function Blank() {
     };
     getChartData();
   }, []);
-  
+
   return (
     <div>
       <PageMeta title="WOW dashboard" description="Wow Dashboard" />
@@ -72,12 +72,13 @@ export default function Blank() {
         <div className="mx-auto w-full max-w-[630px] text-center">
           <div>
             <div id="chart">
-              <ReactApexChart
+              {/* <ReactApexChart
+
                 options={chartData.options}
                 series={chartData.series}
                 type="area"
                 height={350}
-              />
+              /> */}
             </div>
             <div id="html-dist"></div>
           </div>
