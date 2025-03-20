@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import PageBreadcrumb from "../components/common/PageBreadCrumb";
 import PageMeta from "../components/common/PageMeta";
 import axios from "axios";
+import ReactApexChart from "react-apexcharts";
 const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
 const token = localStorage.getItem("token");
 export default function Blank() {
@@ -31,7 +32,7 @@ export default function Blank() {
     options: {
       chart: {
         height: 350,
-        type: "area" as const,
+        type: "bar" as const,
         toolbar: {
           show: false,
         },
@@ -71,13 +72,13 @@ export default function Blank() {
         <div className="mx-auto w-full max-w-[630px] text-center">
           <div>
             <div id="chart">
-              {/* <ReactApexChart
+              <ReactApexChart
 
                 options={chartData.options}
                 series={chartData.series}
-                type="area"
+                type="bar"
                 height={350}
-              /> */}
+              />
             </div>
             <div id="html-dist"></div>
           </div>

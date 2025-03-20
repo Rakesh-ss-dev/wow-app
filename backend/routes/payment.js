@@ -294,45 +294,52 @@ router.get("/get_requests", authMiddleware, async (req, res) => {
 });
 
 router.get("/chart-data", authMiddleware, async (req, res) => {
-  try{
-  const user = req.user;
-  const userData = await User.findById(user);
-  let requests;
-  if (userData.isSuperUser) {
-    requests = await Patient.find({}).populate(["package", "createdBy"]).exec();
-  } else {
-    requests = await Patient.find({ createdBy: userData._id })
-      .populate("package")
-      .exec();
-  }
-  const output = await getPaymentDetails(requests);
-  const paidOutput = output.filter((out) => out.status == "paid");
-  const users = await User.find({ isSuperUser: false });
-  const result = [];
-  await users.map(async (user) => {
-    const tempResult = {};
-    tempResult.name = user.name;
-    tempResult.data = [];
-    let today = new Date();
-    let lastMonth = new Date();
-    lastMonth.setMonth(today.getMonth() - 1);
-    while (lastMonth <= today) {
-      const prevDate = new Date(lastMonth);
-      lastMonth.setDate(lastMonth.getDate() + 1);
-      const temp = paidOutput.filter(
-        (t) =>t.createdBy.name === user.name &&
-          new Date(t.createdAt) >= new Date(prevDate) &&
-          new Date(t.createdAt) <= new Date(lastMonth)
-      );
-      tempResult.data.push(temp.length);
+  try {
+    const user = req.user;
+    const userData = await User.findById(user);
+    let requests;
+    if (userData.isSuperUser) {
+      requests = await Patient.find({})
+        .populate(["package", "createdBy"])
+        .exec();
+    } else {
+      requests = await Patient.find({ createdBy: userData._id })
+        .populate("package")
+        .exec();
     }
-    result.push(tempResult);
-  });
-  res.json({ success: true, series: result });
-}
-catch(error){
-  res.status(500).json({ success: false, message: error.message });
-}
+    const output = await getPaymentDetails(requests);
+    const paidOutput = output.filter((out) => out.status == "paid");
+    let users=[];
+    if (userData.isSuperUser) {
+      users = await User.find({ isSuperUser: false });
+    } else {
+      users.push(userData);
+    }
+    const result = [];
+    await users.map(async (user) => {
+      const tempResult = {};
+      tempResult.name = user.name;
+      tempResult.data = [];
+      let today = new Date();
+      let lastMonth = new Date();
+      lastMonth.setMonth(today.getMonth() - 1);
+      while (lastMonth <= today) {
+        const prevDate = new Date(lastMonth);
+        lastMonth.setDate(lastMonth.getDate() + 1);
+        const temp = paidOutput.filter(
+          (t) =>
+            t.createdBy.name === user.name &&
+            new Date(t.createdAt) >= new Date(prevDate) &&
+            new Date(t.createdAt) <= new Date(lastMonth)
+        );
+        tempResult.data.push(temp.length);
+      }
+      result.push(tempResult);
+    });
+    res.json({ success: true, series: result });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
 });
 
 module.exports = router;
