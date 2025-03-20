@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import PageBreadcrumb from "../components/common/PageBreadCrumb";
 import PageMeta from "../components/common/PageMeta";
-import ReactApexChart from "react-apexcharts";
 import axios from "axios";
 const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
 const token = localStorage.getItem("token");
