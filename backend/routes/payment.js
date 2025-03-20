@@ -56,8 +56,6 @@ const getPaymentDetails = async (requests) => {
   return output;
 };
 
-
-
 // Generate Razorpay Payment Link
 router.post("/create-payment-link", authMiddleware, async (req, res) => {
   try {
@@ -97,11 +95,9 @@ router.post("/create-payment-link", authMiddleware, async (req, res) => {
     await patient.save();
     res.json({ success: true, payment_link: order.short_url });
   } catch (error) {
-    console.log(error);
     res.status(500).json({ success: false, message: error.message });
   }
 });
-
 
 //payment Success
 router.post("/success", async (req, res) => {
@@ -111,7 +107,6 @@ router.post("/success", async (req, res) => {
     })
       .populate(["createdBy", "package"])
       .exec();
-    console.log(payment);
     if (payment.notified === false) {
       const amount = payment.package.amount.toFixed(2);
       const discount = payment.discount.toFixed(2);
@@ -161,7 +156,6 @@ router.post("/success", async (req, res) => {
     res.status(500).json({ success: false, message: "Failed to send email" });
   }
 });
-
 
 //generate Invoice
 router.post("/generate-invoice", async (req, res) => {
@@ -223,59 +217,58 @@ router.post("/generate-invoice", async (req, res) => {
   }
 });
 
-
-
 //generating reports from start date to end date
 router.post("/user-status/", async (req, res) => {
   try {
-    const {startDate,endDate}=req.body;
-    console.log(startDate,endDate);
+    const { startDate, endDate } = req.body;
     const users = await User.find({ isSuperUser: false }).exec();
     const wb = XLSX.utils.book_new();
     for (const user of users) {
-        const requests = await Patients.find({ createdBy: user._id,createdAt:{$gte: startDate, 
-          $lt: endDate} })
-            .populate("package")
-            .exec();
-        const output = await getPaymentDetails(requests);
-        const paidOutput = output.filter((item) => item.status === "paid");
-        if (paidOutput.length > 0) {
-            const data = paidOutput.map((item) => ({
-                Name: item.name,
-                Phone: item.phone,
-                PaymentID: item.paymentId,
-                Package: item.package.name,
-                Discount: item.discount + "%",
-                Date: formatToISTDate(item.createdAt),
-                Amount: parseFloat(item.amount),
-            }));
-            const totalAmount = data.reduce(
-                (sum, row) => parseFloat(sum.toFixed(2)) + parseFloat(row.Amount),
-                0
-            );
-            data.push({
-                Name: "TOTAL",
-                Phone: "",
-                PaymentID: "",
-                Package: "",
-                Discount: "",
-                Date:"",
-                Amount: totalAmount,
-            });
+      const requests = await Patients.find({
+        createdBy: user._id,
+        createdAt: { $gte: startDate, $lt: endDate },
+      })
+        .populate("package")
+        .exec();
+      const output = await getPaymentDetails(requests);
+      const paidOutput = output.filter((item) => item.status === "paid");
+      if (paidOutput.length > 0) {
+        const data = paidOutput.map((item) => ({
+          Name: item.name,
+          Phone: item.phone,
+          PaymentID: item.paymentId,
+          Package: item.package.name,
+          Discount: item.discount + "%",
+          Date: formatToISTDate(item.createdAt),
+          Amount: parseFloat(item.amount),
+        }));
+        const totalAmount = data.reduce(
+          (sum, row) => parseFloat(sum.toFixed(2)) + parseFloat(row.Amount),
+          0
+        );
+        data.push({
+          Name: "TOTAL",
+          Phone: "",
+          PaymentID: "",
+          Package: "",
+          Discount: "",
+          Date: "",
+          Amount: totalAmount,
+        });
 
-            const ws = XLSX.utils.json_to_sheet(data);
-            XLSX.utils.book_append_sheet(wb, ws, user.name);
-        }
+        const ws = XLSX.utils.json_to_sheet(data);
+        XLSX.utils.book_append_sheet(wb, ws, user.name);
+      }
     }
     const filePath = path.join(__dirname, "payments.xlsx");
     XLSX.writeFile(wb, filePath);
     res.download(filePath, `payments.xlsx`, (err) => {
-        if (err) console.error("Error sending file:", err);
-        fs.unlinkSync(filePath);
+      if (err) console.error("Error sending file:", err);
+      fs.unlinkSync(filePath);
     });
-} catch (error) {
+  } catch (error) {
     res.status(500).json({ success: false, message: error.message });
-}
+  }
 });
 
 //get Details of all the requests made
@@ -283,7 +276,6 @@ router.get("/get_requests", authMiddleware, async (req, res) => {
   try {
     const user = req.user;
     const userData = await User.findById(user);
-
     let requests;
     if (userData.isSuperUser) {
       requests = await Patient.find({})
@@ -295,10 +287,52 @@ router.get("/get_requests", authMiddleware, async (req, res) => {
         .exec();
     }
     const output = await getPaymentDetails(requests);
-    console.log(output);
     res.json({ success: true, requests: output });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 });
+
+router.get("/chart-data", authMiddleware, async (req, res) => {
+  try{
+  const user = req.user;
+  const userData = await User.findById(user);
+  let requests;
+  if (userData.isSuperUser) {
+    requests = await Patient.find({}).populate(["package", "createdBy"]).exec();
+  } else {
+    requests = await Patient.find({ createdBy: userData._id })
+      .populate("package")
+      .exec();
+  }
+  const output = await getPaymentDetails(requests);
+  const paidOutput = output.filter((out) => out.status == "paid");
+  const users = await User.find({ isSuperUser: false });
+  const result = [];
+  await users.map(async (user) => {
+    const tempResult = {};
+    tempResult.name = user.name;
+    tempResult.data = [];
+    let today = new Date();
+    let lastMonth = new Date();
+    lastMonth.setMonth(today.getMonth() - 1);
+    while (lastMonth <= today) {
+      const prevDate = new Date(lastMonth);
+      lastMonth.setDate(lastMonth.getDate() + 1);
+      const temp = paidOutput.filter(
+        (t) =>t.createdBy.name === user.name &&
+          new Date(t.createdAt) >= new Date(prevDate) &&
+          new Date(t.createdAt) <= new Date(lastMonth)
+      );
+      tempResult.data.push(temp.length);
+    }
+    result.push(tempResult);
+  });
+  res.json({ success: true, series: result });
+}
+catch(error){
+  res.status(500).json({ success: false, message: error.message });
+}
+});
+
 module.exports = router;
