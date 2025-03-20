@@ -14,6 +14,8 @@ const nodemailer = require("nodemailer");
 const router = express.Router();
 
 require("dotenv").config();
+
+// helper function to format date to indian format
 function formatToISTDate(timestamp) {
   const date = new Date(timestamp);
 
@@ -24,14 +26,19 @@ function formatToISTDate(timestamp) {
     timeZone: "Asia/Kolkata",
   });
 }
+
+//helper function to replace placeholders in email template
 function replacePlaceholders(template, data) {
   return template.replace(/\[([^\]]+)\]/g, (match, key) => data[key] || match);
 }
+
+// creating a razorpay object with keys
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
+//helper function get all payment status from razorpay API
 const getPaymentDetails = async (requests) => {
   let output = [];
   await Promise.all(
@@ -48,6 +55,8 @@ const getPaymentDetails = async (requests) => {
   );
   return output;
 };
+
+
 
 // Generate Razorpay Payment Link
 router.post("/create-payment-link", authMiddleware, async (req, res) => {
@@ -93,6 +102,8 @@ router.post("/create-payment-link", authMiddleware, async (req, res) => {
   }
 });
 
+
+//payment Success
 router.post("/success", async (req, res) => {
   try {
     const payment = await Patient.findOne({
@@ -151,6 +162,8 @@ router.post("/success", async (req, res) => {
   }
 });
 
+
+//generate Invoice
 router.post("/generate-invoice", async (req, res) => {
   try {
     const payment = await Patient.findOne({
@@ -211,22 +224,21 @@ router.post("/generate-invoice", async (req, res) => {
 });
 
 
+
+//generating reports from start date to end date
 router.post("/user-status/", async (req, res) => {
   try {
     const {startDate,endDate}=req.body;
     console.log(startDate,endDate);
     const users = await User.find({ isSuperUser: false }).exec();
     const wb = XLSX.utils.book_new();
-
     for (const user of users) {
         const requests = await Patients.find({ createdBy: user._id,createdAt:{$gte: startDate, 
           $lt: endDate} })
             .populate("package")
             .exec();
-
         const output = await getPaymentDetails(requests);
         const paidOutput = output.filter((item) => item.status === "paid");
-
         if (paidOutput.length > 0) {
             const data = paidOutput.map((item) => ({
                 Name: item.name,
@@ -237,12 +249,10 @@ router.post("/user-status/", async (req, res) => {
                 Date: formatToISTDate(item.createdAt),
                 Amount: parseFloat(item.amount),
             }));
-
             const totalAmount = data.reduce(
                 (sum, row) => parseFloat(sum.toFixed(2)) + parseFloat(row.Amount),
                 0
             );
-
             data.push({
                 Name: "TOTAL",
                 Phone: "",
@@ -257,20 +267,18 @@ router.post("/user-status/", async (req, res) => {
             XLSX.utils.book_append_sheet(wb, ws, user.name);
         }
     }
-
     const filePath = path.join(__dirname, "payments.xlsx");
     XLSX.writeFile(wb, filePath);
-
     res.download(filePath, `payments.xlsx`, (err) => {
         if (err) console.error("Error sending file:", err);
         fs.unlinkSync(filePath);
     });
-
 } catch (error) {
     res.status(500).json({ success: false, message: error.message });
 }
 });
 
+//get Details of all the requests made
 router.get("/get_requests", authMiddleware, async (req, res) => {
   try {
     const user = req.user;
