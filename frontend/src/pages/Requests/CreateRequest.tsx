@@ -98,8 +98,8 @@ const copyToClipboard = () => {
 
   const validateMobile = (number: string) => {
     const mobilePattern = /^[6-9]\d{9}$/;
-    setIsPhoneValid(mobilePattern.test(number));
-    setPhone(number);
+    setIsPhoneValid(mobilePattern.test(number.replace(/\s+/g, '')));
+    setPhone(number.replace(/\s+/g, ''));
     setPaymentLink('');
   };
 
