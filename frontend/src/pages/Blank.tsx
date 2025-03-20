@@ -63,6 +63,7 @@ export default function Blank() {
     };
     getChartData();
   }, []);
+  
   return (
     <div>
       <PageMeta title="WOW dashboard" description="Wow Dashboard" />
