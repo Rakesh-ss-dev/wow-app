@@ -209,7 +209,7 @@ const AppSidebar: React.FC = () => {
               ref={(el) => {
                 subMenuRefs.current[`${menuType}-${index}`] = el;
               }}
-              className="overflow-hidden transition-all duration-300"
+              className="duration-300 overflow-hidden transition-all"
               style={{
                 height:
                   openSubmenu?.type === menuType && openSubmenu?.index === index
@@ -217,7 +217,7 @@ const AppSidebar: React.FC = () => {
                     : "0px",
               }}
             >
-              <ul className="mt-2 space-y-1 ml-9">
+              <ul className="ml-9 mt-2 space-y-1">
                 {nav.subItems.map((subItem) => (
                   <li key={subItem.name}>
                     <Link
@@ -229,7 +229,7 @@ const AppSidebar: React.FC = () => {
                       }`}
                     >
                       {subItem.name}
-                      <span className="flex items-center gap-1 ml-auto">
+                      <span className="flex gap-1 items-center ml-auto">
                         {subItem.new && (
                           <span
                             className={`ml-auto ${
@@ -293,7 +293,7 @@ const AppSidebar: React.FC = () => {
                 height={40}
               />
               <img
-                className="hidden dark:block"
+                className="dark:block hidden"
                 src="/images/logo/logo-dark.svg"
                 alt="Logo"
                 width={150}
@@ -310,7 +310,7 @@ const AppSidebar: React.FC = () => {
           )}
         </Link>
       </div>
-      <div className="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
+      <div className="flex flex-col duration-300 ease-linear no-scrollbar overflow-y-auto">
         <nav className="mb-6">
           <div className="flex flex-col gap-4">
             <div>
