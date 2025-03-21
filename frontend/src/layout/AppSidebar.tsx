@@ -289,15 +289,13 @@ const AppSidebar: React.FC = () => {
                 className="dark:hidden"
                 src="/images/logo/logo.svg"
                 alt="Logo"
-                width={150}
-                height={40}
+                width={75}
               />
               <img
                 className="dark:block hidden"
                 src="/images/logo/logo-dark.svg"
                 alt="Logo"
-                width={150}
-                height={40}
+                width={75}
               />
             </>
           ) : (
