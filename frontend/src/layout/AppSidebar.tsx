@@ -9,6 +9,7 @@ import {
   HorizontaLDots,
   PaperPlaneIcon,
   UserCircleIcon,
+  DocsIcon
 } from "../icons";
 
 type NavItem = {
@@ -38,7 +39,7 @@ const navItems: NavItem[] = [
     role: "Super-User",
   },
   {
-    icon: <UserCircleIcon />,
+    icon: <DocsIcon />,
     name: "Reports",
     path: "/generate-report",
     role: "Super-User",
