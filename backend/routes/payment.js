@@ -60,7 +60,6 @@ const getPaymentDetails = async (requests) => {
 router.post("/create-payment-link", authMiddleware, async (req, res) => {
   try {
     const { name, phone, category, discount, finalAmount } = req.body;
-    console.log(req.body);
     const category_from_db = await Package.findOne({ name: category });
     let description = `Payment for your Golden 90 ${category_from_db.name} | Tax: 18%`;
     if (discount > 0) {
@@ -84,7 +83,6 @@ router.post("/create-payment-link", authMiddleware, async (req, res) => {
       callback_method: "get",
       callback_url: `${process.env.FRONTEND_URL}/payment_success`,
     };
-    console.log(options);
     const order = await razorpay.paymentLink.create(options);
     const patient = await new Patient({
       name: name,
