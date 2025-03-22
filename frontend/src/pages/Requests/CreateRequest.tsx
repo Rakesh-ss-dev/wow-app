@@ -40,6 +40,17 @@ const options: Option[] = [
     price: 200,
   },
   {
+    label: "International (USA) - $300",
+    value: "International_USA_300",
+    price: 300,
+  },
+  {
+    label: "International (USA) - $400",
+    value: "International_USA_400",
+    price: 400,
+  },
+  
+  {
     label:"DHMPC - DIAMOND HEALTH MASTERY PLAN - 24999",
     value: "DHMPC",
     price:24999
