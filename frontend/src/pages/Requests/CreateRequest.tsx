@@ -40,13 +40,13 @@ const options: Option[] = [
     price: 200,
   },
   {
-    label: "International (USA) - $300",
-    value: "International_USA_300",
+    label: "International Premium (USA) - $300",
+    value: "International_Premium_USA_300",
     price: 300,
   },
   {
-    label: "International (USA) - $400",
-    value: "International_USA_400",
+    label: "International Elite (USA) - $400",
+    value: "International_Elite_USA_400",
     price: 400,
   },
   
