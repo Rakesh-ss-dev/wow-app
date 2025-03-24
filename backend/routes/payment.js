@@ -289,7 +289,7 @@ router.get("/get_requests", authMiddleware, async (req, res) => {
     const output = await getPaymentDetails(requests);
     res.json({ success: true, requests: output });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: error });
   }
 });
 
