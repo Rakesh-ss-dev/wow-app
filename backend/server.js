@@ -6,7 +6,6 @@ const cors = require("cors");
 const http = require("http");
 const User = require("./models/User.js");
 const Patient = require("./models/Patients.js");
-
 const { Server } = require("socket.io");
 
 const app = express();
