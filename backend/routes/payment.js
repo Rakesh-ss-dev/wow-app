@@ -66,7 +66,7 @@ router.post("/create-payment-link", authMiddleware, async (req, res) => {
       description += ` | Discount: ${discount}%`;
     }
     const options = {
-      amount: parseInt(finalAmount* 100) ,
+      amount: parseInt(finalAmount * 100),
       currency: category_from_db.currency,
       accept_partial: false,
       description: description,
@@ -227,7 +227,8 @@ router.post("/user-status/", async (req, res) => {
       const requests = await Patients.find({
         createdBy: user._id,
         createdAt: { $gte: startDate, $lt: endDate },
-      }).sort({ createdAt: 1 })
+      })
+        .sort({ createdAt: 1 })
         .populate("package")
         .exec();
       const output = await getPaymentDetails(requests);
@@ -279,11 +280,12 @@ router.get("/get_requests", authMiddleware, async (req, res) => {
     let requests;
     if (userData.isSuperUser) {
       requests = await Patient.find({})
-        .populate(["package", "createdBy"])
+        .populate("package", "name amount")
+        .populate("createdBy", "name email")
         .exec();
     } else {
       requests = await Patient.find({ createdBy: userData._id })
-        .populate("package")
+        .populate("package","name amount")
         .exec();
     }
     const output = await getPaymentDetails(requests);
@@ -309,7 +311,7 @@ router.get("/chart-data", authMiddleware, async (req, res) => {
     }
     const output = await getPaymentDetails(requests);
     const paidOutput = output.filter((out) => out.status == "paid");
-    let users=[];
+    let users = [];
     if (userData.isSuperUser) {
       users = await User.find({ isSuperUser: false });
     } else {

@@ -6,7 +6,6 @@ import {
   getPaginationRowModel,
   flexRender,
   CellContext,
-  SortingState,
 } from "@tanstack/react-table";
 
 type Request = {
@@ -82,17 +81,11 @@ const RequestDataTable: React.FC<RequestDataTableProps> = ({ data }) => {
         ]
       : []),
   ];
-  const [sorting, setSorting] = React.useState<SortingState>([
-    { id: "createdAt", desc: true },
-  ]);
+  
 
   const table = useReactTable({
     data,
     columns,
-    state: {
-      sorting,
-    },
-    onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
