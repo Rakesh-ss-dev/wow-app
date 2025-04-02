@@ -1,6 +1,6 @@
-import axios from "axios";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import RequestDataTable from "../../components/datatables/RequestsDataTable";
+import { io, Socket } from "socket.io-client";
 interface Request {
   name: string;
   phone: string;
@@ -14,46 +14,30 @@ interface Request {
     name: string;
   };
 }
-
 const RequestList: React.FC = () => {
   const [requests, setRequests] = useState<Request[]>([]);
-  const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
-  const token = localStorage.getItem("token");
-  const retryTimeoutRef = useRef<number | null>(null); // ✅ Fix applied
-
-  const getRequest = async (retryCount = 0) => {
-    try {
-      const res = await axios.get(`${SERVER_URL}/payment/get_requests`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      const sortedData: Request[] = res.data.requests.sort(
-        (a: Request, b: Request) =>
-          new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
-      );
-
-      setRequests(sortedData);
-    } catch (error: any) {
-      if (error.response?.status === 429 && retryCount < 3) {
-        const delay = Math.min(Math.pow(2, retryCount) * 1000, 8000); // Max 8s delay
-        console.warn(`Rate limit hit. Retrying in ${delay / 1000} seconds...`);
-
-        retryTimeoutRef.current = window.setTimeout(() => getRequest(retryCount + 1), delay); // ✅ Fix applied
-      } else {
-        console.error("Error fetching requests:", error);
-      }
-    }
-  };
-
+  const user = localStorage.getItem("user");
+  const serverUrl=import.meta.env.VITE_SERVER_URL.replace('/api','');
   useEffect(() => {
-    if (token) getRequest();
+    const socket: Socket = io(serverUrl); // Create socket instance
 
+    if (user) {
+      socket.emit("get_requests", user);
+    }
+
+    socket.on("requests_data", (data) => {
+      setRequests(data);
+    });
+
+    socket.on("error", (error) => {
+      console.error("WebSocket Error:", error.message);
+    });
+
+    // ✅ Cleanup function to disconnect socket on unmount
     return () => {
-      if (retryTimeoutRef.current) {
-        clearTimeout(retryTimeoutRef.current);
-      }
+      socket.disconnect();
     };
-  }, [SERVER_URL, token]);
+  }, [user]); // Depend on userId to re-connect if needed
 
   return (
     <div className="max-w-full overflow-x-auto">
