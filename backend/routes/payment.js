@@ -59,14 +59,21 @@ const getPaymentDetails = async (requests) => {
 // Generate Razorpay Payment Link
 router.post("/create-payment-link", authMiddleware, async (req, res) => {
   try {
-    const { name, phone, category, discount, finalAmount } = req.body;
+    const { name, phone, category, discount, finalAmount ,tobePaid,installment } = req.body;
     const category_from_db = await Package.findOne({ name: category });
     let description = `Payment for your Golden 90 ${category_from_db.name} | Tax: 18%`;
+    let amount;
+    if(tobePaid==0){
+      amount=finalAmount*100;
+    }
+    else{
+      amount=tobePaid*100;
+    }
     if (discount > 0) {
       description += ` | Discount: ${discount}%`;
     }
     const options = {
-      amount: parseInt(finalAmount * 100),
+      amount: parseInt(amount),
       currency: category_from_db.currency,
       accept_partial: false,
       description: description,
@@ -90,6 +97,7 @@ router.post("/create-payment-link", authMiddleware, async (req, res) => {
       package: category_from_db,
       paymentId: order.id,
       discount: discount,
+      installment:installment,
       createdBy: req.user,
     });
     await patient.save();

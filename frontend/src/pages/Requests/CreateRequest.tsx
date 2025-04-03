@@ -10,6 +10,8 @@ import {
 import Button from "../../components/ui/button/Button";
 import Input from "../../components/form/input/InputField";
 import Select from "../../components/form/Select";
+import Checkbox from "../../components/form/input/Checkbox";
+import Radio from "../../components/form/input/Radio";
 
 const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
 
@@ -49,18 +51,17 @@ const options: Option[] = [
     value: "International_Elite_USA_400",
     price: 400,
   },
-  
+
   {
-    label:"DHMPC - DIAMOND HEALTH MASTERY PLAN - 24999",
+    label: "DHMPC - DIAMOND HEALTH MASTERY PLAN - 24999",
     value: "DHMPC",
-    price:24999
+    price: 24999,
   },
   {
-    label:"DHMPC - DIAMOND HEALTH MASTERY PLAN for COUPLE - 39999",
+    label: "DHMPC - DIAMOND HEALTH MASTERY PLAN for COUPLE - 39999",
     value: "DHMPC_Couple",
-    price:39999
+    price: 39999,
   },
-  
 ];
 
 const CreateRequest: React.FC = () => {
@@ -74,11 +75,14 @@ const CreateRequest: React.FC = () => {
   const [discountAmount, setDiscountAmount] = useState<number>(0);
   const [tax, setTax] = useState<number>(0);
   const [finalAmount, setFinalAmount] = useState<number>(0);
+  const [tobePaid, setTobePaid] = useState<number>(0);
   const [paymentLink, setPaymentLink] = useState<string>("");
   const [copied, setCopied] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const [radioSelectedValue, setRadioSelectedValue] = useState("Installment 1");
+  const [isInstallmentChecked, setIsInstallementChecked] = useState(false);
 
-  const copyFallback = (text:string) => {
+  const copyFallback = (text: string) => {
     const textarea = document.createElement("textarea");
     textarea.value = text;
     document.body.appendChild(textarea);
@@ -87,37 +91,43 @@ const CreateRequest: React.FC = () => {
     document.body.removeChild(textarea);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-};
+  };
 
-const copyToClipboard = () => {
+  const copyToClipboard = () => {
     if (paymentLink) {
-        if (navigator.clipboard?.writeText) {
-            navigator.clipboard.writeText(paymentLink)
-                .then(() => {
-                    setCopied(true);
-                    setTimeout(() => setCopied(false), 2000);
-                })
-                .catch(() => copyFallback(paymentLink));
-        } else {
-            copyFallback(paymentLink);
-        }
+      if (navigator.clipboard?.writeText) {
+        navigator.clipboard
+          .writeText(paymentLink)
+          .then(() => {
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+          })
+          .catch(() => copyFallback(paymentLink));
+      } else {
+        copyFallback(paymentLink);
+      }
     } else {
-        console.error("paymentLink is undefined.");
+      console.error("paymentLink is undefined.");
     }
-};
-
+  };
 
   const validateMobile = (number: string) => {
     const mobilePattern = /^[6-9]\d{9}$/;
-    setIsPhoneValid(mobilePattern.test(number.replace(/\s+/g, '')));
-    setPhone(number.replace(/\s+/g, ''));
-    setPaymentLink('');
+    setIsPhoneValid(mobilePattern.test(number.replace(/\s+/g, "")));
+    setPhone(number.replace(/\s+/g, ""));
+    setPaymentLink("");
   };
-
+  const changeInstallmentCheck = () => {
+    setIsInstallementChecked(!isInstallmentChecked);
+  };
+  const handleRadioChange = (value: string) => {
+    console.log(value);
+    setRadioSelectedValue(value);
+  };
   const validateSelect = (value: string) => {
     setIsCategoryValid(value !== "");
     setCategory(value);
-    setPaymentLink('');
+    setPaymentLink("");
   };
 
   useEffect(() => {
@@ -128,7 +138,7 @@ const copyToClipboard = () => {
       setPrice(amount);
       setTax(taxAmount);
       setFinalAmount(amount + taxAmount);
-      setPaymentLink('');
+      setPaymentLink("");
     }
   }, [category]);
 
@@ -138,8 +148,12 @@ const copyToClipboard = () => {
     setDiscountAmount(discountPrice);
     setTax(taxAmount);
     setFinalAmount(price - discountPrice + taxAmount);
-    setPaymentLink('');
+    setPaymentLink("");
   }, [discount, price]);
+
+  useEffect(() => {
+    setTobePaid(finalAmount / 2);
+  }, [radioSelectedValue, isInstallmentChecked]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -153,7 +167,9 @@ const copyToClipboard = () => {
           phone,
           category,
           discount,
+          installment:radioSelectedValue,
           finalAmount: finalAmount.toFixed(2),
+          tobePaid: tobePaid.toFixed(2),
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -195,12 +211,39 @@ const copyToClipboard = () => {
               type="number"
               min="0"
               max="100"
-              value={discount==0?"":discount}
+              value={discount == 0 ? "" : discount}
               onChange={(e) => setDiscount(Number(e.target.value))}
               placeholder="Discount (%)"
               step=".01"
               className="input"
             />
+            <div className="flex items-center gap-3">
+              <Checkbox
+                checked={isInstallmentChecked}
+                onChange={changeInstallmentCheck}
+                label="Installment"
+              />
+            </div>
+            {isInstallmentChecked && (
+              <div className="flex justify-between">
+                <Radio
+                  id="radio1"
+                  name="group1"
+                  value="Installment 1"
+                  checked={radioSelectedValue === "Installment 1"}
+                  onChange={handleRadioChange}
+                  label="Installment 1"
+                />
+                <Radio
+                  id="radio2"
+                  name="group1"
+                  value="Installment 2"
+                  checked={radioSelectedValue === "Installment 2"}
+                  onChange={handleRadioChange}
+                  label="Installment 2"
+                />
+              </div>
+            )}
             <Button
               type="submit"
               disabled={!isPhoneValid || !isCategoryValid || !name || loading}
@@ -227,28 +270,54 @@ const copyToClipboard = () => {
         </div>
       </div>
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
-            <Table>
-              <TableBody>
-                <TableRow>
-                  <TableCell  className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">Amount</TableCell>
-                  <TableCell  className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">{price.toFixed(2)}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell  className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">Discount</TableCell>
-                  <TableCell  className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">{discountAmount.toFixed(2)}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell  className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">Tax (18%)</TableCell>
-                  <TableCell  className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">{tax.toFixed(2)}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell  className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">Final Price</TableCell>
-                  <TableCell  className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">{finalAmount.toFixed(2)}</TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </div>
-        </div>
+        <Table>
+          <TableBody>
+            <TableRow>
+              <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                Amount
+              </TableCell>
+              <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                {price.toFixed(2)}
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                Discount
+              </TableCell>
+              <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                {discountAmount.toFixed(2)}
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                Tax (18%)
+              </TableCell>
+              <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                {tax.toFixed(2)}
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                Final Price
+              </TableCell>
+              <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                {finalAmount.toFixed(2)}
+              </TableCell>
+            </TableRow>
+            {isInstallmentChecked && (
+              <TableRow>
+                <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                  To be Paid
+                </TableCell>
+                <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                  {tobePaid.toFixed(2)}
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
   );
 };
 
