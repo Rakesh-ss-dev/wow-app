@@ -63,7 +63,6 @@ router.post("/create-payment-link", authMiddleware, async (req, res) => {
     const category_from_db = await Package.findOne({ name: category });
     let description = `Payment for your Golden 90 ${category_from_db.name} | Tax: 18%`;
     let amount;
-    console.log(req.body);
     if(tobePaid==0){
       amount=finalAmount*100;
     }
