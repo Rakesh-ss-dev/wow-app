@@ -152,7 +152,8 @@ const CreateRequest: React.FC = () => {
   }, [discount, price]);
 
   useEffect(() => {
-    setTobePaid(finalAmount / 2);
+    if (isInstallmentChecked) setTobePaid(finalAmount / 2);
+    else setTobePaid(0);
   }, [radioSelectedValue, isInstallmentChecked]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -167,7 +168,7 @@ const CreateRequest: React.FC = () => {
           phone,
           category,
           discount,
-          installment:radioSelectedValue,
+          installment: radioSelectedValue,
           finalAmount: finalAmount.toFixed(2),
           tobePaid: tobePaid.toFixed(2),
         },
