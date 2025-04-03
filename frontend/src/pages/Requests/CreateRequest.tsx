@@ -154,6 +154,7 @@ const CreateRequest: React.FC = () => {
   useEffect(() => {
     if (isInstallmentChecked) setTobePaid(finalAmount / 2);
     else setTobePaid(0);
+    setPaymentLink("");
   }, [radioSelectedValue, isInstallmentChecked]);
 
   const handleSubmit = async (e: React.FormEvent) => {
