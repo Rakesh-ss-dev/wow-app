@@ -287,7 +287,7 @@ router.post("/user-status/", async (req, res) => {
           PaymentID: item.paymentId,
           Package: item.package.name,
           Discount: item.discount + "%",
-          Date: formatToISTDate(item.createdAt),
+          Date: formatReadableDate(item.createdAt),
           Amount: parseFloat(item.amount),
         }));
         const totalAmount = data.reduce(
