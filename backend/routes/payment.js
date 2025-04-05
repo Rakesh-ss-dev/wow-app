@@ -16,16 +16,32 @@ const router = express.Router();
 require("dotenv").config();
 
 // helper function to format date to indian format
-function formatToISTDate(timestamp) {
-  const date = new Date(timestamp);
+const formatReadableDate = (isoString) => {
+  if (!isoString) return "Invalid Date";
 
-  return date.toLocaleDateString("en-IN", {
+  const date = new Date(isoString);
+
+  const day = date.toLocaleString("en-IN", {
     day: "2-digit",
+    timeZone: "Asia/Kolkata",
+  });
+  const month = date.toLocaleString("en-IN", {
     month: "2-digit",
+    timeZone: "Asia/Kolkata",
+  });
+  const year = date.toLocaleString("en-IN", {
     year: "2-digit",
     timeZone: "Asia/Kolkata",
   });
-}
+  const time = date.toLocaleTimeString("en-IN", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZone: "Asia/Kolkata",
+  });
+
+  return `${day}/${month}/${year}, ${time}`;
+};
 
 //helper function to replace placeholders in email template
 function replacePlaceholders(template, data) {
@@ -122,7 +138,6 @@ router.post("/getPaymentDetails", authMiddleware, async (req, res) => {
       status: paymentLink.status,
       url: paymentLink.short_url,
       amount: (paymentLink.amount / 100).toFixed(2),
-      
     };
     res.json({ success: true, request: output });
   } catch (err) {
