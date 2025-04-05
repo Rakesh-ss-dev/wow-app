@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -6,7 +6,12 @@ import {
   getPaginationRowModel,
   flexRender,
   CellContext,
+  ColumnDef,
 } from "@tanstack/react-table";
+import axios from "axios";
+import { useModal } from "../../hooks/useModal";
+import { Modal } from "../ui/modal";
+import { Table, TableBody, TableCell, TableRow } from "../ui/table";
 
 type Request = {
   name: string;
@@ -14,8 +19,6 @@ type Request = {
   package: {
     name: string;
   };
-  status: string;
-  amount:string;
   createdAt: string;
   createdBy?: {
     name: string;
@@ -25,9 +28,9 @@ type Request = {
 interface RequestDataTableProps {
   data: Request[];
 }
-const formatReadableDate = (isoString: string): string => {
-  if (!isoString) return "Invalid Date"; // Prevent errors for empty values
 
+const formatReadableDate = (isoString: string): string => {
+  if (!isoString) return "Invalid Date";
   const date = new Date(isoString);
   return date.toLocaleString("en-IN", {
     timeZone: "Asia/Kolkata",
@@ -36,14 +39,31 @@ const formatReadableDate = (isoString: string): string => {
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
-    hour12: false, // Keep 24-hour format
+    hour12: false,
   });
 };
 
 const RequestDataTable: React.FC<RequestDataTableProps> = ({ data }) => {
   const user = localStorage.getItem("user");
   const parsedUser = user ? JSON.parse(user) : null;
-  const columns = [
+  const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
+  const { isOpen, openModal, closeModal } = useModal();
+  const [requestDetails, setRequestDetails] = useState<any>({});
+
+  const handleViewDetails = async (request: Request) => {
+    const token = localStorage.getItem("token");
+    const res = await axios.post(
+      `${SERVER_URL}/payment/getPaymentDetails`,
+      {
+        request,
+      },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    setRequestDetails(res.data.request);
+    openModal();
+  };
+
+  const columns: ColumnDef<Request>[] = [
     {
       accessorKey: "name",
       header: "Client",
@@ -53,35 +73,41 @@ const RequestDataTable: React.FC<RequestDataTableProps> = ({ data }) => {
       header: "Phone",
     },
     {
-      accessorKey: "package.name",
+      accessorFn: (row) => row.package?.name,
+      id: "package.name",
       header: "Package",
-    },
-    {
-      accessorKey:"amount",
-      header:"Amount",
-    },
-    {
-      accessorKey: "status",
-      header: "Status",
     },
     {
       accessorKey: "createdAt",
       header: "Created At",
-      cell: (info: CellContext<Request, string | undefined>) =>
-        formatReadableDate(info.getValue()||''),
+      cell: (info: CellContext<Request, any | undefined>) =>
+        formatReadableDate(info.getValue() || ""),
     },
     ...(parsedUser?.isSuperUser
       ? [
           {
-            accessorKey: "createdBy.name",
+            accessorFn: (row: any) => row.createdBy?.name || "N/A",
+            id: "createdBy.name",
             header: "Created By",
-            cell: (info: CellContext<Request, string | undefined>) =>
-              info.getValue() || "N/A",
           },
         ]
       : []),
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => {
+        const request = row.original;
+        return (
+          <button
+            onClick={() => handleViewDetails(request)}
+            className="px-3 py-1 bg-brand-500 text-white rounded hover:bg-brand-600"
+          >
+            View Details
+          </button>
+        );
+      },
+    },
   ];
-  
 
   const table = useReactTable({
     data,
@@ -89,6 +115,14 @@ const RequestDataTable: React.FC<RequestDataTableProps> = ({ data }) => {
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    initialState: {
+      sorting: [
+        {
+          id: "createdAt", // Match accessorKey
+          desc: true,
+        },
+      ],
+    },
   });
 
   return (
@@ -156,6 +190,93 @@ const RequestDataTable: React.FC<RequestDataTableProps> = ({ data }) => {
           Next
         </button>
       </div>
+      <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[700px] m-4">
+        <div className="relative w-full p-4 overflow-y-auto bg-white rounded-3xl dark:bg-gray-900 lg:p-11">
+          <h4 className="mb-2 text-xl font-semibold text-gray-800 dark:text-white/90">
+            Request Details
+          </h4>
+          {requestDetails.name && (
+            <Table>
+              <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
+                <TableRow>
+                  <TableCell className="px-4 py-3 sm:px-6 text-start">
+                    Client Name
+                  </TableCell>
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                    {requestDetails.name}
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="px-4 py-3 sm:px-6 text-start">
+                    Phone
+                  </TableCell>
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                    {requestDetails.phone}
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="px-4 py-3 sm:px-6 text-start">
+                    Package
+                  </TableCell>
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                    {requestDetails.package.name}
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="px-4 py-3 sm:px-6 text-start">
+                    Discount
+                  </TableCell>
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                    {requestDetails.discount}%
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="px-4 py-3 sm:px-6 text-start">
+                    Final Price(including 18% GST)
+                  </TableCell>
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                    {requestDetails.amount}
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="px-4 py-3 sm:px-6 text-start">
+                    Payment Link
+                  </TableCell>
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                    {requestDetails.url}
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="px-4 py-3 sm:px-6 text-start">
+                    Status
+                  </TableCell>
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                    {requestDetails.status}
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="px-4 py-3 sm:px-6 text-start">
+                    Installment
+                  </TableCell>
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                    {requestDetails.installment == ""
+                      ? "Full Payment"
+                      : requestDetails.installment}
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="px-4 py-3 sm:px-6 text-start">
+                    Created At
+                  </TableCell>
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                    { formatReadableDate(requestDetails.createdAt)}
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          )}
+        </div>
+      </Modal>
     </div>
   );
 };

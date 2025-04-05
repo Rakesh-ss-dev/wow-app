@@ -59,15 +59,22 @@ const getPaymentDetails = async (requests) => {
 // Generate Razorpay Payment Link
 router.post("/create-payment-link", authMiddleware, async (req, res) => {
   try {
-    const { name, phone, category, discount, finalAmount ,tobePaid,installment } = req.body;
+    const {
+      name,
+      phone,
+      category,
+      discount,
+      finalAmount,
+      tobePaid,
+      installment,
+    } = req.body;
     const category_from_db = await Package.findOne({ name: category });
     let description = `Payment for your Golden 90 ${category_from_db.name} | Tax: 18%`;
     let amount;
-    if(tobePaid==0){
-      amount=finalAmount*100;
-    }
-    else{
-      amount=tobePaid*100;
+    if (tobePaid == 0) {
+      amount = finalAmount * 100;
+    } else {
+      amount = tobePaid * 100;
     }
     if (discount > 0) {
       description += ` | Discount: ${discount}%`;
@@ -97,13 +104,30 @@ router.post("/create-payment-link", authMiddleware, async (req, res) => {
       package: category_from_db,
       paymentId: order.id,
       discount: discount,
-      installment:installment,
+      installment: installment,
       createdBy: req.user,
     });
     await patient.save();
     res.json({ success: true, payment_link: order.short_url });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
+  }
+});
+router.post("/getPaymentDetails", authMiddleware, async (req, res) => {
+  try {
+    const { request } = req.body;
+    const paymentLink = await razorpay.paymentLink.fetch(request.paymentId);
+    let output = {
+      ...request,
+      status: paymentLink.status,
+      url: paymentLink.short_url,
+      amount: (paymentLink.amount / 100).toFixed(2),
+      
+    };
+    res.json({ success: true, request: output });
+  } catch (err) {
+    console.error("Error sending email:", err);
+    res.status(500).json({ success: false, message: err.message });
   }
 });
 
@@ -293,7 +317,7 @@ router.get("/get_requests", authMiddleware, async (req, res) => {
         .exec();
     } else {
       requests = await Patient.find({ createdBy: userData._id })
-        .populate("package","name amount")
+        .populate("package", "name amount")
         .exec();
     }
     const output = await getPaymentDetails(requests);

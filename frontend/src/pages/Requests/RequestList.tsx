@@ -7,8 +7,6 @@ interface Request {
   package: {
     name: string;
   };
-  amount: string;
-  status: string;
   createdAt: string;
   createdBy?: {
     name: string;

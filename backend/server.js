@@ -33,22 +33,7 @@ const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
-const getPaymentDetails = async (requests) => {
-  let output = [];
-  await Promise.all(
-    requests.map(async (request) => {
-      const paymentLink = await razorpay.paymentLink.fetch(request.paymentId);
-      let tempoutput = {
-        ...request._doc,
-        status: paymentLink.status,
-        url: paymentLink.short_url,
-        amount: (paymentLink.amount / 100).toFixed(2),
-      };
-      output.push(tempoutput);
-    })
-  );
-  return output;
-};
+
 // WebSocket Connection Handling
 io.on("connection", (socket) => {
   console.log("A client connected:", socket.id);
@@ -68,8 +53,7 @@ io.on("connection", (socket) => {
           .populate("package", "name amount")
           .exec();
       }
-      const output = await getPaymentDetails(requests);
-      socket.emit("requests_data", output);
+      socket.emit("requests_data", requests);
     } catch (error) {
       socket.emit("error", { message: "Failed to fetch requests" });
     }
