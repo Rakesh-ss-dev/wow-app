@@ -129,6 +129,8 @@ router.post("/create-payment-link", authMiddleware, async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 });
+
+
 router.post("/getPaymentDetails", authMiddleware, async (req, res) => {
   try {
     const { request } = req.body;
@@ -141,8 +143,7 @@ router.post("/getPaymentDetails", authMiddleware, async (req, res) => {
     };
     res.json({ success: true, request: output });
   } catch (err) {
-    console.error("Error sending email:", err);
-    res.status(500).json({ success: false, message: err.message });
+    res.status(500).json({ success: false, message: err });
   }
 });
 
@@ -335,8 +336,7 @@ router.get("/get_requests", authMiddleware, async (req, res) => {
         .populate("package", "name amount")
         .exec();
     }
-    const output = await getPaymentDetails(requests);
-    res.json({ success: true, requests: output });
+    res.json({ success: true, requests: requests });
   } catch (error) {
     res.status(500).json({ success: false, message: error });
   }
