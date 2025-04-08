@@ -275,8 +275,7 @@ router.post("/user-status/", async (req, res) => {
       const requests = await Patients.find({
         createdBy: user._id,
         createdAt: { $gte: startDate, $lte: endDate },
-      })
-        .sort({ createdAt: 1 })
+      }).sort({ createdAt: -1 })
         .populate("package")
         .exec();
       const output = await getPaymentDetails(requests);
