@@ -130,7 +130,6 @@ router.post("/create-payment-link", authMiddleware, async (req, res) => {
   }
 });
 
-
 router.post("/getPaymentDetails", authMiddleware, async (req, res) => {
   try {
     const { request } = req.body;
@@ -271,11 +270,17 @@ router.post("/user-status/", async (req, res) => {
     const { startDate, endDate } = req.body;
     const users = await User.find({ isSuperUser: false }).exec();
     const wb = XLSX.utils.book_new();
+    const adjustedEndDate = new Date(endDate);
+    adjustedEndDate.setDate(adjustedEndDate.getDate() + 1);
     for (const user of users) {
       const requests = await Patients.find({
         createdBy: user._id,
-        createdAt: { $gte: startDate, $lte: endDate },
-      }).sort({ createdAt: -1 })
+        createdAt: {
+          $gte: new Date(startDate),
+          $lte: adjustedEndDate,
+        },
+      })
+        .sort({ createdAt: -1 })
         .populate("package")
         .exec();
       const output = await getPaymentDetails(requests);
