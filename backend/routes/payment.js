@@ -64,6 +64,8 @@ const getPaymentDetails = async (requests) => {
         ...request._doc,
         status: paymentLink.status,
         url: paymentLink.short_url,
+        created_at:paymentLink.created_at,
+        updated_at:paymentLink.updated_at,
         amount: (paymentLink.amount / 100).toFixed(2),
       };
       output.push(tempoutput);
@@ -292,7 +294,8 @@ router.post("/user-status/", async (req, res) => {
           PaymentID: item.paymentId,
           Package: item.package.name,
           Discount: item.discount + "%",
-          Date: formatReadableDate(item.createdAt),
+          Created_Date: formatReadableDate(new Date(item.created_at * 1000)),
+          Paid_Date:formatReadableDate(new Date(item.updated_at * 1000)),
           Amount: parseFloat(item.amount),
         }));
         const totalAmount = data.reduce(
@@ -305,7 +308,8 @@ router.post("/user-status/", async (req, res) => {
           PaymentID: "",
           Package: "",
           Discount: "",
-          Date: "",
+          Created_Date: "",
+          Paid_Date: "",
           Amount: totalAmount,
         });
 

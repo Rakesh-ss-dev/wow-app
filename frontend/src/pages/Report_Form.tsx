@@ -11,7 +11,15 @@ const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
 const MyComponent = () => {
   const [startDate, setStartDate] = useState<string | null>(null);
   const [endDate, setEndDate] = useState<string | null>(null);
+  const toLocalDateString = (date: Date | undefined): string | null => {
+    if (!date) return null;
 
+    const year = date.getFullYear();
+    const month = `0${date.getMonth() + 1}`.slice(-2); // Month is 0-indexed
+    const day = `0${date.getDate()}`.slice(-2);
+
+    return `${year}-${month}-${day}`;
+  };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -53,7 +61,9 @@ const MyComponent = () => {
             <Input
               type="date"
               value={startDate || ""}
-              onDateChange={(dates) => setStartDate(dates[0]?.toISOString().split("T")[0] || null)}
+              onDateChange={(dates) =>
+                setStartDate(toLocalDateString(dates[0]) || null)
+              }
             />
           </div>
           <div className="mb-3">
@@ -61,7 +71,9 @@ const MyComponent = () => {
             <Input
               type="date"
               value={endDate || ""}
-              onDateChange={(dates) => setEndDate(dates[0]?.toISOString().split("T")[0] || null)}
+              onDateChange={(dates) =>
+                setEndDate(toLocalDateString(dates[0]) || null)
+              }
             />
           </div>
           <Button type="submit">Generate Report</Button>
