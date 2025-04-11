@@ -20,8 +20,32 @@ import CreateRequest from "./pages/Requests/CreateRequest";
 import CreateCoach from "./pages/UserDataTable/CreateCoach";
 import Report_Form from "./pages/Report_Form";
 import Payment_successful from "./pages/OtherPage/Payment_successful";
-
+import { useEffect } from "react";
+const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
 export default function App() {
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (location.pathname === "/") return;
+    if (token) {
+      fetch(`${SERVER_URL}/auth/check-token`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((res) => {
+          if (!res.ok) handleLogout();
+        })
+        .catch(() => handleLogout());
+    } else {
+      handleLogout();
+    }
+
+    function handleLogout() {
+      localStorage.removeItem("token");
+      window.location.href = "/";
+    }
+  }, [location.pathname]);
+
   return (
     <>
       <Router>
@@ -35,7 +59,7 @@ export default function App() {
             <Route path="/blank" element={<Blank />} />
             <Route path="/requests" element={<RequestList />} />
             <Route path="/create-request" element={<CreateRequest />} />
-            <Route path='/generate-report' element={<Report_Form/>}/>
+            <Route path="/generate-report" element={<Report_Form />} />
 
             {/* Forms */}
             <Route path="/form-elements" element={<FormElements />} />
@@ -60,7 +84,7 @@ export default function App() {
           </Route>
           {/* Fallback Route */}
           <Route path="*" element={<NotFound />} />
-          <Route path="/payment_success" element={<Payment_successful/>}/>
+          <Route path="/payment_success" element={<Payment_successful />} />
         </Routes>
       </Router>
     </>
