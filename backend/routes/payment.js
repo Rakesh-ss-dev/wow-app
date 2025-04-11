@@ -271,7 +271,7 @@ router.post("/user-status/", async (req, res) => {
     const users = await User.find({ isSuperUser: false }).exec();
     const wb = XLSX.utils.book_new();
     const adjustedEndDate = new Date(endDate);
-    adjustedEndDate.setDate(adjustedEndDate.getDate() + 1);
+    adjustedEndDate.setHours(23, 59, 59, 999);
     for (const user of users) {
       const requests = await Patients.find({
         createdBy: user._id,
