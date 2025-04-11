@@ -64,8 +64,8 @@ const getPaymentDetails = async (requests) => {
         ...request._doc,
         status: paymentLink.status,
         url: paymentLink.short_url,
-        created_at:paymentLink.created_at,
-        updated_at:paymentLink.updated_at,
+        created_at: new Date(paymentLink.created_at * 1000),
+        updated_at: new Date(paymentLink.updated_at * 1000),
         amount: (paymentLink.amount / 100).toFixed(2),
       };
       output.push(tempoutput);
@@ -286,7 +286,13 @@ router.post("/user-status/", async (req, res) => {
         .populate("package")
         .exec();
       const output = await getPaymentDetails(requests);
-      const paidOutput = output.filter((item) => item.status === "paid");
+      const paidOutput = output
+        .filter((item) => item.status === "paid")
+        .sort(
+          (a, b) =>
+            new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+        );
+
       if (paidOutput.length > 0) {
         const data = paidOutput.map((item) => ({
           Name: item.name,
@@ -294,8 +300,8 @@ router.post("/user-status/", async (req, res) => {
           PaymentID: item.paymentId,
           Package: item.package.name,
           Discount: item.discount + "%",
-          Created_Date: formatReadableDate(new Date(item.created_at * 1000)),
-          Paid_Date:formatReadableDate(new Date(item.updated_at * 1000)),
+          Created_Date: formatReadableDate(item.created_at),
+          Paid_Date: formatReadableDate(item.updated_at),
           Amount: parseFloat(item.amount),
         }));
         const totalAmount = data.reduce(
