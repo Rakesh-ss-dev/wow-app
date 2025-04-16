@@ -54,27 +54,6 @@ const razorpay = new Razorpay({
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
-//helper function get all payment status from razorpay API
-const getPaymentDetails = async (requests) => {
-  let output = [];
-  await Promise.all(
-    requests.map(async (request) => {
-      const paymentLink = await razorpay.paymentLink.fetch(request.paymentId);
-      let tempoutput = {
-        ...request._doc,
-        status: paymentLink.status,
-        url: paymentLink.short_url,
-        created_at: new Date(paymentLink.created_at * 1000),
-        updated_at: new Date(paymentLink.updated_at * 1000),
-        currency:paymentLink.currency,
-        amount: (paymentLink.amount / 100).toFixed(2),
-      };
-      output.push(tempoutput);
-    })
-  );
-  return output;
-};
-
 // Generate Razorpay Payment Link
 router.post("/create-payment-link", authMiddleware, async (req, res) => {
   try {
@@ -286,14 +265,12 @@ router.post("/user-status/", async (req, res) => {
         .sort({ createdAt: -1 })
         .populate("package")
         .exec();
-      const output = await getPaymentDetails(requests);
-      const paidOutput = output
+      const paidOutput = requests
         .filter((item) => item.status === "paid")
         .sort(
           (a, b) =>
             new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
         );
-
       if (paidOutput.length > 0) {
         const data = paidOutput.map((item) => ({
           Name: item.name,
@@ -302,7 +279,7 @@ router.post("/user-status/", async (req, res) => {
           Package: item.package.name,
           Discount: item.discount + "%",
           Created_Date: formatReadableDate(item.created_at),
-          Paid_Date: formatReadableDate(item.updated_at),
+          Paid_Date: formatReadableDate(item.payed_at),
           Amount: parseFloat(item.amount),
         }));
         const totalAmount = data.reduce(
@@ -357,53 +334,5 @@ router.get("/get_requests", authMiddleware, async (req, res) => {
   }
 });
 
-router.get("/chart-data", authMiddleware, async (req, res) => {
-  try {
-    const user = req.user;
-    const userData = await User.findById(user);
-    let requests;
-    if (userData.isSuperUser) {
-      requests = await Patient.find({})
-        .populate(["package", "createdBy"])
-        .exec();
-    } else {
-      requests = await Patient.find({ createdBy: userData._id })
-        .populate("package")
-        .exec();
-    }
-    const output = await getPaymentDetails(requests);
-    const paidOutput = output.filter((out) => out.status == "paid");
-    let users = [];
-    if (userData.isSuperUser) {
-      users = await User.find({ isSuperUser: false });
-    } else {
-      users.push(userData);
-    }
-    const result = [];
-    await users.map(async (user) => {
-      const tempResult = {};
-      tempResult.name = user.name;
-      tempResult.data = [];
-      let today = new Date();
-      let lastMonth = new Date();
-      lastMonth.setMonth(today.getMonth() - 1);
-      while (lastMonth <= today) {
-        const prevDate = new Date(lastMonth);
-        lastMonth.setDate(lastMonth.getDate() + 1);
-        const temp = paidOutput.filter(
-          (t) =>
-            t.createdBy.name === user.name &&
-            new Date(t.createdAt) >= new Date(prevDate) &&
-            new Date(t.createdAt) <= new Date(lastMonth)
-        );
-        tempResult.data.push(temp.length);
-      }
-      result.push(tempResult);
-    });
-    res.json({ success: true, series: result });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-});
 
 module.exports = router;
