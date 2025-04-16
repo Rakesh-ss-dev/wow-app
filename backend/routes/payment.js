@@ -66,6 +66,7 @@ const getPaymentDetails = async (requests) => {
         url: paymentLink.short_url,
         created_at: new Date(paymentLink.created_at * 1000),
         updated_at: new Date(paymentLink.updated_at * 1000),
+        currency:paymentLink.currency,
         amount: (paymentLink.amount / 100).toFixed(2),
       };
       output.push(tempoutput);

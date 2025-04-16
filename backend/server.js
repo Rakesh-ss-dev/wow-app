@@ -24,6 +24,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/package", packageRoutes);
 app.use("/api/payment", paymentRoutes);
 
+require("./cronJobs"); // Make sure filename is exactly cronJob.js
 
 // Start server with WebSocket support
 server.listen(5000, () => console.log("Server running on port 5000"));
