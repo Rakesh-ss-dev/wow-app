@@ -29,7 +29,15 @@ const getPaymentDetails = async (patient) => {
 
 async function syncRazorpayToPatients() {
   try {
-    const patients = await Patients.find({});
+    const patients = await Patients.find({
+        $or: [
+          { status: "created" },
+          { status: { $exists: false } },
+          { status: "" },
+          { status: null },
+        ],
+      });
+      
 
     for (const patient of patients) {
       try {
@@ -44,7 +52,7 @@ async function syncRazorpayToPatients() {
             amount: paymentData.amount,
             method: paymentData.method,
             currency: paymentData.currency,
-            updatedAt: paymentData.updated_at,
+            payed_at:paymentData.updated_at
           },
         });
       } catch (err) {
