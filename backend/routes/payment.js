@@ -278,7 +278,7 @@ router.post("/user-status/", async (req, res) => {
           PaymentID: item.paymentId,
           Package: item.package.name,
           Discount: item.discount + "%",
-          Created_Date: formatReadableDate(item.created_at),
+          Created_Date: formatReadableDate(item.createdAt),
           Paid_Date: formatReadableDate(item.payed_at),
           Amount: parseFloat(item.amount),
         }));
