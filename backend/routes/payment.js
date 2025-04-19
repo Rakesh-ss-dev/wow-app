@@ -95,6 +95,7 @@ router.post("/create-payment-link", authMiddleware, async (req, res) => {
       callback_method: "get",
       callback_url: `${process.env.FRONTEND_URL}/payment_success`,
     };
+    console.log(options);
     const order = await razorpay.paymentLink.create(options);
     const patient = await new Patient({
       name: name,
@@ -204,7 +205,7 @@ router.post("/generate-invoice", async (req, res) => {
       parseFloat(discountAmount) +
       parseFloat(taxAmount)
     ).toFixed(2);
-    const paymentDate = formatToISTDate(payment.createdAt);
+    const paymentDate = formatReadableDate(payment.createdAt);
     const paymentStatus = req.body.razorpay_payment_link_status;
     const image = await loadImage("invoice/Invoice.jpg");
     const invoiceData = [
@@ -312,14 +313,16 @@ router.post("/user-status/", async (req, res) => {
   }
 });
 
-//get Details of all the requests made
+// Details of all the paid requests made
 router.get("/get_requests", authMiddleware, async (req, res) => {
   try {
     const user = req.user;
     const userData = await User.findById(user);
     let requests;
     if (userData.isSuperUser) {
-      requests = await Patient.find({})
+      requests = await Patient.find({
+        status: "paid",
+      })
         .populate("package", "name amount")
         .populate("createdBy", "name email")
         .exec();
@@ -334,5 +337,28 @@ router.get("/get_requests", authMiddleware, async (req, res) => {
   }
 });
 
+// Details of all the paid requests made
+router.get("/get_pending_requests", authMiddleware, async (req, res) => {
+  try {
+    const user = req.user;
+    const userData = await User.findById(user);
+    let requests;
+    if (userData.isSuperUser) {
+      requests = await Patient.find(
+        { status: { $ne: "paid" } }
+      )
+        .populate("package", "name amount")
+        .populate("createdBy", "name email")
+        .exec();
+    } else {
+      requests = await Patient.find({ createdBy: userData._id })
+        .populate("package", "name amount")
+        .exec();
+    }
+    res.json({ success: true, requests: requests });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error });
+  }
+});
 
 module.exports = router;

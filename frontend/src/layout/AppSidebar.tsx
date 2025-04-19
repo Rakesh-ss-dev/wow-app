@@ -28,10 +28,14 @@ const navItems: NavItem[] = [
   },
   {
     icon: <PaperPlaneIcon />,
-    name: "Requests",
+    name: "Paid Requests",
     path: "/requests",
   },
-
+  {
+    icon: <PaperPlaneIcon />,
+    name: "Pending Requests",
+    path: "/pending_requests",
+  },
   {
     icon: <UserCircleIcon />,
     name: "Coaches",

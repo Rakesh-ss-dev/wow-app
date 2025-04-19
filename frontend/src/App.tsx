@@ -21,6 +21,7 @@ import CreateCoach from "./pages/UserDataTable/CreateCoach";
 import Report_Form from "./pages/Report_Form";
 import Payment_successful from "./pages/OtherPage/Payment_successful";
 import { useEffect } from "react";
+import PendingRequestList from "./pages/Requests/PendingRequests";
 const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
 export default function App() {
   useEffect(() => {
@@ -58,6 +59,7 @@ export default function App() {
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/blank" element={<Blank />} />
             <Route path="/requests" element={<RequestList />} />
+            <Route path="/pending_requests" element={<PendingRequestList />} />
             <Route path="/create-request" element={<CreateRequest />} />
             <Route path="/generate-report" element={<Report_Form />} />
 
