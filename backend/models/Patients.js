@@ -13,7 +13,6 @@ const PatientSchema = new mongoose.Schema(
     status: { type: String, default: "created" },
     currency: { type: String, default: "INR" },
     method: { type: String, default: "" },
-    email:{type:String,default:''},
     payed_at:{type:Date},
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
