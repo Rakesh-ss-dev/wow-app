@@ -363,7 +363,7 @@ router.get("/get_requests", authMiddleware, async (req, res) => {
         .populate("createdBy", "name email")
         .exec();
     } else {
-      requests = await Patient.find({ createdBy: userData._id })
+      requests = await Patient.find({ createdBy: userData._id,status: "paid" })
         .populate("package", "name amount")
         .exec();
     }
@@ -387,7 +387,7 @@ router.get("/get_pending_requests", authMiddleware, async (req, res) => {
         .populate("createdBy", "name email")
         .exec();
     } else {
-      requests = await Patient.find({ createdBy: userData._id })
+      requests = await Patient.find({ createdBy: userData._id,status: { $ne: "paid" }  })
         .populate("package", "name amount")
         .exec();
     }
