@@ -14,6 +14,49 @@ const nodemailer = require("nodemailer");
 const router = express.Router();
 
 require("dotenv").config();
+function processPaymentsData(data) {
+  let totalINR = 0;
+  let totalUSD = 0;
+
+  // Format the data into the desired structure
+  const formattedData = data.map(entry => {
+    console.log(entry);
+    const { name, phone, paymentId, package: pkg, discount, createdAt, payed_at, amount, currency } = entry;
+
+    // Convert dates to human-readable format
+    const createdDate = new Date(createdAt).toLocaleDateString("en-US", {
+      year: 'numeric', month: 'short', day: 'numeric'
+    });
+    const paidDate = payed_at ? new Date(payed_at).toLocaleDateString("en-US", {
+      year: 'numeric', month: 'short', day: 'numeric'
+    }) : "N/A";
+
+    // Construct formatted entry
+    const formattedEntry = {
+      Name: name,
+      Phone: phone,
+      PaymentID: paymentId,
+      Package: pkg.name || "unknown", // Default to 'unknown' if no package is provided
+      Discount: `${discount}%`,
+      Created_Date: createdDate,
+      Paid_Date: paidDate||"unknown",
+      [`Amount_${currency}`]: amount
+    };
+
+    // Sum totals based on currency
+    if (currency === 'INR') totalINR += amount;
+    if (currency === 'USD') totalUSD += amount;
+
+    return formattedEntry;
+  });
+
+  // Return final output with totals
+  return {
+    data: formattedData,
+    Total_INR: totalINR,
+    Total_USD: totalUSD
+  };
+}
 
 // helper function to format date to indian format
 const formatReadableDate = (isoString) => {
@@ -95,7 +138,6 @@ router.post("/create-payment-link", authMiddleware, async (req, res) => {
       callback_method: "get",
       callback_url: `${process.env.FRONTEND_URL}/payment_success`,
     };
-    console.log(options);
     const order = await razorpay.paymentLink.create(options);
     const patient = await new Patient({
       name: name,
@@ -251,13 +293,14 @@ router.post("/generate-invoice", async (req, res) => {
 router.post("/user-status/", async (req, res) => {
   try {
     const { startDate, endDate } = req.body;
-    const users = await User.find({ isSuperUser: false }).exec();
+    const users = await User.find({}).exec();
     const wb = XLSX.utils.book_new();
     const adjustedEndDate = new Date(endDate);
     adjustedEndDate.setHours(23, 59, 59, 999);
     for (const user of users) {
       const requests = await Patients.find({
         createdBy: user._id,
+         status: "paid",
         createdAt: {
           $gte: new Date(startDate),
           $lte: adjustedEndDate,
@@ -266,36 +309,29 @@ router.post("/user-status/", async (req, res) => {
         .sort({ createdAt: -1 })
         .populate("package")
         .exec();
-      const paidOutput = requests
-        .filter((item) => item.status === "paid")
-        .sort(
-          (a, b) =>
-            new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
-        );
-      if (paidOutput.length > 0) {
-        const data = paidOutput.map((item) => ({
-          Name: item.name,
-          Phone: item.phone,
-          PaymentID: item.paymentId,
-          Package: item.package.name,
-          Discount: item.discount + "%",
-          Created_Date: formatReadableDate(item.createdAt),
-          Paid_Date: formatReadableDate(item.payed_at),
-          Amount: parseFloat(item.amount),
-        }));
-        const totalAmount = data.reduce(
-          (sum, row) => parseFloat(sum.toFixed(2)) + parseFloat(row.Amount),
-          0
-        );
+        
+      if (requests.length > 0) {
+        const formattedData=processPaymentsData(requests);
+        const data = formattedData.data;
         data.push({
-          Name: "TOTAL",
+          Name: "TOTAL_INR",
           Phone: "",
           PaymentID: "",
           Package: "",
           Discount: "",
           Created_Date: "",
           Paid_Date: "",
-          Amount: totalAmount,
+          Amount_INR: formattedData.Total_INR,
+        });
+        data.push({
+          Name: "TOTAL_USD",
+          Phone: "",
+          PaymentID: "",
+          Package: "",
+          Discount: "",
+          Created_Date: "",
+          Paid_Date: "",
+          Amount_USD: formattedData.Total_USD,
         });
 
         const ws = XLSX.utils.json_to_sheet(data);
