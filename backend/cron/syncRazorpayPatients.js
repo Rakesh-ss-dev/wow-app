@@ -10,13 +10,13 @@ const razorpay = new Razorpay({
 const getPaymentDetails = async (patient) => {
   try {
     const paymentLink = await razorpay.paymentLink.fetch(patient.paymentId);
-
     return {
       ...patient._doc,
       status: paymentLink.status,
       url: paymentLink.short_url,
       created_at: new Date(paymentLink.created_at * 1000),
       updated_at: new Date(paymentLink.updated_at * 1000),
+      email:paymentLink.email,
       currency: paymentLink.currency,
       amount: (paymentLink.amount / 100).toFixed(2),
       method: paymentLink.payment?.method || '',
@@ -52,7 +52,8 @@ async function syncRazorpayToPatients() {
             amount: paymentData.amount,
             method: paymentData.method,
             currency: paymentData.currency,
-            payed_at:paymentData.updated_at
+            payed_at:paymentData.updated_at,
+            email:paymentData.email,
           },
         });
       } catch (err) {
