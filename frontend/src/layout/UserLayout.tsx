@@ -10,7 +10,8 @@ const LayoutContent: React.FC = () => {
   const token = localStorage.getItem("token");
   const user = localStorage.getItem("user");
   if (user) {
-    location.href = "/dashboard";
+    localStorage.removeItem('user');
+    location.href = "/user-dashboard";
   }
   const navigate = useNavigate();
   useEffect(() => {
