@@ -1,30 +1,27 @@
 import React, { useEffect } from "react";
 import { SidebarProvider, useSidebar } from "../context/SidebarContext";
 import { Outlet, useNavigate } from "react-router";
-import AppHeader from "./AppHeader";
+import UserHeader from "./UserHeader";
+import UserSidebar from "./UserSidebar";
 import Backdrop from "./Backdrop";
-import AppSidebar from "./AppSidebar";
 
 const LayoutContent: React.FC = () => {
   const { isExpanded, isHovered, isMobileOpen } = useSidebar();
   const token = localStorage.getItem("token");
-  const patient = localStorage.getItem("patient");
-  const navigate = useNavigate();
-  console.log(patient);
-  if (patient) {
-    console.log(patient);
-    location.href = "/user-dashboard";
+  const user = localStorage.getItem("user");
+  if (user) {
+    location.href = "/dashboard";
   }
-
+  const navigate = useNavigate();
   useEffect(() => {
     if (!token) {
       navigate("/");
     }
-  }, [token, navigate]);
+  }, [token, navigate, user]);
   return (
     <div className="min-h-screen xl:flex">
       <div>
-        <AppSidebar />
+        <UserSidebar />
         <Backdrop />
       </div>
       <div
@@ -32,7 +29,7 @@ const LayoutContent: React.FC = () => {
           isExpanded || isHovered ? "lg:ml-[290px]" : "lg:ml-[90px]"
         } ${isMobileOpen ? "ml-0" : ""}`}
       >
-        <AppHeader />
+        <UserHeader />
         <div className="p-4 mx-auto max-w-screen-2xl md:p-6">
           <Outlet />
         </div>

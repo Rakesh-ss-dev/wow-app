@@ -19,10 +19,12 @@ mongoose
 const authRoutes = require("./routes/auth");
 const packageRoutes = require("./routes/package");
 const paymentRoutes = require("./routes/payment");
+const clientRoutes = require('./routes/client'); 
 
 app.use("/api/auth", authRoutes);
 app.use("/api/package", packageRoutes);
 app.use("/api/payment", paymentRoutes);
+app.use("/api/client",clientRoutes);
 
 require("./cronJobs"); // Make sure filename is exactly cronJob.js
 

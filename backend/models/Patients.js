@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-
+const bcrypt = require("bcryptjs");
 const PatientSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
@@ -13,6 +13,7 @@ const PatientSchema = new mongoose.Schema(
     status: { type: String, default: "created" },
     currency: { type: String, default: "INR" },
     method: { type: String, default: "" },
+    password:{type:String,default: ""},
     payed_at:{type:Date},
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
@@ -23,4 +24,15 @@ const PatientSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+PatientSchema.pre("save", async function (next) {
+  if (!this.password) {
+    const namePart = this.name?.replace(/\s+/g, "").substring(0, 4).toLowerCase() || "user";
+    const phonePart = this.phone?.slice(-4) || "0000";
+    this.password = `${namePart}${phonePart}`;
+  }
+  if (this.isModified("password")) {
+    this.password = await bcrypt.hash(this.password, 10);
+  }
+  next();
+});
 module.exports = mongoose.model("Patient", PatientSchema);

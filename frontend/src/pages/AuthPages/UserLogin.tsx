@@ -7,39 +7,23 @@ import { EyeCloseIcon, EyeIcon } from "../../icons";
 import Button from "../../components/ui/button/Button";
 import PageMeta from "../../components/common/PageMeta";
 import axios from "axios";
-import { useModal } from "../../hooks/useModal";
-import { Modal } from "../../components/ui/modal";
 
 export default function SignIn() {
   const navigate = useNavigate();
-  const { isOpen, openModal, closeModal } = useModal();
   const [showPassword, setShowPassword] = useState(false);
-  const [forgotEmail, setForgotEmail] = useState("");
-  const [email, setEmail] = useState("");
+  const [mobile, setMobile] = useState("");
   const [password, setPassword] = useState("");
   const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
-  const handleForgetPassword = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    try {
-      const res = await axios.post(`${SERVER_URL}/auth/forgot`, {
-        email: forgotEmail,
-      });
-      alert(res.data.message);
-      location.reload();
-    } catch (error:any) {
-      alert(error.response.data.error);
-    }
-  };
   const handleSignin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const res = await axios.post(`${SERVER_URL}/auth/login`, {
-        email,
+      const res = await axios.post(`${SERVER_URL}/client/login`, {
+        mobile,
         password,
       });
       localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
-      navigate("/dashboard");
+      localStorage.setItem("patient", JSON.stringify(res.data.patient));
+      navigate("/user-dashboard");
     } catch (err) {
       alert("Invalid Credentials");
     }
@@ -64,12 +48,12 @@ export default function SignIn() {
                   <div className="space-y-6">
                     <div>
                       <Label>
-                        Email <span className="text-error-500">*</span>{" "}
+                        Mobile Number <span className="text-error-500">*</span>{" "}
                       </Label>
                       <Input
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="info@gmail.com"
+                        value={mobile}
+                        onChange={(e) => setMobile(e.target.value)}
+                        placeholder="Enter Mobile Number"
                       />
                     </div>
                     <div>
@@ -95,20 +79,6 @@ export default function SignIn() {
                         </span>
                       </div>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <p
-                        onClick={openModal}
-                        className="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400 cursor-pointer"
-                      >
-                        Forgot password?
-                      </p>
-                      <a
-                        href="/user"
-                        className="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400 cursor-pointer"
-                      >
-                        Client Login
-                      </a>
-                    </div>
                     <div>
                       <Button className="w-full" size="sm">
                         Sign in
@@ -120,36 +90,6 @@ export default function SignIn() {
             </div>
           </div>
         </div>
-        <Modal
-          isOpen={isOpen}
-          onClose={closeModal}
-          className="max-w-[700px] m-4"
-        >
-          <div className="relative w-full p-4 overflow-y-auto bg-white rounded-3xl dark:bg-gray-900 lg:p-11">
-            <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
-              Forgot Password
-            </h4>
-            <form onSubmit={handleForgetPassword} className="flex flex-col">
-              <div className="px-2 overflow-y-auto">
-                <div className="grid grid-cols-1 gap-x-6 gap-y-5">
-                  <Input
-                    value={forgotEmail}
-                    onChange={(e) => setForgotEmail(e.target.value)}
-                    type="email"
-                    required
-                    placeholder="Enter a registered email id"
-                  />
-                </div>
-              </div>
-              <div className="flex items-center gap-3 px-2 mt-6 lg:justify-end">
-                <Button size="sm" variant="outline" onClick={closeModal}>
-                  Close
-                </Button>
-                <Button size="sm">Submit</Button>
-              </div>
-            </form>
-          </div>
-        </Modal>
         <div className="relative items-center justify-center flex-1 hidden p-8 z-1 bg-brand-950 dark:bg-white/5 lg:flex">
           {/* <!-- ===== Common Grid Shape Start ===== --> */}
           <GridShape />

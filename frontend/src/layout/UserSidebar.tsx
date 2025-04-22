@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useRef, useState, useMemo } from "react";
+import React, { useEffect, useCallback, useRef, useState } from "react";
 import { Link, useLocation } from "react-router";
 
 // Assume these icons are imported from an icon library
@@ -7,8 +7,6 @@ import {
   ChevronDownIcon,
   GridIcon,
   HorizontaLDots,
-  PaperPlaneIcon,
-  UserCircleIcon,
   DocsIcon
 } from "../icons";
 
@@ -16,7 +14,6 @@ type NavItem = {
   name: string;
   icon: React.ReactNode;
   path?: string;
-  role?: string;
   subItems?: { name: string; path: string; pro?: boolean; new?: boolean }[];
 };
 
@@ -24,55 +21,18 @@ const navItems: NavItem[] = [
   {
     icon: <GridIcon />,
     name: "Dashboard",
-    path: "/dashboard",
-  },
-  {
-    icon: <PaperPlaneIcon />,
-    name: "Paid Requests",
-    path: "/requests",
-  },
-  {
-    icon: <PaperPlaneIcon />,
-    name: "Pending Requests",
-    path: "/pending_requests",
-  },
-  {
-    icon: <UserCircleIcon />,
-    name: "Coaches",
-    path: "/coaches",
-    role: "Super-User",
+    path: "/user-dashboard",
   },
   {
     icon: <DocsIcon />,
     name: "Reports",
-    path: "/generate-report",
-    role: "Super-User",
+    path: "/view-reports",
   },
 ];
 
 const AppSidebar: React.FC = () => {
-  const [parsedUser, setParsedUser] = useState(() => {
-    const user = localStorage.getItem("user");
-    return user ? JSON.parse(user) : null;
-  });
   
-  useEffect(() => {
-    const handleStorageChange = () => {
-      const user = localStorage.getItem("user");
-      setParsedUser(user ? JSON.parse(user) : null);
-    };
   
-    window.addEventListener("storage", handleStorageChange);
-  
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-    };
-  }, []);
-  
-  const filteredNavItems = useMemo(() => {
-    const userRole = parsedUser?.isSuperUser ? "Super-User" : undefined;
-    return navItems.filter((item) => !item.role || item.role === userRole);
-  }, [parsedUser]);
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const location = useLocation();
 
@@ -90,29 +50,6 @@ const AppSidebar: React.FC = () => {
     [location.pathname]
   );
   
-  useEffect(() => {
-    let submenuMatched = false;
-    ["main", "others"].forEach((menuType) => {
-      const items = filteredNavItems;
-      items.forEach((nav, index) => {
-        if (nav.subItems) {
-          nav.subItems.forEach((subItem) => {
-            if (isActive(subItem.path)) {
-              setOpenSubmenu({
-                type: menuType as "main" | "others",
-                index,
-              });
-              submenuMatched = true;
-            }
-          });
-        }
-      });
-    });
-
-    if (!submenuMatched) {
-      setOpenSubmenu(null);
-    }
-  }, [location, isActive,filteredNavItems]);
 
   useEffect(() => {
     if (openSubmenu !== null) {
@@ -323,7 +260,7 @@ const AppSidebar: React.FC = () => {
                   <HorizontaLDots />
                 )}
               </h2>
-              {renderMenuItems(filteredNavItems, "main")}
+              {renderMenuItems(navItems, "main")}
             </div>
           </div>
         </nav>
