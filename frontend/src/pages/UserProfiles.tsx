@@ -2,7 +2,8 @@ import PageBreadcrumb from "../components/common/PageBreadCrumb";
 import UserInfoCard from "../components/UserProfile/UserInfoCard";
 import PageMeta from "../components/common/PageMeta";
 import ChangePassword from "../components/UserProfile/ChangePassword";
-
+const token=localStorage.getItem('patient');
+console.log(token);
 export default function UserProfiles() {
   return (
     <>

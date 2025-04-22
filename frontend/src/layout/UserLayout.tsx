@@ -1,6 +1,6 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { SidebarProvider, useSidebar } from "../context/SidebarContext";
-import { Outlet, useNavigate } from "react-router";
+import { Outlet } from "react-router";
 import UserHeader from "./UserHeader";
 import UserSidebar from "./UserSidebar";
 import Backdrop from "./Backdrop";
@@ -8,17 +8,16 @@ import Backdrop from "./Backdrop";
 const LayoutContent: React.FC = () => {
   const { isExpanded, isHovered, isMobileOpen } = useSidebar();
   const token = localStorage.getItem("token");
+  if(!token){
+    location.href = "/user";
+  }
   const user = localStorage.getItem("user");
   if (user) {
     localStorage.removeItem('user');
-    location.href = "/user-dashboard";
+    localStorage.removeItem('token');
+    location.href = "/user";
   }
-  const navigate = useNavigate();
-  useEffect(() => {
-    if (!token) {
-      navigate("/");
-    }
-  }, [token, navigate, user]);
+ 
   return (
     <div className="min-h-screen xl:flex">
       <div>
