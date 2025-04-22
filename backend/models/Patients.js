@@ -14,6 +14,9 @@ const PatientSchema = new mongoose.Schema(
     currency: { type: String, default: "INR" },
     method: { type: String, default: "" },
     password:{type:String,default: ""},
+    email:{type:String,default:''},
+    date_of_birth:{type:Date,default:""},
+    gender:{type:String,enum: ['Male', 'Female'],},
     payed_at:{type:Date},
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,

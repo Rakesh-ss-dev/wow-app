@@ -13,22 +13,21 @@ export default function UserInfoCard() {
 
   const handleSave = async (e: any) => {
     e.preventDefault();
-    try{
-    const res = await axios.post(
-      `${SERVER_URL}/auth/update-user`,
-      {
-        name: parsedUser.name,
-        email: parsedUser.email,
-        mobile: parsedUser.mobile,
-      },
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-    alert(res.data.message);
-    closeModal();
-  }
-  catch(err){
-    console.error(err);
-  }
+    try {
+      const res = await axios.post(
+        `${SERVER_URL}/auth/update-user`,
+        {
+          name: parsedUser.name,
+          email: parsedUser.email,
+          mobile: parsedUser.mobile,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      alert(res.data.message);
+      closeModal();
+    } catch (err) {
+      console.error(err);
+    }
   };
   const [parsedUser, setParsedUser] = useState(() => {
     const user = localStorage.getItem("user");
@@ -54,35 +53,7 @@ export default function UserInfoCard() {
           <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-6">
             Personal Information
           </h4>
-
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
-            <div className="col-span-2">
-              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Full Name
-              </p>
-              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                {parsedUser.name}
-              </p>
-            </div>
-            <div>
-              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Email address
-              </p>
-              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                {parsedUser.email}
-              </p>
-            </div>
-            <div>
-              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Phone
-              </p>
-              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                {parsedUser.mobile}
-              </p>
-            </div>
-          </div>
         </div>
-
         <button
           onClick={openModal}
           className="flex w-full items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 lg:inline-flex lg:w-auto"
@@ -104,6 +75,32 @@ export default function UserInfoCard() {
           </svg>
           Edit
         </button>
+      </div>
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
+        <div className="col-span-2">
+          <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
+            Full Name
+          </p>
+          <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+            {parsedUser.name}
+          </p>
+        </div>
+        <div>
+          <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
+            Email address
+          </p>
+          <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+            {parsedUser.email}
+          </p>
+        </div>
+        <div>
+          <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
+            Phone
+          </p>
+          <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+            {parsedUser.mobile}
+          </p>
+        </div>
       </div>
 
       <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[700px] m-4">
