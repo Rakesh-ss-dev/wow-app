@@ -40,7 +40,6 @@ const HealthReportsList = () => {
           Add Request
         </a>
       </div>
-      ;
       {loading ? (
         <p>Loading...</p>
       ) : error ? (
@@ -50,7 +49,6 @@ const HealthReportsList = () => {
       ) : (
         <p>No Reports Available</p>
       )}
-      ;
     </div>
   );
 };
