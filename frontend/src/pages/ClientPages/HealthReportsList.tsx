@@ -29,12 +29,30 @@ const HealthReportsList = () => {
 
     fetchReports();
   }, []);
-
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p className="text-red-500">{error}</p>;
-  if (reports.length === 0) return <p>No Reports Available</p>;
-
-  return <HealthReportsDataTable data={reports} />;
+  return (
+    <div className="max-w-full overflow-x-auto p-4">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-bold dark:text-gray-400">Reports</h2>
+        <a
+          href="/add-report"
+          className="px-4 py-2 bg-brand-500 text-white rounded hover:bg-brand-700 transition"
+        >
+          Add Request
+        </a>
+      </div>
+      ;
+      {loading ? (
+        <p>Loading...</p>
+      ) : error ? (
+        <p className="text-red-500">{error}</p>
+      ) : reports.length > 0 ? (
+        <HealthReportsDataTable data={reports} />
+      ) : (
+        <p>No Reports Available</p>
+      )}
+      ;
+    </div>
+  );
 };
 
 export default HealthReportsList;
