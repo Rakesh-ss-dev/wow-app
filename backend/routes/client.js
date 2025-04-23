@@ -9,7 +9,7 @@ const HealthReport = require("../models/HealthReport");
 router.post("/login", async (req, res) => {
   try {
     const { mobile, password } = req.body;
-    console.log(mobile,password);
+    console.log(mobile, password);
     const patient = await Patient.findOne({ phone: mobile, status: "paid" })
       .populate(["createdBy", "package"])
       .exec();
@@ -25,9 +25,10 @@ router.post("/login", async (req, res) => {
     res.status(500).json({ error: "Server error", err });
   }
 });
+
 router.post("/update", clientMiddleware, async (req, res) => {
   try {
-    const { name, dateOfBirth, gender, email } = req.body;
+    const { name, dateOfBirth, gender, email, bloodGroup } = req.body;
     const patient = await Patient.findOne({ _id: req.user._id })
       .populate(["createdBy", "package"])
       .exec();
@@ -38,6 +39,7 @@ router.post("/update", clientMiddleware, async (req, res) => {
     patient.date_of_birth = dateOfBirth;
     patient.gender = gender;
     patient.email = email;
+    patient.bloodGroup = bloodGroup;
     await patient.save();
     res.status(201).json({ message: "Profile Updated Successfully", patient });
   } catch (err) {
@@ -47,11 +49,14 @@ router.post("/update", clientMiddleware, async (req, res) => {
       .json({ message: "Failed to update your Profile", error: err.message });
   }
 });
+
 router.post("/change-password", clientMiddleware, async (req, res) => {
   try {
     const { oldPassword, newPassword } = req.body;
     if (!oldPassword || !newPassword) {
-      return res.status(400).json({ error: "Old password and new password are required." });
+      return res
+        .status(400)
+        .json({ error: "Old password and new password are required." });
     }
     const patient = await Patient.findById(req.user._id);
     if (!patient) {
@@ -70,8 +75,6 @@ router.post("/change-password", clientMiddleware, async (req, res) => {
     res.status(500).json({ error: "Internal server error." });
   }
 });
-
-
 
 router.post("/addReport", clientMiddleware, async (req, res) => {
   const userId = req.user;
@@ -125,4 +128,18 @@ router.get("/getRequests", clientMiddleware, async (req, res) => {
     res.status(500).json({ message: "Failed to Fetch health reports", error });
   }
 });
+
+router.get("/health-metrics", clientMiddleware, async (req, res) => {
+  try {
+    const latest = await HealthReport.findOne({ userId: req.user })
+      .sort({ date: -1 })
+      .exec();
+    if (!latest) return res.status(404).json({ error: "No data found." });
+    res.status(200).json(latest);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch the report", error });
+  }
+});
+
+
 module.exports = router;

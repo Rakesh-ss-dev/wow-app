@@ -16,6 +16,7 @@ const PatientSchema = new mongoose.Schema(
     password:{type:String,default: ""},
     email:{type:String,default:''},
     date_of_birth:{type:Date,default:""},
+    bloodGroup:{type:String,default:''},
     gender:{type:String,enum: ['Male', 'Female'],},
     payed_at:{type:Date},
     createdBy: {

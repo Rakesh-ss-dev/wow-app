@@ -17,6 +17,7 @@ const ClientInfoCard = () => {
   );
   const [gender, setGender] = useState(parsedPatient.gender || "");
   const [email, setEmail] = useState(parsedPatient.email || "");
+  const [bloodGroup,setBloodGroup] =useState(parsedPatient.bloodGroup||'')
   const { isOpen, openModal, closeModal } = useModal();
   const payedAt = new Date(parsedPatient.payed_at);
   const formattedDate = payedAt.toLocaleString('en-IN', {
@@ -53,7 +54,7 @@ const ClientInfoCard = () => {
     try {
       const res = await axios.post(
         `${SERVER_URL}/client/update`,
-        { name, dateOfBirth, gender, email },
+        { name, dateOfBirth, gender, email,bloodGroup },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       alert(res.data.message);
@@ -63,6 +64,8 @@ const ClientInfoCard = () => {
       console.error(error);
     }
   };
+  if(!parsedPatient.gender) return <div className="p-4 text-gray-500">Please Update your details</div>;
+  
   return (
     <>
       <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
@@ -142,6 +145,15 @@ const ClientInfoCard = () => {
                         />
                       </div>
                       <div className="col-span-2 lg:col-span-1">
+                        <Label>Blood Group</Label>
+                        <Input
+                          type="text"
+                          value={bloodGroup}
+                          onChange={(e) => setBloodGroup(e.target.value)}
+                          required
+                        />
+                      </div>
+                      <div className="col-span-2 lg:col-span-1">
                         <Label>Email address</Label>
                         <Input
                           type="email"
@@ -189,6 +201,14 @@ const ClientInfoCard = () => {
             </p>
             <p className="text-sm font-medium text-gray-800 dark:text-white/90">
               {parsedPatient.gender || "Not Entered"}
+            </p>
+          </div>
+          <div>
+            <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
+              Blood Group
+            </p>
+            <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+              {parsedPatient.bloodGroup || "Not Entered"}
             </p>
           </div>
           <div>
