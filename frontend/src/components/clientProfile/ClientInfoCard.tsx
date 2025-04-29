@@ -64,8 +64,6 @@ const ClientInfoCard = () => {
       console.error(error);
     }
   };
-  if(!parsedPatient.gender) return <div className="p-4 text-gray-500">Please Update your details</div>;
-  
   return (
     <>
       <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">

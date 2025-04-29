@@ -45,7 +45,8 @@ const MetricBar = ({ label, value, min, max, unit = "" }: MetricProps) => {
       <div className="flex justify-between text-sm font-medium mb-1">
         <span>{label}</span>
         <span>
-          {value} {unit}
+        {min}-{max} {unit}
+          
         </span>
       </div>
       <div className="w-full bg-gray-200 rounded-full h-2.5">
@@ -56,6 +57,7 @@ const MetricBar = ({ label, value, min, max, unit = "" }: MetricProps) => {
           style={{ width: `${percent}%` }}
         ></div>
       </div>
+      <p className="text-center text-sm font-medium">{value} {unit}</p>
     </div>
   );
 };
@@ -114,6 +116,7 @@ const HealthCard = () => {
             max={300}
             unit="ng/mL"
           />
+
         </div>
       </div>
 

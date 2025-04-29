@@ -28,6 +28,7 @@ import UserDashboard from "./pages/Dashboard/UserDashboard";
 import HealthReportForm from "./pages/ClientPages/HealthReportForm";
 import HealthReportsList from "./pages/ClientPages/HealthReportsList";
 import ClientProfile from "./pages/ClientProfile";
+import Ecommerce from "./pages/Dashboard/ECommerce";
 const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
 export default function App() {
   useEffect(() => {
@@ -93,6 +94,7 @@ export default function App() {
           </Route>
           <Route element={<UserLayout />}>
             <Route path="/user-dashboard" element={<UserDashboard />} />
+            <Route path="/sample-dashboard" element={<Ecommerce/>}/>
             <Route path="/add-report" element={<HealthReportForm />} />
             <Route path="/view-reports" element={<HealthReportsList />} />
             <Route path="/view-profile" element={<ClientProfile />} />
