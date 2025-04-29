@@ -47,14 +47,22 @@ const chartConfigs = [
   { title: "Vitamin B12", unit: "pg/mL", path: "vitamins.vitaminB12" },
   { title: "Iron", unit: "ng/mL", path: "vitamins.iron" },
   { title: "HbA1c", unit: "%", path: "diabetesAndLipidProfile.hba1c" },
-  { title: "Triglycerides", unit: "mg/dL", path: "diabetesAndLipidProfile.triglycerides" },
+  {
+    title: "Triglycerides",
+    unit: "mg/dL",
+    path: "diabetesAndLipidProfile.triglycerides",
+  },
   { title: "HDL", unit: "mg/dL", path: "diabetesAndLipidProfile.hdl" },
   { title: "TSH", unit: "µIU/mL", path: "thyroidAndUricAcid.tsh" },
   { title: "Uric Acid", unit: "mg/dL", path: "thyroidAndUricAcid.uricAcid" },
 ];
 
 // Generate ApexChart options
-const chartOptions = (title: string, yTitle: string, path: string): ApexOptions => {
+const chartOptions = (
+  title: string,
+  yTitle: string,
+  path: string
+): ApexOptions => {
   const range = optimalRanges[path];
 
   return {
@@ -62,15 +70,15 @@ const chartOptions = (title: string, yTitle: string, path: string): ApexOptions 
       type: "line",
       height: 300,
       toolbar: { show: false },
-      fontFamily:
-        "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
+      fontFamily: "",
     },
+    colors: ["#598D7B"],
     title: { text: title, align: "left" },
     xaxis: { type: "category", labels: { rotate: -45 } },
     yaxis: {
       title: { text: yTitle },
-      min: range?.min,  // Set minimum value for Y-axis
-      max: range?.max,  // Set maximum value for Y-axis
+      min: range?.min, // Set minimum value for Y-axis
+      max: range?.max, // Set maximum value for Y-axis
       labels: {
         formatter: (value) => {
           // Optional: Customize Y-axis labels if needed
