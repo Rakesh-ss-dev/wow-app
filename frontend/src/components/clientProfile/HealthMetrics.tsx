@@ -2,8 +2,8 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
 const token = localStorage.getItem("token");
-const patient:any = localStorage.getItem("patient");
-const parsedPatient =JSON.parse(patient);
+const patient: any = localStorage.getItem("patient");
+const parsedPatient = JSON.parse(patient);
 type data = {
   height: any;
   weight: any;
@@ -45,8 +45,7 @@ const MetricBar = ({ label, value, min, max, unit = "" }: MetricProps) => {
       <div className="flex justify-between text-sm font-medium mb-1">
         <span>{label}</span>
         <span>
-        {min}-{max} {unit}
-          
+          {min}-{max} {unit}
         </span>
       </div>
       <div className="w-full bg-gray-200 rounded-full h-2.5">
@@ -57,7 +56,9 @@ const MetricBar = ({ label, value, min, max, unit = "" }: MetricProps) => {
           style={{ width: `${percent}%` }}
         ></div>
       </div>
-      <p className="text-center text-sm font-medium">{value} {unit}</p>
+      <p className="text-center text-sm font-medium">
+        {value} {unit}
+      </p>
     </div>
   );
 };
@@ -74,16 +75,21 @@ const HealthCard = () => {
       .catch((err) => console.error(err))
       .finally(() => setLoading(false));
   }, []);
-  if(!parsedPatient.gender) return <div className="p-4 text-gray-500">Please Update your details</div>;
+  if (!parsedPatient.gender)
+    return <div className="p-4 text-gray-500">Please Update your details</div>;
   if (loading) return <div className="p-4 text-gray-500">Loading...</div>;
-  if(!healthData) return <div className="p-4 text-gray-500">Please add the Health Report</div>
-  
+  if (!healthData)
+    return (
+      <div className="p-4 text-gray-500">Please add the Health Report</div>
+    );
+
   return (
-    
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 p-4">
       <div className="rounded-2xl shadow-md col-span-full">
+        <h2 className="bg-brand-500 text-white rounded-t-2xl p-3">
+          General Info
+        </h2>
         <div className="p-6">
-          <h2 className="text-xl font-semibold mb-6">General Info</h2>
           <p className="mb-2">Height: {healthData?.height} cm</p>
           <p className="mb-2">Weight: {healthData?.weight} kg</p>
           <p className="mb-4">
@@ -93,8 +99,10 @@ const HealthCard = () => {
       </div>
 
       <div className="rounded-2xl shadow-md">
+        <h2 className="bg-brand-500 text-white rounded-t-2xl p-3">
+          Vitamin & Nutrients
+        </h2>
         <div className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Vitamin & Nutrients</h2>
           <MetricBar
             label="Vitamin D"
             value={healthData?.vitamins.vitaminD}
@@ -116,15 +124,14 @@ const HealthCard = () => {
             max={300}
             unit="ng/mL"
           />
-
         </div>
       </div>
 
       <div className="rounded-2xl shadow-md">
+        <h2 className="bg-brand-500 text-white rounded-t-2xl p-3">
+          Diabetes & Lipid Profile
+        </h2>
         <div className="p-6">
-          <h2 className="text-xl font-semibold mb-4">
-            Diabetes & Lipid Profile
-          </h2>
           <MetricBar
             label="HbA1c"
             value={healthData?.diabetesAndLipidProfile.hba1c}
@@ -150,8 +157,10 @@ const HealthCard = () => {
       </div>
 
       <div className="rounded-2xl shadow-md">
+        <h2 className="bg-brand-500 text-white rounded-t-2xl p-3">
+          Thyroid & Uric Acid
+        </h2>
         <div className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Thyroid & Uric Acid</h2>
           <MetricBar
             label="TSH"
             value={healthData?.thyroidAndUricAcid.tsh}

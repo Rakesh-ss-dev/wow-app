@@ -59,7 +59,7 @@ const chartConfigs = [
 
 // Generate ApexChart options
 const chartOptions = (
-  title: string,
+  
   yTitle: string,
   path: string
 ): ApexOptions => {
@@ -73,15 +73,13 @@ const chartOptions = (
       fontFamily: "",
     },
     colors: ["#598D7B"],
-    title: { text: title, align: "left" },
     xaxis: { type: "category", labels: { rotate: -45 } },
     yaxis: {
       title: { text: yTitle },
-      min: range?.min, // Set minimum value for Y-axis
-      max: range?.max, // Set maximum value for Y-axis
+      min: range?.min,
+      max: range?.max,
       labels: {
         formatter: (value) => {
-          // Optional: Customize Y-axis labels if needed
           return value.toFixed(2);
         },
       },
@@ -149,14 +147,15 @@ const MetricCharts = () => {
   }, []);
 
   if (loading) return <p>Loading charts...</p>;
-
+  if (healthData.length == 0) return <p>Please enter your reports</p>;
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6 p-4">
       {chartConfigs.map(({ title, unit, path }) => (
         <div key={path} className="rounded-2xl shadow-md bg-white">
+          <p className="bg-brand-500 text-white rounded-t-2xl p-3">{title}</p>
           <div className="p-6">
             <ReactApexChart
-              options={chartOptions(title, unit, path)}
+              options={chartOptions(unit, path)}
               series={prepareSeries(healthData, path)}
               type="line"
               height={300}

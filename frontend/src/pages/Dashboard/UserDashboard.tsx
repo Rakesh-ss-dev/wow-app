@@ -3,7 +3,7 @@ import MetricCharts from "../../components/clientProfile/MetricCharts";
 
 
 const UserDashboard = () => {
-  return <div>UserDashboard
+  return <div>
     <HealthMetrics/>
     <MetricCharts/>
   </div>;
