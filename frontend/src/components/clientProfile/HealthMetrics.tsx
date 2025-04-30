@@ -86,9 +86,7 @@ const HealthCard = () => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 p-4">
       <div className="rounded-2xl shadow-md col-span-full">
-        <h2 className="bg-brand-500 text-white rounded-t-2xl p-3">
-          General Info
-        </h2>
+        <h2 className="bg-brand-500 text-white rounded-t-2xl p-3">General Info</h2>
         <div className="p-6">
           <p className="mb-2">Height: {healthData?.height} cm</p>
           <p className="mb-2">Weight: {healthData?.weight} kg</p>
@@ -99,9 +97,7 @@ const HealthCard = () => {
       </div>
 
       <div className="rounded-2xl shadow-md">
-        <h2 className="bg-brand-500 text-white rounded-t-2xl p-3">
-          Vitamin & Nutrients
-        </h2>
+        <h2 className="bg-brand-500 text-white rounded-t-2xl p-3">Vitamin & Nutrients</h2>
         <div className="p-6">
           <MetricBar
             label="Vitamin D"
@@ -128,9 +124,7 @@ const HealthCard = () => {
       </div>
 
       <div className="rounded-2xl shadow-md">
-        <h2 className="bg-brand-500 text-white rounded-t-2xl p-3">
-          Diabetes & Lipid Profile
-        </h2>
+        <h2 className="bg-brand-500 text-white rounded-t-2xl p-3">Diabetes & Lipid Profile</h2>
         <div className="p-6">
           <MetricBar
             label="HbA1c"
@@ -157,9 +151,7 @@ const HealthCard = () => {
       </div>
 
       <div className="rounded-2xl shadow-md">
-        <h2 className="bg-brand-500 text-white rounded-t-2xl p-3">
-          Thyroid & Uric Acid
-        </h2>
+        <h2 className="bg-brand-500 text-white rounded-t-2xl p-3">Thyroid & Uric Acid</h2>
         <div className="p-6">
           <MetricBar
             label="TSH"

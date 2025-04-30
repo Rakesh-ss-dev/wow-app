@@ -24,7 +24,7 @@ const navItems: NavItem[] = [
   {
     icon: <GridIcon />,
     name: "Dashboard",
-    path: "/dashboard",
+    path: "/user-dashboard",
   },
   {
     icon: <PaperPlaneIcon />,

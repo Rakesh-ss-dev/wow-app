@@ -4,20 +4,12 @@ import { Outlet } from "react-router";
 import UserHeader from "./UserHeader";
 import UserSidebar from "./UserSidebar";
 import Backdrop from "./Backdrop";
-
 const LayoutContent: React.FC = () => {
   const { isExpanded, isHovered, isMobileOpen } = useSidebar();
   const token = localStorage.getItem("token");
   if(!token){
     location.href = "/user";
   }
-  const user = localStorage.getItem("user");
-  if (user) {
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
-    location.href = "/user";
-  }
- 
   return (
     <div className="min-h-screen xl:flex">
       <div>

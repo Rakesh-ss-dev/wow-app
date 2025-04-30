@@ -23,7 +23,7 @@ export default function SignIn() {
       });
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("patient", JSON.stringify(res.data.patient));
-      navigate("/user-dashboard");
+      navigate("/patient-dashboard");
     } catch (err) {
       alert("Invalid Credentials");
     }

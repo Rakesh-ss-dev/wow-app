@@ -52,7 +52,7 @@ const HealthReportForm: React.FC = () => {
         config
       );
       alert(response.data.message);
-      navigate("/user-dashboard");
+      navigate("/view-reports");
     } catch (error: any) {
       if (error.response) {
         alert(

@@ -8,13 +8,7 @@ import AppSidebar from "./AppSidebar";
 const LayoutContent: React.FC = () => {
   const { isExpanded, isHovered, isMobileOpen } = useSidebar();
   const token = localStorage.getItem("token");
-  const patient = localStorage.getItem("patient");
   if (!token) {
-    location.href = "/";
-  }
-  if (patient) {
-    localStorage.removeItem("patient");
-    localStorage.removeItem("token");
     location.href = "/";
   }
   return (
