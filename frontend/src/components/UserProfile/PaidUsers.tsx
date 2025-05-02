@@ -2,7 +2,7 @@ import axios from "axios";
 import UserCard from "./UserCard";
 import { useEffect, useState } from "react";
 
-const ActiveUsers = () => {
+const PaidUsers = () => {
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
@@ -11,7 +11,7 @@ const ActiveUsers = () => {
   useEffect(() => {
     const getUsers = async () => {
       try {
-        const res = await axios(`${SERVER_URL}/payment/get_active_users`, {
+        const res = await axios(`${SERVER_URL}/payment/get_requests`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setRequests(res.data.requests);
@@ -34,7 +34,7 @@ const ActiveUsers = () => {
   if (requests.length === 0)
     return (
       <div className="p-5">
-        <p>No Active Users</p>
+        <p>No Paid Users</p>
       </div>
     );
 
@@ -52,4 +52,4 @@ const ActiveUsers = () => {
   );
 };
 
-export default ActiveUsers;
+export default PaidUsers;

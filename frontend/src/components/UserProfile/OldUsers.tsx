@@ -1,22 +1,53 @@
+import axios from "axios";
+import UserCard from "./UserCard";
+import { useEffect, useState } from "react";
+
 const OldUsers = () => {
+  const [requests, setRequests] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
+  const token = localStorage.getItem("token");
+
+  useEffect(() => {
+    const getUsers = async () => {
+      try {
+        const res = await axios(`${SERVER_URL}/payment/get_old_users`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setRequests(res.data.requests);
+      } catch (err) {
+        console.error("Error fetching paid users:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    getUsers();
+  }, []);
+
+  if (loading)
+    return (
+      <div className="p-5">
+        <p>Requests Loading</p>
+      </div>
+    );
+
+  if (requests.length === 0)
+    return (
+      <div className="p-5">
+        <p>No Old Users</p>
+      </div>
+    );
+
   return (
-    <div className="bg-white rounded px-2 py-2">
-      <div className="flex flex-row justify-between items-center mb-2 mx-1">
-        <div className="flex items-center">
-          <h2 className=" w-max px-1 rounded mr-2 text-gray-700">
-            Old
-          </h2>
-        </div>
-      </div>
-      <div className="grid grid-rows-2 gap-2">
-        <div className="p-2 rounded shadow-sm border-gray-100 border-2">
-          <h3 className="text-sm mb-3 text-gray-700">
-            Morning emails and to-do list
-          </h3>
-          <p className="text-xs text-gray-500 mt-2">Jun 21, 2019</p>
-          <p className="text-xs text-gray-500 mt-2">1</p>
-        </div>
-      </div>
+    <div className="grid grid-cols-1 mt-7 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      {requests.map((request: any) => (
+        <UserCard
+          key={request._id}
+          title={request.name}
+          date={new Date(request.payed_at).toLocaleDateString()}
+          plan={request.package.name}
+        />
+      ))}
     </div>
   );
 };
