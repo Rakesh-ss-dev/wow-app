@@ -7,7 +7,7 @@ interface UserCardProps {
   plan: any;
   buttonText: any;
   placeButton: boolean;
-  clickFunction:any;
+  clickFunction: any;
 }
 
 const UserCard: React.FC<UserCardProps> = ({
@@ -20,7 +20,7 @@ const UserCard: React.FC<UserCardProps> = ({
 }) => {
   return (
     <div className="relative p-5 bg-white border border-gray-200 task rounded-xl shadow-theme-sm dark:border-gray-800 dark:bg-white/5">
-      <div className="space-y-4">
+      <div className="flex justify-between">
         <div>
           <h4 className="mb-5 mr-10 text-base text-gray-800 dark:text-white/90">
             {title}
@@ -35,7 +35,13 @@ const UserCard: React.FC<UserCardProps> = ({
             {plan}
           </span>
         </div>
-        {placeButton && <Button onClick={clickFunction}>{buttonText}</Button>}
+        {placeButton && (
+          <div className="self-start mt-0">
+          <Button size="sm" onClick={clickFunction}>
+            <span className="text-xs">{buttonText}</span>
+          </Button>
+          </div>
+        )}
       </div>
     </div>
   );
