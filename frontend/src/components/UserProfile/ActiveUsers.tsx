@@ -7,7 +7,22 @@ const ActiveUsers = () => {
   const [loading, setLoading] = useState(true);
   const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
   const token = localStorage.getItem("token");
-
+  const handleClick = async (id: any) => {
+    setLoading(true);
+    try {
+      const res = await axios.post(
+        `${SERVER_URL}/payment/deactivate_user`,
+        { id },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      alert(res.data.message);
+    } catch (err) {
+      console.error("Error making User active:", err);
+    }
+    finally{
+      setLoading(false)
+    }
+  };
   useEffect(() => {
     const getUsers = async () => {
       try {
@@ -22,7 +37,7 @@ const ActiveUsers = () => {
       }
     };
     getUsers();
-  }, []);
+  }, [loading,requests]);
 
   if (loading)
     return (
@@ -46,6 +61,9 @@ const ActiveUsers = () => {
           title={request.name}
           date={new Date(request.payed_at).toLocaleDateString()}
           plan={request.package.name}
+          placeButton={true}
+          buttonText="Deactivate User"
+          clickFunction={()=>handleClick(request._id)}
         />
       ))}
     </div>

@@ -1,12 +1,23 @@
-import { Calendar } from 'lucide-react';
+import { Calendar } from "lucide-react";
+import Button from "../ui/button/Button";
 
 interface UserCardProps {
   title: any;
   date: any;
   plan: any;
+  buttonText: any;
+  placeButton: boolean;
+  clickFunction:any;
 }
 
-const UserCard: React.FC<UserCardProps> = ({ title, date, plan }) => {
+const UserCard: React.FC<UserCardProps> = ({
+  title,
+  date,
+  plan,
+  buttonText,
+  placeButton,
+  clickFunction,
+}) => {
   return (
     <div className="relative p-5 bg-white border border-gray-200 task rounded-xl shadow-theme-sm dark:border-gray-800 dark:bg-white/5">
       <div className="space-y-4">
@@ -24,6 +35,7 @@ const UserCard: React.FC<UserCardProps> = ({ title, date, plan }) => {
             {plan}
           </span>
         </div>
+        {placeButton && <Button onClick={clickFunction}>{buttonText}</Button>}
       </div>
     </div>
   );

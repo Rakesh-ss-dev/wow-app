@@ -46,6 +46,9 @@ const OldUsers = () => {
           title={request.name}
           date={new Date(request.payed_at).toLocaleDateString()}
           plan={request.package.name}
+          placeButton={false}
+          buttonText={""}
+          clickFunction={()=>{return}}
         />
       ))}
     </div>

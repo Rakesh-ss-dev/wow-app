@@ -8,7 +8,24 @@ const PaidUsers = () => {
   const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
   const token = localStorage.getItem("token");
 
+  const handleClick = async (id: any) => {
+    setLoading(true);
+    try {
+      const res = await axios.post(
+        `${SERVER_URL}/payment/make_active`,
+        { id },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      alert(res.data.message);
+    } catch (err) {
+      console.error("Error making User active:", err);
+    }
+    finally{
+      setLoading(false)
+    }
+  };
   useEffect(() => {
+    
     const getUsers = async () => {
       try {
         const res = await axios(`${SERVER_URL}/payment/get_requests`, {
@@ -22,7 +39,7 @@ const PaidUsers = () => {
       }
     };
     getUsers();
-  }, []);
+  }, [loading,requests]);
 
   if (loading)
     return (
@@ -46,6 +63,9 @@ const PaidUsers = () => {
           title={request.name}
           date={new Date(request.payed_at).toLocaleDateString()}
           plan={request.package.name}
+          placeButton={true}
+          buttonText={"Activate User"}
+          clickFunction={() => handleClick(request._id)}
         />
       ))}
     </div>

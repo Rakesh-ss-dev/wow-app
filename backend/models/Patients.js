@@ -19,6 +19,7 @@ const PatientSchema = new mongoose.Schema(
     bloodGroup:{type:String,default:''},
     gender:{type:String,enum: ['Male', 'Female'],},
     payed_at:{type:Date},
+    activated_at:{type:Date},
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

@@ -19,17 +19,33 @@ function processPaymentsData(data) {
   let totalUSD = 0;
 
   // Format the data into the desired structure
-  const formattedData = data.map(entry => {
+  const formattedData = data.map((entry) => {
     console.log(entry);
-    const { name, phone, paymentId, package: pkg, discount, createdAt, payed_at, amount, currency } = entry;
+    const {
+      name,
+      phone,
+      paymentId,
+      package: pkg,
+      discount,
+      createdAt,
+      payed_at,
+      amount,
+      currency,
+    } = entry;
 
     // Convert dates to human-readable format
     const createdDate = new Date(createdAt).toLocaleDateString("en-US", {
-      year: 'numeric', month: 'short', day: 'numeric'
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
-    const paidDate = payed_at ? new Date(payed_at).toLocaleDateString("en-US", {
-      year: 'numeric', month: 'short', day: 'numeric'
-    }) : "N/A";
+    const paidDate = payed_at
+      ? new Date(payed_at).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        })
+      : "N/A";
 
     // Construct formatted entry
     const formattedEntry = {
@@ -39,13 +55,13 @@ function processPaymentsData(data) {
       Package: pkg.name || "unknown", // Default to 'unknown' if no package is provided
       Discount: `${discount}%`,
       Created_Date: createdDate,
-      Paid_Date: paidDate||"unknown",
-      [`Amount_${currency}`]: amount
+      Paid_Date: paidDate || "unknown",
+      [`Amount_${currency}`]: amount,
     };
 
     // Sum totals based on currency
-    if (currency === 'INR') totalINR += amount;
-    if (currency === 'USD') totalUSD += amount;
+    if (currency === "INR") totalINR += amount;
+    if (currency === "USD") totalUSD += amount;
 
     return formattedEntry;
   });
@@ -54,7 +70,7 @@ function processPaymentsData(data) {
   return {
     data: formattedData,
     Total_INR: totalINR,
-    Total_USD: totalUSD
+    Total_USD: totalUSD,
   };
 }
 
@@ -300,7 +316,7 @@ router.post("/user-status/", async (req, res) => {
     for (const user of users) {
       const requests = await Patients.find({
         createdBy: user._id,
-         status: "paid",
+        status: "paid",
         createdAt: {
           $gte: new Date(startDate),
           $lte: adjustedEndDate,
@@ -309,9 +325,9 @@ router.post("/user-status/", async (req, res) => {
         .sort({ createdAt: -1 })
         .populate("package")
         .exec();
-        
+
       if (requests.length > 0) {
-        const formattedData=processPaymentsData(requests);
+        const formattedData = processPaymentsData(requests);
         const data = formattedData.data;
         data.push({
           Name: "TOTAL_INR",
@@ -363,11 +379,98 @@ router.get("/get_requests", authMiddleware, async (req, res) => {
         .populate("createdBy", "name email")
         .exec();
     } else {
-      requests = await Patient.find({ createdBy: userData._id,status: "paid" })
+      requests = await Patient.find({ createdBy: userData._id, status: "paid" })
         .populate("package", "name amount")
         .exec();
     }
     res.json({ success: true, requests: requests });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error });
+  }
+});
+//
+router.get("/get_active_users", authMiddleware, async (req, res) => {
+  try {
+    const user = req.user;
+    const userData = await User.findById(user);
+    let requests;
+    if (userData.isSuperUser) {
+      requests = await Patient.find({
+        status: "active",
+      })
+        .populate("package", "name amount")
+        .populate("createdBy", "name email")
+        .exec();
+    } else {
+      requests = await Patient.find({
+        createdBy: userData._id,
+        status: "active",
+      })
+        .populate("package", "name amount")
+        .exec();
+    }
+    res.json({ success: true, requests: requests });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error });
+  }
+});
+
+router.get("/get_old_users", authMiddleware, async (req, res) => {
+  try {
+    const user = req.user;
+    const userData = await User.findById(user);
+    let requests;
+    if (userData.isSuperUser) {
+      requests = await Patient.find({
+        status: "old",
+      })
+        .populate("package", "name amount")
+        .populate("createdBy", "name email")
+        .exec();
+    } else {
+      requests = await Patient.find({
+        createdBy: userData._id,
+        status: "old",
+      })
+        .populate("package", "name amount")
+        .exec();
+    }
+    res.json({ success: true, requests: requests });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error });
+  }
+});
+
+router.post("/make_active", authMiddleware, async (req, res) => {
+  try {
+    const { id } = req.body;
+    const user = await Patient.findById(id);
+    const namePart =
+      user.name?.replace(/\s+/g, "").substring(0, 4).toLowerCase() || "user";
+    const phonePart = user.phone?.slice(-4) || "0000";
+    const password = `${namePart}${phonePart}`;
+    user.status = "active";
+    user.activated_at = new Date(); 
+    await user.save();
+    res.json({
+      success: true,
+      message: `User activated!! Now  the user can login using phone number as username and password :${password} `,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error });
+  }
+});
+
+router.post("/deactivate_user", authMiddleware, async (req, res) => {
+  try {
+    const { id } = req.body;
+    const user = await Patient.findById(id);
+    user.status = "old";
+    await user.save();
+    res.json({
+      success: true,
+      message: `User deactivated !!`,
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error });
   }
@@ -380,14 +483,15 @@ router.get("/get_pending_requests", authMiddleware, async (req, res) => {
     const userData = await User.findById(user);
     let requests;
     if (userData.isSuperUser) {
-      requests = await Patient.find(
-        { status: { $ne: "paid" } }
-      )
+      requests = await Patient.find({ status: { $ne: "paid" } })
         .populate("package", "name amount")
         .populate("createdBy", "name email")
         .exec();
     } else {
-      requests = await Patient.find({ createdBy: userData._id,status: { $ne: "paid" }  })
+      requests = await Patient.find({
+        createdBy: userData._id,
+        status: { $ne: "paid" },
+      })
         .populate("package", "name amount")
         .exec();
     }

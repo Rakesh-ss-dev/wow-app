@@ -10,7 +10,7 @@ router.post("/login", async (req, res) => {
   try {
     const { mobile, password } = req.body;
     console.log(mobile, password);
-    const patient = await Patient.findOne({ phone: mobile, status: "paid" })
+    const patient = await Patient.findOne({ phone: mobile, status: "active" })
       .populate(["createdBy", "package"])
       .exec();
     if (!patient) return res.status(400).json({ error: "User not found" });
