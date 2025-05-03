@@ -316,7 +316,7 @@ router.post("/user-status/", async (req, res) => {
     for (const user of users) {
       const requests = await Patients.find({
         createdBy: user._id,
-        status: "paid",
+        status: { $in: ["paid", "active", "old"] },
         payed_at: {
           $gte: new Date(startDate),
           $lte: adjustedEndDate,
