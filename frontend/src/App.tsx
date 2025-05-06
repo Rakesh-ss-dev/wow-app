@@ -5,16 +5,7 @@ import AuthLayout from "./layout/AuthLayout";
 import SignIn from "./pages/AuthPages/SignIn";
 import UserLogin from "./pages/AuthPages/UserLogin";
 import Blank from "./pages/Blank";
-import Calendar from "./pages/Calendar";
-import FormElements from "./pages/Forms/FormElements";
 import NotFound from "./pages/OtherPage/NotFound";
-import BasicTables from "./pages/Tables/BasicTables";
-import Alerts from "./pages/UiElements/Alerts";
-import Avatars from "./pages/UiElements/Avatars";
-import Badges from "./pages/UiElements/Badges";
-import Buttons from "./pages/UiElements/Buttons";
-import Images from "./pages/UiElements/Images";
-import Videos from "./pages/UiElements/Videos";
 import UserProfiles from "./pages/UserProfiles";
 import RequestList from "./pages/Requests/RequestList";
 import UserDataTableRes from "./pages/UserDataTable/UserDataTableRes";
@@ -28,7 +19,6 @@ import UserDashboard from "./pages/Dashboard/UserDashboard";
 import HealthReportForm from "./pages/ClientPages/HealthReportForm";
 import HealthReportsList from "./pages/ClientPages/HealthReportsList";
 import ClientProfile from "./pages/ClientProfile";
-import Ecommerce from "./pages/Dashboard/ECommerce";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ClientDetails from "./components/UserProfile/ClientDetails";
 const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
@@ -76,23 +66,13 @@ export default function App() {
           >
             <Route index path="/user-dashboard" element={<Blank />} />
             <Route path="/profile" element={<UserProfiles />} />
-            <Route path="/calendar" element={<Calendar />} />
-            <Route path="/blank" element={<Blank />} />
             <Route path="/requests" element={<RequestList />} />
             <Route path="/pending_requests" element={<PendingRequestList />} />
             <Route path="/create-request" element={<CreateRequest />} />
             <Route path="/generate-report" element={<Report_Form />} />
-            <Route path="/form-elements" element={<FormElements />} />
-            <Route path="/basic-tables" element={<BasicTables />} />
             <Route path="/coaches" element={<UserDataTableRes />} />
             <Route path="/create-coach" element={<CreateCoach />} />
-            <Route path="/client-details/:userId" element={<ClientDetails/>}/>
-            <Route path="/alerts" element={<Alerts />} />
-            <Route path="/avatars" element={<Avatars />} />
-            <Route path="/badges" element={<Badges />} />
-            <Route path="/buttons" element={<Buttons />} />
-            <Route path="/images" element={<Images />} />
-            <Route path="/videos" element={<Videos />} />
+            <Route path="/client-details/:userId" element={<ClientDetails />} />
           </Route>
 
           {/* Protected Routes for 'patient' */}
@@ -104,7 +84,6 @@ export default function App() {
             }
           >
             <Route path="/patient-dashboard" element={<UserDashboard />} />
-            <Route path="/sample-dashboard" element={<Ecommerce />} />
             <Route path="/add-report" element={<HealthReportForm />} />
             <Route path="/view-reports" element={<HealthReportsList />} />
             <Route path="/view-profile" element={<ClientProfile />} />
