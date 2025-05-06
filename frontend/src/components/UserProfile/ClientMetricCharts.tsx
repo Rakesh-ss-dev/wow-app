@@ -58,11 +58,7 @@ const chartConfigs = [
 ];
 
 // Generate ApexChart options
-const chartOptions = (
-  
-  yTitle: string,
-  path: string
-): ApexOptions => {
+const chartOptions = (yTitle: string, path: string): ApexOptions => {
   const range = optimalRanges[path];
 
   return {
@@ -129,7 +125,7 @@ const prepareSeries = (data: HealthData[], path: string) => {
 interface ClientMetricChartProp {
   userId: any;
 }
-const ClientMetricCharts: React.FC<ClientMetricChartProp> = ({userId}) => {
+const ClientMetricCharts: React.FC<ClientMetricChartProp> = ({ userId }) => {
   const [healthData, setHealthData] = useState<HealthData[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -139,8 +135,8 @@ const ClientMetricCharts: React.FC<ClientMetricChartProp> = ({userId}) => {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
-        if (Array.isArray(res.data)) {
-          setHealthData(res.data);
+        if (Array.isArray(res.data.requests)) {
+          setHealthData(res.data.requests);
         } else {
           console.error("Unexpected response structure:", res.data);
         }
@@ -152,20 +148,23 @@ const ClientMetricCharts: React.FC<ClientMetricChartProp> = ({userId}) => {
   if (loading) return <p>Loading charts...</p>;
   if (healthData.length == 0) return <p>Reports Not Entered</p>;
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6 p-4">
-      {chartConfigs.map(({ title, unit, path }) => (
-        <div key={path} className="rounded-2xl shadow-md bg-white">
-          <p className="bg-brand-500 text-white rounded-t-2xl p-3">{title}</p>
-          <div className="p-6">
-            <ReactApexChart
-              options={chartOptions(unit, path)}
-              series={prepareSeries(healthData, path)}
-              type="line"
-              height={300}
-            />
+    <div>
+      <h2 className="my-5 text-center">Individual Property Graphs</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 p-4">
+        {chartConfigs.map(({ title, unit, path }) => (
+          <div key={path} className="rounded-2xl shadow-md bg-white">
+            <p className="bg-brand-500 text-white rounded-t-2xl p-3">{title}</p>
+            <div className="p-6">
+              <ReactApexChart
+                options={chartOptions(unit, path)}
+                series={prepareSeries(healthData, path)}
+                type="line"
+                height={200}
+              />
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 };

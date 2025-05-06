@@ -66,19 +66,25 @@ interface ClientHealthCardProp {
 const ClientHealthCard: React.FC<ClientHealthCardProp> = ({ userId }) => {
   const [healthData, setHealthData] = useState<data | null>(null);
   const [loading, setLoading] = useState(true);
+  const [userData, setUserData] = useState<any>({});
   useEffect(() => {
     axios
       .get(`${SERVER_URL}/payment/health-metrics/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
-      .then((res) => setHealthData(res.data))
+      .then((res) => {
+        setHealthData(res.data.latest);
+        setUserData(res.data.user);
+      })
       .catch((err) => console.error(err))
       .finally(() => setLoading(false));
   }, []);
   if (loading) return <div className="p-4 text-gray-500">Loading...</div>;
   if (!healthData)
     return (
-      <div className="p-4 text-gray-500">Please Ask the user to update the health reports</div>
+      <div className="p-4 text-gray-500">
+        Please Ask the user to update the health reports
+      </div>
     );
 
   return (
@@ -88,6 +94,12 @@ const ClientHealthCard: React.FC<ClientHealthCardProp> = ({ userId }) => {
           General Info
         </h2>
         <div className="p-6">
+          
+          <p className="mb-2">Name: {userData.name}</p>
+          <p className="mb-2">Phone: {userData.phone}</p>
+          <p className="mb-2">Package: {userData.package.name}</p>
+          <p className="mb-2">Active From: {new Date(userData.activated_at).toLocaleDateString()}</p>
+
           <p className="mb-2">Height: {healthData?.height} cm</p>
           <p className="mb-2">Weight: {healthData?.weight} kg</p>
           <p className="mb-4">
