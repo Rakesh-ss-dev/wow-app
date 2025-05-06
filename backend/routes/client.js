@@ -141,5 +141,4 @@ router.get("/health-metrics", clientMiddleware, async (req, res) => {
   }
 });
 
-
 module.exports = router;

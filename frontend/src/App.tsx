@@ -30,6 +30,7 @@ import HealthReportsList from "./pages/ClientPages/HealthReportsList";
 import ClientProfile from "./pages/ClientProfile";
 import Ecommerce from "./pages/Dashboard/ECommerce";
 import ProtectedRoute from "./components/ProtectedRoute";
+import ClientDetails from "./components/UserProfile/ClientDetails";
 const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
 export default function App() {
   useEffect(() => {
@@ -85,6 +86,7 @@ export default function App() {
             <Route path="/basic-tables" element={<BasicTables />} />
             <Route path="/coaches" element={<UserDataTableRes />} />
             <Route path="/create-coach" element={<CreateCoach />} />
+            <Route path="/client-details/:userId" element={<ClientDetails/>}/>
             <Route path="/alerts" element={<Alerts />} />
             <Route path="/avatars" element={<Avatars />} />
             <Route path="/badges" element={<Badges />} />

@@ -18,9 +18,8 @@ const ActiveUsers = () => {
       alert(res.data.message);
     } catch (err) {
       console.error("Error making User active:", err);
-    }
-    finally{
-      setLoading(false)
+    } finally {
+      setLoading(false);
     }
   };
   useEffect(() => {
@@ -37,7 +36,7 @@ const ActiveUsers = () => {
       }
     };
     getUsers();
-  }, [loading,requests]);
+  }, [loading, requests]);
 
   if (loading)
     return (
@@ -56,15 +55,17 @@ const ActiveUsers = () => {
   return (
     <div className="grid grid-cols-1 mt-7 gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {requests.map((request: any) => (
-        <UserCard
-          key={request._id}
-          title={request.name}
-          date={new Date(request.activated_at).toLocaleDateString()}
-          plan={request.package.name}
-          placeButton={true}
-          buttonText="Deactivate User"
-          clickFunction={()=>handleClick(request._id)}
-        />
+        <a href={`/client-details/${request._id}`}>
+          <UserCard
+            key={request._id}
+            title={request.name}
+            date={new Date(request.activated_at).toLocaleDateString()}
+            plan={request.package.name}
+            placeButton={true}
+            buttonText="Deactivate User"
+            clickFunction={() => handleClick(request._id)}
+          />
+        </a>
       ))}
     </div>
   );
