@@ -36,7 +36,7 @@ const UserCard: React.FC<UserCardProps> = ({
           </span>
         </div>
         {placeButton && (
-          <div className="w-1/2 self-end mt-0">
+          <div className="w-1/2 self-start mt-0">
           <Button size="sm" onClick={clickFunction}>
             <span className="text-xs">{buttonText}</span>
           </Button>
