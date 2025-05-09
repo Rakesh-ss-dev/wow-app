@@ -236,6 +236,7 @@ router.post("/success", async (req, res) => {
       };
       await transporter.sendMail(mailOptions);
       payment.notified = true;
+      payment.status='paid';
       await payment.save();
       res.json({ success: true, message: "Email sent successfully!" });
     } else {
