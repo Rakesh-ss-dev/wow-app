@@ -54,7 +54,7 @@ const ActiveUsers = () => {
     );
 
   return (
-    <div className="grid grid-cols-1 mt-7 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+    <div className="grid grid-cols-1 mt-7 auto-rows-fr gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {requests.map((request: any) => (
         <a href={`/client-details/${request._id}`}>
           <UserCard
