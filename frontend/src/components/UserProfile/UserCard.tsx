@@ -21,7 +21,7 @@ const UserCard: React.FC<UserCardProps> = ({
   return (
     <div className="relative p-5 bg-white border border-gray-200 task rounded-xl shadow-theme-sm dark:border-gray-800 dark:bg-white/5">
       <div className="flex justify-between">
-        <div>
+        <div className="w-1/2">
           <h4 className="mb-5 mr-10 text-base text-gray-800 dark:text-white/90">
             {title}
           </h4>
@@ -36,7 +36,7 @@ const UserCard: React.FC<UserCardProps> = ({
           </span>
         </div>
         {placeButton && (
-          <div className="self-start items-start mt-0">
+          <div className="w-1/2 self-start items-start mt-0">
           <Button size="sm" onClick={clickFunction}>
             <span className="text-xs">{buttonText}</span>
           </Button>
