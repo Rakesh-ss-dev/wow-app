@@ -47,7 +47,7 @@ const OldUsers = () => {
     );
 
   return (
-    <div className="grid grid-cols-1 mt-7 justify-items-stretch gap-4 sm:grid-cols-2 xl:grid-cols-3">
+    <div className="grid grid-cols-1 mt-7 items-stretch gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {requests.map((request: any) => (
         <UserCard
           key={request._id}
