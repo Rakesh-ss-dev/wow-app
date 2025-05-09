@@ -75,7 +75,7 @@ const HealthCard = () => {
       .catch((err) => console.error(err))
       .finally(() => setLoading(false));
   }, []);
-  if (!parsedPatient.gender)
+  if (!parsedPatient?.gender)
     return <div className="p-4 text-gray-500">Please Update your details</div>;
   if (loading) return <div className="p-4 text-gray-500">Loading...</div>;
   if (!healthData)

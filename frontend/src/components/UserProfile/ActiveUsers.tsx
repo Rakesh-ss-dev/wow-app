@@ -7,7 +7,8 @@ const ActiveUsers = () => {
   const [loading, setLoading] = useState(true);
   const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
   const token = localStorage.getItem("token");
-  const handleClick = async (id: any) => {
+  const handleClick = async (e:any,id: any) => {
+    e.preventDefault();
     setLoading(true);
     try {
       const res = await axios.post(
@@ -63,7 +64,7 @@ const ActiveUsers = () => {
             plan={request.package.name}
             placeButton={true}
             buttonText="Deactivate User"
-            clickFunction={() => handleClick(request._id)}
+            clickFunction={(e:any) => handleClick(e,request._id)}
           />
         </a>
       ))}

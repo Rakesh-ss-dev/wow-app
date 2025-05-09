@@ -28,7 +28,7 @@ const PaidUsers = () => {
     
     const getUsers = async () => {
       try {
-        const res = await axios(`${SERVER_URL}/payment/get_requests`, {
+        const res = await axios(`${SERVER_URL}/payment/get_paid_users`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setRequests(res.data.requests);

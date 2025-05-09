@@ -417,7 +417,31 @@ router.get("/get_active_users", authMiddleware, async (req, res) => {
     res.status(500).json({ success: false, message: error });
   }
 });
-
+router.get("/get_paid_users", authMiddleware, async (req, res) => {
+  try {
+    const user = req.user;
+    const userData = await User.findById(user);
+    let requests;
+    if (userData.isSuperUser) {
+      requests = await Patient.find({
+        status: "paid",
+      })
+        .populate("package", "name amount")
+        .populate("createdBy", "name email")
+        .exec();
+    } else {
+      requests = await Patient.find({
+        createdBy: userData._id,
+        status: "paid",
+      })
+        .populate("package", "name amount")
+        .exec();
+    }
+    res.json({ success: true, requests: requests });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error });
+  }
+});
 router.get("/get_old_users", authMiddleware, async (req, res) => {
   try {
     const user = req.user;
