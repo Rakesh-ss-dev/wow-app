@@ -31,7 +31,15 @@ const PaidUsers = () => {
         const res = await axios(`${SERVER_URL}/payment/get_paid_users`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setRequests(res.data.requests);
+        if (res.data?.requests) {
+          const sortedRequests = [...res.data.requests].sort(
+            (a, b) => new Date(b.payed_at).getTime() - new Date(a.payed_at).getTime()
+          );
+          setRequests(sortedRequests);
+        } else {
+          console.warn("Unexpected response format:", res.data);
+          setRequests([]);
+        }
       } catch (err) {
         console.error("Error fetching paid users:", err);
       } finally {
