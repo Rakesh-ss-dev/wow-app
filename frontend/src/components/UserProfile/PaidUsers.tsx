@@ -61,7 +61,7 @@ const PaidUsers = () => {
         <UserCard
           key={request._id}
           title={request.name}
-          date={new Date(request.payed_at).toLocaleDateString()}
+          date={request.payed_at}
           plan={request.package.name}
           placeButton={true}
           buttonText={"Activate User"}

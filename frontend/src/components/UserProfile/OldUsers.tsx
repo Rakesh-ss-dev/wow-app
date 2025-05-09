@@ -44,7 +44,7 @@ const OldUsers = () => {
         <UserCard
           key={request._id}
           title={request.name}
-          date={new Date(request.updatedAt).toLocaleDateString()}
+          date={request.updatedAt}
           plan={request.package.name}
           placeButton={false}
           buttonText={""}

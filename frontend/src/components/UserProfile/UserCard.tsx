@@ -1,6 +1,17 @@
 import { Calendar } from "lucide-react";
 import Button from "../ui/button/Button";
+const formatReadableDate = (isoString: string): string => {
+  if (!isoString) return "Invalid Date";
+  const date = new Date(isoString);
+  if (isNaN(date.getTime())) return "Invalid Date";
 
+  return date.toLocaleDateString("en-IN", {
+    timeZone: "Asia/Kolkata",
+    day: "2-digit",
+    month: "2-digit",
+    year: "2-digit",
+  });
+};
 interface UserCardProps {
   title: any;
   date: any;
@@ -28,7 +39,7 @@ const UserCard: React.FC<UserCardProps> = ({
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1 text-sm text-gray-500 cursor-pointer dark:text-gray-400">
               <Calendar />
-              {date}
+              {formatReadableDate(date)}
             </span>
           </div>
           <span className="mt-3 inline-flex rounded-full px-2 py-0.5 text-theme-xs font-medium bg-gray-100 text-gray-700 dark:bg-gray-500/15 dark:text-gray-400">

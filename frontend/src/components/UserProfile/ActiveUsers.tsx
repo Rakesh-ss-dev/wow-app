@@ -1,7 +1,6 @@
 import axios from "axios";
 import UserCard from "./UserCard";
 import { useEffect, useState } from "react";
-
 const ActiveUsers = () => {
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -60,7 +59,7 @@ const ActiveUsers = () => {
           <UserCard
             key={request._id}
             title={request.name}
-            date={new Date(request.activated_at).toLocaleDateString()}
+            date={request.activated_at}
             plan={request.package.name}
             placeButton={true}
             buttonText="Deactivate User"
