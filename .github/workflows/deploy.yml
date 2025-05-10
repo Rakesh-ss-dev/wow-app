@@ -19,27 +19,42 @@ jobs:
           username: ${{ secrets.AWS_SSH_USER }}
           key: ${{ secrets.AWS_SSH_KEY }}
           script: |
-                    # Navigate to the app directory or clone it if it does not exist
-                    if [ -d "~/wow-app" ]; then
-                      cd ~/wow-app
-                      git reset --hard
-                      git clean -fd
-                      git pull origin main
-                    else
-                      git clone https://github.com/Rakesh-ss-dev/wow-app.git ~/wow-app && cd ~/wow-app
-                    fi
-                    cd frontend
-                    sudo npm install
-                    sudo npm run build
-                    # Ensure old files are cleared
-                    sudo rm -rf /var/www/html/wow-frontend/*
-                    sudo cp -r dist/* /var/www/html/wow-frontend/
-                    # Backend setup
-                    cd ../backend
-                    sudo npm install
-                    pm2 restart wow-backend || pm2 start server.js --name "wow-backend"
-                    # Nginx Configuration
-                    cd ../frontend
-                    sudo rm -f /etc/nginx/sites-enabled/wow-app
-                    sudo ln -s /etc/nginx/sites-available/wow-app /etc/nginx/sites-enabled/
-                    sudo systemctl restart nginx
+
+            # Ensure directory is clean or clone if not present
+            if [ -d "~/wow-app" ]; then
+              cd ~/wow-app
+              sudo git reset --hard
+              sudo git clean -fdx
+              sudo git pull origin main
+            else
+              sudo git clone https://github.com/Rakesh-ss-dev/wow-app.git ~/wow-app && cd ~/wow-app
+            fi
+
+            # Frontend setup
+            if [ -d "frontend" ]; then
+              cd frontend
+              sudo npm install --force
+              sudo npm run build || { echo "Frontend build failed"; exit 1; }
+
+              # Clear old files and copy new build
+              sudo rm -rf /var/www/html/wow-frontend/*
+              sudo cp -r dist/* /var/www/html/wow-frontend/
+            else
+              echo "Frontend directory not found. Please check your repository structure."
+              exit 1
+            fi
+
+            # Backend setup
+            if [ -d "../backend" ]; then
+              cd ../backend
+              sudo npm install --force
+              pm2 restart wow-backend || pm2 start server.js --name "wow-backend"
+            else
+              echo "Backend directory not found. Please check your repository structure."
+              exit 1
+            fi
+
+            # Nginx Configuration
+            sudo rm -f /etc/nginx/sites-enabled/wow-app
+            sudo ln -s /etc/nginx/sites-available/wow-app /etc/nginx/sites-enabled/
+            sudo systemctl restart nginx
