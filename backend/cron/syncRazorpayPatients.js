@@ -27,6 +27,8 @@ const getPaymentDetails = async (patient) => {
   }
 };
 
+
+
 async function syncRazorpayToPatients() {
   try {
     const patients = await Patients.find({
