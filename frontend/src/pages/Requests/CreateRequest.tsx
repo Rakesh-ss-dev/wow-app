@@ -79,7 +79,7 @@ const CreateRequest: React.FC = () => {
   const [paymentLink, setPaymentLink] = useState<string>("");
   const [copied, setCopied] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-  const [radioSelectedValue, setRadioSelectedValue] = useState("Installment 1");
+  const [radioSelectedValue, setRadioSelectedValue] = useState("");
   const [isInstallmentChecked, setIsInstallementChecked] = useState(false);
 
   const copyFallback = (text: string) => {
@@ -118,10 +118,19 @@ const CreateRequest: React.FC = () => {
     setPaymentLink("");
   };
   const changeInstallmentCheck = () => {
-    setIsInstallementChecked(!isInstallmentChecked);
+     setIsInstallementChecked(prev => {
+    if (prev) {
+      setRadioSelectedValue('')
+    }
+    else{
+      setRadioSelectedValue('Installment 1')
+    }
+    return !prev;
+  });
+    
+    
   };
   const handleRadioChange = (value: string) => {
-    console.log(value);
     setRadioSelectedValue(value);
   };
   const validateSelect = (value: string) => {
