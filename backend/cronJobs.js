@@ -8,4 +8,3 @@ cron.schedule("*/15 * * * *", () => {
     console.log(err);
 }
 });
-
