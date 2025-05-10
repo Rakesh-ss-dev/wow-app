@@ -20,41 +20,23 @@ jobs:
           key: ${{ secrets.AWS_SSH_KEY }}
           script: |
 
-            # Ensure directory is clean or clone if not present
-            if [ -d "~/wow-app" ]; then
-              cd ~/wow-app
-              sudo git reset --hard
-              sudo git clean -fdx
-              sudo git pull origin main
-            else
-              sudo git clone https://github.com/Rakesh-ss-dev/wow-app.git ~/wow-app && cd ~/wow-app
-            fi
-
-            # Frontend setup
-            if [ -d "frontend" ]; then
-              cd frontend
-              sudo npm install --force
-              sudo npm run build || { echo "Frontend build failed"; exit 1; }
-
-              # Clear old files and copy new build
-              sudo rm -rf /var/www/html/wow-frontend/*
-              sudo cp -r dist/* /var/www/html/wow-frontend/
-            else
-              echo "Frontend directory not found. Please check your repository structure."
-              exit 1
-            fi
+            cd ~/wow-app || git clone https://github.com/Rakesh-ss-dev/wow-app.git ~/wow-app && cd ~/wow-app
+            git pull origin main
+            cd frontend
+            sudo npm install
+            sudo npm run build
+            sudo cp -r dist/* /var/www/html/wow-frontend/
 
             # Backend setup
-            if [ -d "../backend" ]; then
-              cd ../backend
-              sudo npm install --force
-              pm2 restart wow-backend || pm2 start server.js --name "wow-backend"
-            else
-              echo "Backend directory not found. Please check your repository structure."
-              exit 1
-            fi
+            cd ../backend
+            sudo npm install
+            pm2 restart wow-backend || pm2 start server.js --name "wow-backend"
 
-            # Nginx Configuration
+            # Frontend setup
+
+
+            cd ../frontend
+            #Update Nginx Configuration
             sudo rm -f /etc/nginx/sites-enabled/wow-app
             sudo ln -s /etc/nginx/sites-available/wow-app /etc/nginx/sites-enabled/
             sudo systemctl restart nginx
