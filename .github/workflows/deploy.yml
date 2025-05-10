@@ -19,24 +19,27 @@ jobs:
           username: ${{ secrets.AWS_SSH_USER }}
           key: ${{ secrets.AWS_SSH_KEY }}
           script: |
-
-            cd ~/wow-app || git clone https://github.com/Rakesh-ss-dev/wow-app.git ~/wow-app && cd ~/wow-app
-            git pull origin main
-            cd frontend
-            sudo npm install
-            sudo npm run build
-            sudo cp -r dist/* /var/www/html/wow-frontend/
-
-            # Backend setup
-            cd ../backend
-            sudo npm install
-            pm2 restart wow-backend || pm2 start server.js --name "wow-backend"
-
-            # Frontend setup
-
-
-            cd ../frontend
-            #Update Nginx Configuration
-            sudo rm -f /etc/nginx/sites-enabled/wow-app
-            sudo ln -s /etc/nginx/sites-available/wow-app /etc/nginx/sites-enabled/
-            sudo systemctl restart nginx
+                    # Navigate to the app directory or clone it if it does not exist
+                    if [ -d "~/wow-app" ]; then
+                      cd ~/wow-app
+                      git reset --hard
+                      git clean -fd
+                      git pull origin main
+                    else
+                      git clone https://github.com/Rakesh-ss-dev/wow-app.git ~/wow-app && cd ~/wow-app
+                    fi
+                    cd frontend
+                    sudo npm install
+                    sudo npm run build
+                    # Ensure old files are cleared
+                    sudo rm -rf /var/www/html/wow-frontend/*
+                    sudo cp -r dist/* /var/www/html/wow-frontend/
+                    # Backend setup
+                    cd ../backend
+                    sudo npm install
+                    pm2 restart wow-backend || pm2 start server.js --name "wow-backend"
+                    # Nginx Configuration
+                    cd ../frontend
+                    sudo rm -f /etc/nginx/sites-enabled/wow-app
+                    sudo ln -s /etc/nginx/sites-available/wow-app /etc/nginx/sites-enabled/
+                    sudo systemctl restart nginx
