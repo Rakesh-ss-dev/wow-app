@@ -62,5 +62,4 @@ async function syncRazorpayToPatients() {
     console.error("❌ Top-level sync error:", err);
   }
 }
-
 module.exports = syncRazorpayToPatients;
