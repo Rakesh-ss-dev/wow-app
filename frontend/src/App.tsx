@@ -21,6 +21,7 @@ import HealthReportsList from "./pages/ClientPages/HealthReportsList";
 import ClientProfile from "./pages/ClientProfile";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ClientDetails from "./components/UserProfile/ClientDetails";
+import PendingInstallment from "./pages/Requests/PendingInstallment";
 const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
 export default function App() {
   useEffect(() => {
@@ -73,6 +74,7 @@ export default function App() {
             <Route path="/coaches" element={<UserDataTableRes />} />
             <Route path="/create-coach" element={<CreateCoach />} />
             <Route path="/client-details/:userId" element={<ClientDetails />} />
+            <Route path="/installments" element={<PendingInstallment/>}/>
           </Route>
 
           {/* Protected Routes for 'patient' */}

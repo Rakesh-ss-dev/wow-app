@@ -20,6 +20,7 @@ const PatientSchema = new mongoose.Schema(
     gender:{type:String,enum: ['Male', 'Female'],},
     payed_at:{type:Date},
     activated_at:{type:Date},
+    dueAmount:{type: Number, default: 0},
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

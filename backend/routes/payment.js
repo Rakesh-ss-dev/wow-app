@@ -130,7 +130,7 @@ router.post("/create-payment-link", authMiddleware, async (req, res) => {
     const category_from_db = await Package.findOne({ name: category });
     let description = `Payment for your Golden 90 ${category_from_db.name} | Tax: 18%`;
     let amount;
-    if (tobePaid == 0) {
+    if (parseFloat(tobePaid) == 0) {
       amount = finalAmount * 100;
     } else {
       amount = tobePaid * 100;
@@ -165,7 +165,10 @@ router.post("/create-payment-link", authMiddleware, async (req, res) => {
       discount: discount,
       installment: installment,
       createdBy: req.user,
+      amount: finalAmount,
+      dueAmount: tobePaid == 0 ? 0 : parseFloat(finalAmount).toFixed(2) - parseFloat(tobePaid).toFixed(2),
     });
+    console.log(patient);
     await patient.save();
     res.json({ success: true, payment_link: order.short_url });
   } catch (error) {
@@ -236,7 +239,8 @@ router.post("/success", async (req, res) => {
       };
       await transporter.sendMail(mailOptions);
       payment.notified = true;
-      payment.status='paid';
+      payment.status = "paid";
+      payment.payed_at = new Date();
       await payment.save();
       res.json({ success: true, message: "Email sent successfully!" });
     } else {
@@ -382,7 +386,10 @@ router.get("/get_requests", authMiddleware, async (req, res) => {
         .populate("createdBy", "name email")
         .exec();
     } else {
-      requests = await Patient.find({ createdBy: userData._id, status: { $in: ["paid", "active", "old"] } })
+      requests = await Patient.find({
+        createdBy: userData._id,
+        status: { $in: ["paid", "active", "old"] },
+      })
         .populate("package", "name amount")
         .exec();
     }
@@ -391,7 +398,30 @@ router.get("/get_requests", authMiddleware, async (req, res) => {
     res.status(500).json({ success: false, message: error });
   }
 });
+router.get("/get-installments", authMiddleware, async (req, res) => {
+  try {
+    const user = req.user;
+    const userData = await User.findById(user);
+    let requests;
+    if (userData.isSuperUser) {
+      requests = await Patient.find({
+        installment: "Installment 1",
+        status: { $in: ["paid", "active", "old"] },
+      });
+    } else {
+      requests = await Patient.find({
+        installment: "Installment 1",
+        createdBy: userData._id,
+        status: { $in: ["paid", "active", "old"] },
+      });
+    }
+    res.json({ success: true, installments: requests });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err });
+  }
+});
 //
+
 router.get("/get_active_users", authMiddleware, async (req, res) => {
   try {
     const user = req.user;
@@ -417,6 +447,7 @@ router.get("/get_active_users", authMiddleware, async (req, res) => {
     res.status(500).json({ success: false, message: error });
   }
 });
+
 router.get("/get_paid_users", authMiddleware, async (req, res) => {
   try {
     const user = req.user;
@@ -510,7 +541,9 @@ router.get("/get_pending_requests", authMiddleware, async (req, res) => {
     const userData = await User.findById(user);
     let requests;
     if (userData.isSuperUser) {
-      requests = await Patient.find({ status: { $nin: ["paid", "active", "old"] }, })
+      requests = await Patient.find({
+        status: { $nin: ["paid", "active", "old"] },
+      })
         .populate("package", "name amount")
         .populate("createdBy", "name email")
         .exec();
