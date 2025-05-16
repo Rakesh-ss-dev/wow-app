@@ -12,7 +12,7 @@ const OldUsers = () => {
     try {
       await axios.post(
         `${SERVER_URL}/payment/make_active`,
-        { id },
+        { id, from: "old" },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       alert("User Activated");

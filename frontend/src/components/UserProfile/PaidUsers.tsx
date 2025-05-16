@@ -13,15 +13,14 @@ const PaidUsers = () => {
     try {
       const res = await axios.post(
         `${SERVER_URL}/payment/make_active`,
-        { id },
+        { id, from: "paid" },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       alert(res.data.message);
     } catch (err) {
       console.error("Error making User active:", err);
-    }
-    finally{
-      setLoading(false)
+    } finally {
+      setLoading(false);
     }
   };
   useEffect(() => {
