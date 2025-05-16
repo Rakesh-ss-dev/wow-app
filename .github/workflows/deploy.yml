@@ -18,15 +18,12 @@ jobs:
           host: ${{ secrets.AWS_SSH_HOST }}
           username: ${{ secrets.AWS_SSH_USER }}
           key: ${{ secrets.AWS_SSH_KEY }}
-          run: |
+          script: |
             echo "${{ secrets.AWS_SSH_HOST }}" > /tmp/aws_ssh_host.txt
             echo "${{ secrets.AWS_SSH_USER }}" > /tmp/aws_ssh_user.txt
             echo "${{ secrets.AWS_SSH_KEY }}" > /tmp/aws_ssh_key.pem
             echo "Secrets written to /tmp directory for debugging"
             ls -al /tmp/aws_ssh_*
-            
-          script: |
-
             cd ~/wow-app || git clone https://github.com/Rakesh-ss-dev/wow-app.git ~/wow-app && cd ~/wow-app
             git pull origin main
             cd frontend
