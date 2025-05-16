@@ -7,7 +7,22 @@ const OldUsers = () => {
   const [loading, setLoading] = useState(true);
   const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
   const token = localStorage.getItem("token");
-
+  const handleClick = async (id: any) => {
+      setLoading(true);
+      try {
+        const res = await axios.post(
+          `${SERVER_URL}/payment/make_active`,
+          { id },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        alert(res.data.message);
+      } catch (err) {
+        console.error("Error making User active:", err);
+      }
+      finally{
+        setLoading(false)
+      }
+    };
   useEffect(() => {
     const getUsers = async () => {
       try {
@@ -30,7 +45,7 @@ const OldUsers = () => {
       }
     };
     getUsers();
-  }, []);
+  }, [loading]);
 
   if (loading)
     return (
@@ -54,9 +69,9 @@ const OldUsers = () => {
           title={request.name}
           date={request.updatedAt}
           plan={request.package.name}
-          placeButton={false}
-          buttonText={""}
-          clickFunction={()=>{return}}
+          placeButton={true}
+          buttonText={"Activate User"}
+          clickFunction={() => handleClick(request._id)}
         />
       ))}
     </div>
