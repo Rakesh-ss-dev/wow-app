@@ -4,12 +4,24 @@ import { useEffect, useState } from "react";
 // Define the shape of an installment object
 interface Installment {
   id: string;
+  name: string;
   amount: number;
   dueAmount:number;
-  dueDate: string;
-  status: string;
+  payed_at: string;
 }
-
+const formatReadableDate = (isoString: string): string => {
+  if (!isoString) return "Invalid Date";
+  const date = new Date(isoString);
+  return date.toLocaleString("en-IN", {
+    timeZone: "Asia/Kolkata",
+    day: "2-digit",
+    month: "2-digit",
+    year: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+};
 const PendingInstallment = () => {
   const [installments, setInstallments] = useState<Installment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -53,7 +65,9 @@ const PendingInstallment = () => {
           <table className="min-w-full  shadow-md rounded-lg overflow-hidden">
             <thead className="bg-brand-500 text-gray-700">
               <tr>
-                <th className="px-6 py-3 text-left text-sm font-medium">#</th>
+
+                <th className="px-6 py-3 text-left text-white text-sm font-medium">#</th>
+                <th className="px-6 py-3 text-left text-white text-sm font-medium">Name</th>
                 <th className="px-6 py-3 text-left text-white text-sm font-medium">
                   Amount
                 </th>
@@ -61,10 +75,7 @@ const PendingInstallment = () => {
                   Due Amount
                 </th>
                 <th className="px-6 py-3 text-left text-white text-sm font-medium">
-                  Due Date
-                </th>
-                <th className="px-6 py-3 text-left text-white text-sm font-medium">
-                  Status
+                  Paid At
                 </th>
               </tr>
             </thead>
@@ -73,20 +84,18 @@ const PendingInstallment = () => {
                 console.log(item);
                 return (
                   <tr key={item.id} className="border-b hover:bg-gray-50">
-                    <td className="px-6 py-4 text-sm text-gray-900">
+                    <td className="px-6 py-4 text-sm text-gray-600">
                       {index + 1}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
+                    <td className="px-6 py-4 text-sm text-gray-600">{item.name}</td>
+                    <td className="px-6 py-4 text-sm text-gray-600">
                       {item.amount}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
-                      {item.dueAmount}
+                    <td className="px-6 py-4 text-sm text-gray-600">
+                      {item.dueAmount.toFixed(2)}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
-                      {item.dueDate}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
-                      {item.status}
+                    <td className="px-6 py-4 text-sm text-gray-600">
+                      {formatReadableDate(item.payed_at)}
                     </td>
                   </tr>
                 );

@@ -9,7 +9,8 @@ import {
   HorizontaLDots,
   PaperPlaneIcon,
   UserCircleIcon,
-  DocsIcon
+  DocsIcon,
+  DollarLineIcon
 } from "../icons";
 
 type NavItem = {
@@ -36,6 +37,12 @@ const navItems: NavItem[] = [
     name: "Pending Requests",
     path: "/pending_requests",
   },
+  {
+    icon: <DollarLineIcon />,
+    name: "Pending Installments",
+    path: "/installments",
+  },
+  
   {
     icon: <UserCircleIcon />,
     name: "Coaches",
