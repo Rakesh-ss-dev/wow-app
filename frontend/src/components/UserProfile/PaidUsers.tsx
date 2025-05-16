@@ -16,8 +16,7 @@ const PaidUsers = () => {
         { id },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      alert("User Activated");
-      console.log(res.data);
+      alert(res.data.message);
     } catch (err) {
       console.error("Error making User active:", err);
     }

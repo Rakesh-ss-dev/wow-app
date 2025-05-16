@@ -8,21 +8,20 @@ const OldUsers = () => {
   const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
   const token = localStorage.getItem("token");
   const handleClick = async (id: any) => {
-      setLoading(true);
-      try {
-        const res = await axios.post(
-          `${SERVER_URL}/payment/make_active`,
-          { id },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        alert(res.data.message);
-      } catch (err) {
-        console.error("Error making User active:", err);
-      }
-      finally{
-        setLoading(false)
-      }
-    };
+    setLoading(true);
+    try {
+      await axios.post(
+        `${SERVER_URL}/payment/make_active`,
+        { id },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      alert("User Activated");
+    } catch (err) {
+      console.error("Error making User active:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
   useEffect(() => {
     const getUsers = async () => {
       try {
@@ -31,7 +30,8 @@ const OldUsers = () => {
         });
         if (res.data?.requests) {
           const sortedRequests = [...res.data.requests].sort(
-            (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+            (a, b) =>
+              new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
           );
           setRequests(sortedRequests);
         } else {
