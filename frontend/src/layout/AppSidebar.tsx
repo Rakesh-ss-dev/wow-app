@@ -1,4 +1,10 @@
-import React, { useEffect, useCallback, useRef, useState, useMemo } from "react";
+import React, {
+  useEffect,
+  useCallback,
+  useRef,
+  useState,
+  useMemo,
+} from "react";
 import { Link, useLocation } from "react-router";
 
 // Assume these icons are imported from an icon library
@@ -10,7 +16,8 @@ import {
   PaperPlaneIcon,
   UserCircleIcon,
   DocsIcon,
-  DollarLineIcon
+  DollarLineIcon,
+  ListIcon,
 } from "../icons";
 
 type NavItem = {
@@ -33,7 +40,7 @@ const navItems: NavItem[] = [
     path: "/requests",
   },
   {
-    icon: <PaperPlaneIcon />,
+    icon: <ListIcon />,
     name: "Pending Requests",
     path: "/pending_requests",
   },
@@ -42,7 +49,7 @@ const navItems: NavItem[] = [
     name: "Pending Installments",
     path: "/installments",
   },
-  
+
   {
     icon: <UserCircleIcon />,
     name: "Coaches",
@@ -62,20 +69,20 @@ const AppSidebar: React.FC = () => {
     const user = localStorage.getItem("user");
     return user ? JSON.parse(user) : null;
   });
-  
+
   useEffect(() => {
     const handleStorageChange = () => {
       const user = localStorage.getItem("user");
       setParsedUser(user ? JSON.parse(user) : null);
     };
-  
+
     window.addEventListener("storage", handleStorageChange);
-  
+
     return () => {
       window.removeEventListener("storage", handleStorageChange);
     };
   }, []);
-  
+
   const filteredNavItems = useMemo(() => {
     const userRole = parsedUser?.isSuperUser ? "Super-User" : undefined;
     return navItems.filter((item) => !item.role || item.role === userRole);
@@ -96,7 +103,7 @@ const AppSidebar: React.FC = () => {
     (path: string) => location.pathname === path,
     [location.pathname]
   );
-  
+
   useEffect(() => {
     let submenuMatched = false;
     ["main", "others"].forEach((menuType) => {
@@ -119,7 +126,7 @@ const AppSidebar: React.FC = () => {
     if (!submenuMatched) {
       setOpenSubmenu(null);
     }
-  }, [location, isActive,filteredNavItems]);
+  }, [location, isActive, filteredNavItems]);
 
   useEffect(() => {
     if (openSubmenu !== null) {
@@ -284,9 +291,7 @@ const AppSidebar: React.FC = () => {
       onMouseEnter={() => !isExpanded && setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div
-        className={`py-8 flex lg:justify-center`}
-      >
+      <div className={`py-8 flex lg:justify-center`}>
         <Link to="/">
           {isExpanded || isHovered || isMobileOpen ? (
             <>
