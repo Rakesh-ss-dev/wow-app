@@ -6,7 +6,7 @@ interface Installment {
   id: string;
   name: string;
   amount: number;
-  dueAmount:number;
+  dueAmount: number;
   payed_at: string;
 }
 const formatReadableDate = (isoString: string): string => {
@@ -65,37 +65,41 @@ const PendingInstallment = () => {
           <table className="min-w-full  shadow-md rounded-lg overflow-hidden">
             <thead className="bg-brand-500 text-gray-700">
               <tr>
-
-                <th className="px-6 py-3 text-left text-white text-sm font-medium">#</th>
-                <th className="px-6 py-3 text-left text-white text-sm font-medium">Name</th>
+                <th className="px-6 py-3 text-left text-white text-sm font-medium">
+                  Name
+                </th>
                 <th className="px-6 py-3 text-left text-white text-sm font-medium">
                   Amount
                 </th>
                 <th className="px-6 py-3 text-left text-white text-sm font-medium">
-                  Due Amount
+                  Paid Amount
                 </th>
                 <th className="px-6 py-3 text-left text-white text-sm font-medium">
                   Paid At
                 </th>
+                <th className="px-6 py-3 text-left text-white text-sm font-medium">
+                  Due Amount
+                </th>
               </tr>
             </thead>
             <tbody>
-              {installments.map((item, index) => {
-                console.log(item);
+              {installments.map((item) => {
                 return (
                   <tr key={item.id} className="border-b hover:bg-gray-50">
                     <td className="px-6 py-4 text-sm text-gray-600">
-                      {index + 1}
+                      {item.name}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{item.name}</td>
                     <td className="px-6 py-4 text-sm text-gray-600">
                       {item.amount}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600">
-                      {item.dueAmount.toFixed(2)}
+                      {(item.amount - item.dueAmount).toFixed(2)}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600">
                       {formatReadableDate(item.payed_at)}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-600">
+                      {item.dueAmount.toFixed(2)}
                     </td>
                   </tr>
                 );

@@ -310,7 +310,7 @@ const CreateRequest: React.FC = () => {
                     Balance
                   </TableCell>
                   <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                    {finalAmount - installment}
+                    {(finalAmount - installment).toFixed(2)}
                   </TableCell>
                 </TableRow>
               </>
