@@ -11,7 +11,6 @@ import Button from "../../components/ui/button/Button";
 import Input from "../../components/form/input/InputField";
 import Select from "../../components/form/Select";
 import Checkbox from "../../components/form/input/Checkbox";
-import Radio from "../../components/form/input/Radio";
 
 const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
 
@@ -75,11 +74,10 @@ const CreateRequest: React.FC = () => {
   const [discountAmount, setDiscountAmount] = useState<number>(0);
   const [tax, setTax] = useState<number>(0);
   const [finalAmount, setFinalAmount] = useState<number>(0);
-  const [tobePaid, setTobePaid] = useState<number>(0);
   const [paymentLink, setPaymentLink] = useState<string>("");
   const [copied, setCopied] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-  const [radioSelectedValue, setRadioSelectedValue] = useState("");
+  const [installment, setInstallment] = useState<number>(0);
   const [isInstallmentChecked, setIsInstallementChecked] = useState(false);
 
   const copyFallback = (text: string) => {
@@ -118,21 +116,14 @@ const CreateRequest: React.FC = () => {
     setPaymentLink("");
   };
   const changeInstallmentCheck = () => {
-     setIsInstallementChecked(prev => {
-    if (prev) {
-      setRadioSelectedValue('')
-    }
-    else{
-      setRadioSelectedValue('Installment 1')
-    }
-    return !prev;
-  });
-    
-    
+    setIsInstallementChecked((prev) => {
+      if (prev) {
+        setInstallment(0);
+      }
+      return !prev;
+    });
   };
-  const handleRadioChange = (value: string) => {
-    setRadioSelectedValue(value);
-  };
+
   const validateSelect = (value: string) => {
     setIsCategoryValid(value !== "");
     setCategory(value);
@@ -161,10 +152,9 @@ const CreateRequest: React.FC = () => {
   }, [discount, price]);
 
   useEffect(() => {
-    if (isInstallmentChecked) setTobePaid(finalAmount / 2);
-    else setTobePaid(0);
+    if (!isInstallmentChecked) setInstallment(0);
     setPaymentLink("");
-  }, [radioSelectedValue, isInstallmentChecked]);
+  }, [installment, isInstallmentChecked]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -178,9 +168,9 @@ const CreateRequest: React.FC = () => {
           phone,
           category,
           discount,
-          installment: radioSelectedValue,
+          installment: "Installment 1",
           finalAmount: finalAmount.toFixed(2),
-          tobePaid: tobePaid.toFixed(2),
+          tobePaid: installment.toFixed(2),
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -236,22 +226,12 @@ const CreateRequest: React.FC = () => {
               />
             </div>
             {isInstallmentChecked && (
-              <div className="flex justify-between">
-                <Radio
-                  id="radio1"
-                  name="group1"
-                  value="Installment 1"
-                  checked={radioSelectedValue === "Installment 1"}
-                  onChange={handleRadioChange}
-                  label="Installment 1"
-                />
-                <Radio
-                  id="radio2"
-                  name="group1"
-                  value="Installment 2"
-                  checked={radioSelectedValue === "Installment 2"}
-                  onChange={handleRadioChange}
-                  label="Installment 2"
+              <div>
+                <Input
+                  type="number"
+                  onChange={(e) => setInstallment(Number(e.target.value))}
+                  placeholder="Installment Amount"
+                  value={installment}
                 />
               </div>
             )}
@@ -316,14 +296,24 @@ const CreateRequest: React.FC = () => {
               </TableCell>
             </TableRow>
             {isInstallmentChecked && (
-              <TableRow>
-                <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                  To be Paid
-                </TableCell>
-                <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                  {tobePaid.toFixed(2)}
-                </TableCell>
-              </TableRow>
+              <>
+                <TableRow>
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                    To be Paid
+                  </TableCell>
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                    {installment.toFixed(2)}
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                    Balance
+                  </TableCell>
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                    {finalAmount - installment}
+                  </TableCell>
+                </TableRow>
+              </>
             )}
           </TableBody>
         </Table>
