@@ -73,6 +73,7 @@ const HealthReportForm: React.FC = () => {
         className="grid grid-cols-1 md:grid-cols-2 gap-4"
       >
         <Input
+          type="number"
           placeholder="Height (cm)"
           name="height"
           value={formData.height}
@@ -80,6 +81,7 @@ const HealthReportForm: React.FC = () => {
           required
         />
         <Input
+          type="number"
           placeholder="Weight (kg)"
           name="weight"
           value={formData.weight}
@@ -88,6 +90,7 @@ const HealthReportForm: React.FC = () => {
         />
 
         <Input
+          type="number"
           placeholder="Vitamin D (ng/mL)"
           name="vitaminD"
           value={formData.vitaminD}
@@ -95,6 +98,7 @@ const HealthReportForm: React.FC = () => {
           required
         />
         <Input
+          type="number"
           placeholder="Vitamin B12 (pg/mL)"
           name="vitaminB12"
           value={formData.vitaminB12}
@@ -102,6 +106,7 @@ const HealthReportForm: React.FC = () => {
           required
         />
         <Input
+          type="number"
           placeholder="Iron (ng/mL)"
           name="iron"
           value={formData.iron}
@@ -110,6 +115,7 @@ const HealthReportForm: React.FC = () => {
         />
 
         <Input
+          type="number"
           placeholder="HbA1c (%)"
           name="hba1c"
           value={formData.hba1c}
@@ -117,6 +123,7 @@ const HealthReportForm: React.FC = () => {
           required
         />
         <Input
+          type="number"
           placeholder="Triglycerides (mg/dL)"
           name="triglycerides"
           value={formData.triglycerides}
@@ -124,6 +131,7 @@ const HealthReportForm: React.FC = () => {
           required
         />
         <Input
+          type="number"
           placeholder="HDL (mg/dL)"
           name="hdl"
           value={formData.hdl}
@@ -132,6 +140,7 @@ const HealthReportForm: React.FC = () => {
         />
 
         <Input
+          type="number"
           placeholder="TSH (µIU/mL)"
           name="tsh"
           value={formData.tsh}
@@ -139,6 +148,7 @@ const HealthReportForm: React.FC = () => {
           required
         />
         <Input
+          type="number"
           placeholder="Uric Acid (mg/dL)"
           name="uricAcid"
           value={formData.uricAcid}
