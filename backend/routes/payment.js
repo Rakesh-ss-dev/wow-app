@@ -550,6 +550,7 @@ router.get("/get_active_users", authMiddleware, async (req, res) => {
     if (userData.isSuperUser) {
       requests = await Patient.find({
         status: "active",
+        installment: { $ne: "Installment 2" },
       })
         .populate("package", "name amount")
         .populate("createdBy", "name email")
@@ -558,6 +559,7 @@ router.get("/get_active_users", authMiddleware, async (req, res) => {
       requests = await Patient.find({
         createdBy: userData._id,
         status: "active",
+        installment: { $ne: "Installment 2" },
       })
         .populate("package", "name amount")
         .exec();
@@ -576,6 +578,7 @@ router.get("/get_paid_users", authMiddleware, async (req, res) => {
     if (userData.isSuperUser) {
       requests = await Patient.find({
         status: "paid",
+        installment: { $ne: "Installment 2" },
       })
         .populate("package", "name amount")
         .populate("createdBy", "name email")
@@ -584,6 +587,7 @@ router.get("/get_paid_users", authMiddleware, async (req, res) => {
       requests = await Patient.find({
         createdBy: userData._id,
         status: "paid",
+        installment: { $ne: "Installment 2" },
       })
         .populate("package", "name amount")
         .exec();
@@ -601,6 +605,7 @@ router.get("/get_old_users", authMiddleware, async (req, res) => {
     if (userData.isSuperUser) {
       requests = await Patient.find({
         status: "old",
+        installment: { $ne: "Installment 2" },
       })
         .populate("package", "name amount")
         .populate("createdBy", "name email")
@@ -609,6 +614,7 @@ router.get("/get_old_users", authMiddleware, async (req, res) => {
       requests = await Patient.find({
         createdBy: userData._id,
         status: "old",
+        installment: { $ne: "Installment 2" },
       })
         .populate("package", "name amount")
         .exec();
