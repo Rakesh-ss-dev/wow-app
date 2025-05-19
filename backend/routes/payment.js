@@ -388,8 +388,14 @@ router.post("/generate-invoice", async (req, res) => {
       parseFloat(taxAmount)
     ).toFixed(2);
     const paymentDate = formatReadableDate(payment.createdAt);
-    const paymentStatus = req.body.razorpay_payment_link_status;
-    const image = await loadImage("invoice/Invoice.jpg");
+    let paymentStatus;
+    if(payment.installment === "Installment 1"){
+      paymentStatus = "Partially Paid";
+    }
+    else{
+    paymentStatus = req.body.razorpay_payment_link_status;
+    }
+    image = await loadImage("invoice/Invoice.jpg");
     const invoiceData = [
       { text: req.body.razorpay_payment_id, x: 240, y: 465 },
       { text: paymentDate, x: 130, y: 490 },
