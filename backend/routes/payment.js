@@ -166,13 +166,72 @@ router.post("/create-payment-link", authMiddleware, async (req, res) => {
       installment: installment,
       createdBy: req.user,
       amount: finalAmount,
-      dueAmount: tobePaid == 0 ? 0 : parseFloat(finalAmount).toFixed(2) - parseFloat(tobePaid).toFixed(2),
+      dueAmount:
+        tobePaid == 0
+          ? 0
+          : parseFloat(finalAmount).toFixed(2) -
+            parseFloat(tobePaid).toFixed(2),
     });
-    console.log(patient);
     await patient.save();
     res.json({ success: true, payment_link: order.short_url });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+router.post("/request-installment", authMiddleware, async (req, res) => {
+  const { id, dueAmount } = req.body;
+  try {
+    const patient = await Patient.findById(id);
+    if (!patient) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Patient not found" });
+    }
+    const categoryfromdb = await Package.findById(patient.package);
+    let description = `Payment for your Golden 90 ${categoryfromdb.name} | Tax: 18%`;
+    let amount = dueAmount.toFixed(2) * 100;
+    if (patient.discount > 0) {
+      description += ` | Discount: ${patient.discount}%`;
+    }
+    const options = {
+      amount: parseInt(amount),
+      currency: categoryfromdb.currency,
+      accept_partial: false,
+      description: description,
+      customer: {
+        name: patient.name,
+        contact: `+91${patient.phone}`,
+      },
+      notify: {
+        sms: true,
+        email: true,
+        whatsapp: true,
+      },
+      reminder_enable: true,
+      callback_method: "get",
+      callback_url: `${process.env.FRONTEND_URL}/payment_success`,
+    };
+    const order = await razorpay.paymentLink.create(options);
+    const newPatient = await new Patient({
+      name: patient.name,
+      phone: patient.phone,
+      package: patient.package,
+      paymentId: order.id,
+      discount: patient.discount,
+      installment: "Installment 2",
+      createdBy: req.user,
+      amount: patient.amount,
+      dueAmount: 0,
+      ref: id,
+    });
+    await newPatient.save();
+    res.json({ success: true, payment_link: order.short_url });
+  } catch (error) {
+    console.error("Error fetching patient:", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Failed to fetch patient" });
   }
 });
 
@@ -195,62 +254,120 @@ router.post("/getPaymentDetails", authMiddleware, async (req, res) => {
 //payment Success
 router.post("/success", async (req, res) => {
   try {
-    const payment = await Patient.findOne({
-      paymentId: req.body.razorpay_payment_link_id,
-    })
-      .populate(["createdBy", "package"])
-      .exec();
+    let payment;
+    try {
+      payment = await Patient.findOne({
+        paymentId: req.body.razorpay_payment_link_id,
+      })
+        .populate(["createdBy", "package"])
+        .exec();
+      if (!payment) throw new Error("Payment record not found.");
+    } catch (err) {
+      console.error("Error fetching payment:", err);
+      return res.status(500).json({ success: false, message: "Error fetching payment." });
+    }
+
     if (payment.notified === false) {
-      const amount = payment.package.amount.toFixed(2);
-      const discount = payment.discount.toFixed(2);
-      const discountAmount = (amount * (discount / 100)).toFixed(2);
-      const taxAmount = ((amount - discountAmount) * 0.18).toFixed(2);
-      const finalAmount = (
-        parseFloat(amount) -
-        parseFloat(discountAmount) +
-        parseFloat(taxAmount)
-      ).toFixed(2);
-      const emailData = {
-        "Client Name": payment.name,
-        "Coach's Name": payment.createdBy.name,
-        "Package Name": payment.package.name,
-        "Base Amount": parseFloat(amount).toFixed(2),
-        "Discount Amount": parseFloat(discountAmount).toFixed(2),
-        "GST Amount": parseFloat(taxAmount).toFixed(2),
-        "Final Amount": parseFloat(finalAmount).toFixed(2),
-      };
-      let emailTemplate = fs.readFileSync(
-        "mailers/successful_payment.html",
-        "utf8"
-      );
-      const emailContent = replacePlaceholders(emailTemplate, emailData);
-      const transporter = nodemailer.createTransport({
-        service: "gmail",
-        auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASS,
-        },
-      });
-      const mailOptions = {
-        from: `"WOW Purchase" <${process.env.EMAIL_USER}>`,
-        to: `${payment.createdBy.email}`,
-        subject: `Payment Confirmation - ${payment.name}`,
-        html: emailContent,
-      };
-      await transporter.sendMail(mailOptions);
-      payment.notified = true;
-      payment.status = "paid";
-      payment.payed_at = new Date();
-      await payment.save();
-      res.json({ success: true, message: "Email sent successfully!" });
+      let amount, discount, discountAmount, taxAmount;
+      try {
+        amount = parseFloat(payment.package.amount || 0).toFixed(2);
+        discount = parseFloat(payment.discount || 0).toFixed(2);
+        discountAmount = (amount * (discount / 100)).toFixed(2);
+        taxAmount = ((amount - discountAmount) * 0.18).toFixed(2);
+      } catch (err) {
+        console.error("Error calculating amounts:", err);
+        return res.status(500).json({ success: false, message: "Error calculating amounts." });
+      }
+
+      let finalAmount, dueAmount, payedAmount;
+      try {
+        if (payment.installment === "Installment 2") {
+          const parent = mongoose.Types.ObjectId.isValid(payment.ref)
+            ? await Patient.findById(payment.ref)
+            : null;
+          if (!parent) throw new Error("Parent record not found for Installment 2.");
+
+          finalAmount = parseFloat(parent.amount || 0).toFixed(2);
+          dueAmount = 0;
+          payedAmount = parseFloat(payment.amount || 0).toFixed(2);
+          parent.dueAmount = 0;
+          await parent.save();
+        } else {
+          finalAmount = (
+            parseFloat(amount) - 
+            parseFloat(discountAmount) + 
+            parseFloat(taxAmount)
+          ).toFixed(2);
+          dueAmount = parseFloat(payment.dueAmount || 0).toFixed(2);
+          payedAmount = (parseFloat(finalAmount) - parseFloat(dueAmount)).toFixed(2);
+        }
+      } catch (err) {
+        console.error("Error calculating final/due/payed amounts:", err);
+        return res.status(500).json({ success: false, message: "Error calculating payment details." });
+      }
+
+      let emailContent;
+      try {
+        const emailData = {
+          "Client Name": payment.name,
+          "Coach's Name": payment.createdBy?.name || "N/A",
+          "Package Name": payment.package?.name || "N/A",
+          "Base Amount": amount,
+          "Discount Amount": discountAmount,
+          "GST Amount": taxAmount,
+          "Final Amount": finalAmount,
+          "Amount Paid": payedAmount,
+          "Due Amount": dueAmount,
+        };
+
+        let emailTemplate = fs.readFileSync("mailers/successful_payment.html", "utf8");
+        emailContent = replacePlaceholders(emailTemplate, emailData);
+      } catch (err) {
+        console.error("Error generating email content:", err);
+        return res.status(500).json({ success: false, message: "Error generating email content." });
+      }
+
+      try {
+        const transporter = nodemailer.createTransport({
+          service: "gmail",
+          auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS,
+          },
+        });
+
+        const mailOptions = {
+          from: `"WOW Purchase" <${process.env.EMAIL_USER}>`,
+          to: payment.createdBy?.email || "no-reply@example.com",
+          subject: `Payment Confirmation - ${payment.name}`,
+          html: emailContent,
+        };
+
+        await transporter.sendMail(mailOptions);
+      } catch (err) {
+        console.error("Error sending email:", err);
+        return res.status(500).json({ success: false, message: "Error sending email." });
+      }
+
+      try {
+        payment.notified = true;
+        payment.status = "paid";
+        payment.payed_at = new Date();
+        await payment.save();
+        res.json({ success: true, message: "Email sent successfully!" });
+      } catch (err) {
+        console.error("Error updating payment status:", err);
+        return res.status(500).json({ success: false, message: "Error updating payment status." });
+      }
     } else {
       res.json({ success: true, message: "Already Notified!" });
     }
   } catch (error) {
-    console.error("Error sending email:", error);
-    res.status(500).json({ success: false, message: "Failed to send email" });
+    console.error("Unexpected Error:", error);
+    res.status(500).json({ success: false, message: "Unexpected Error Occurred." });
   }
 });
+
 
 //generate Invoice
 router.post("/generate-invoice", async (req, res) => {
@@ -398,6 +515,7 @@ router.get("/get_requests", authMiddleware, async (req, res) => {
     res.status(500).json({ success: false, message: error });
   }
 });
+
 router.get("/get-installments", authMiddleware, async (req, res) => {
   try {
     const user = req.user;
@@ -406,12 +524,14 @@ router.get("/get-installments", authMiddleware, async (req, res) => {
     if (userData.isSuperUser) {
       requests = await Patient.find({
         installment: "Installment 1",
+        dueAmount: { $gt: 0 },
         status: { $in: ["paid", "active", "old"] },
       });
     } else {
       requests = await Patient.find({
         installment: "Installment 1",
         createdBy: userData._id,
+        dueAmount: { $gt: 0 },
         status: { $in: ["paid", "active", "old"] },
       });
     }
@@ -501,7 +621,7 @@ router.get("/get_old_users", authMiddleware, async (req, res) => {
 
 router.post("/make_active", authMiddleware, async (req, res) => {
   try {
-    const { id,from } = req.body;
+    const { id, from } = req.body;
     const user = await Patient.findById(id);
     const namePart =
       user.name?.replace(/\s+/g, "").substring(0, 4).toLowerCase() || "user";
@@ -509,7 +629,7 @@ router.post("/make_active", authMiddleware, async (req, res) => {
     const password = `${namePart}${phonePart}`;
     user.status = "active";
     if (from === "paid") {
-    user.activated_at = new Date();
+      user.activated_at = new Date();
     }
     await user.save();
     res.json({

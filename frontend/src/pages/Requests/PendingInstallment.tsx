@@ -1,9 +1,10 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+import Button from "../../components/ui/button/Button";
 
 // Define the shape of an installment object
 interface Installment {
-  id: string;
+  _id: string;
   name: string;
   amount: number;
   dueAmount: number;
@@ -22,13 +23,31 @@ const formatReadableDate = (isoString: string): string => {
     hour12: false,
   });
 };
+const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
+const token = localStorage.getItem("token");
 const PendingInstallment = () => {
   const [installments, setInstallments] = useState<Installment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
-  const token = localStorage.getItem("token");
+  const sendRequest = async (id: string, dueAmount: number) => {
+    try{
+    const response = await axios.post(
+      `${SERVER_URL}/payment/request-installment`,
+      {
+        id,
+        dueAmount,
+      },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    alert("Payment link sent to your number" + " " + response.data?.payment_link);
+    } catch (err) {
+      alert("Failed to generate payment link");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     const getData = async () => {
@@ -62,44 +81,39 @@ const PendingInstallment = () => {
         <p className="text-gray-500">No pending installments.</p>
       ) : (
         <div className="overflow-x-auto">
-          <table className="min-w-full  shadow-md rounded-lg overflow-hidden">
+          <table className="min-w-full text-center shadow-md rounded-lg overflow-hidden">
             <thead className="bg-brand-500 text-gray-700">
-              <tr>
-                <th className="px-6 py-3 text-left text-white text-sm font-medium">
-                  Name
-                </th>
-                <th className="px-6 py-3 text-left text-white text-sm font-medium">
-                  Amount
-                </th>
-                <th className="px-6 py-3 text-left text-white text-sm font-medium">
-                  Paid Amount
-                </th>
-                <th className="px-6 py-3 text-left text-white text-sm font-medium">
-                  Paid At
-                </th>
-                <th className="px-6 py-3 text-left text-white text-sm font-medium">
-                  Due Amount
-                </th>
+              <tr className="text-white text-sm font-medium">
+                <th className="px-6 py-3 ">Name</th>
+                <th className="px-6 py-3">Amount</th>
+                <th className="px-6 py-3">Paid Amount</th>
+                <th className="px-6 py-3">Paid At</th>
+                <th className="px-6 py-3">Due Amount</th>
+                <th className="px-6 py-3">Request Pending Installment</th>
               </tr>
             </thead>
             <tbody>
               {installments.map((item) => {
                 return (
-                  <tr key={item.id} className="border-b hover:bg-gray-50">
-                    <td className="px-6 py-4 text-sm text-gray-600">
-                      {item.name}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
-                      {item.amount}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
+                  <tr
+                    key={item._id}
+                    className="border-b text-sm text-gray-600 hover:bg-gray-50"
+                  >
+                    <td className="px-6 py-4 ">{item.name}</td>
+                    <td className="px-6 py-4">{item.amount}</td>
+                    <td className="px-6 py-4">
                       {(item.amount - item.dueAmount).toFixed(2)}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
+                    <td className="px-6 py-4">
                       {formatReadableDate(item.payed_at)}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
-                      {item.dueAmount.toFixed(2)}
+                    <td className="px-6 py-4">{item.dueAmount.toFixed(2)}</td>
+                    <td className="px-6 py-4 text-center">
+                      <Button
+                        onClick={() => sendRequest(item._id, item.dueAmount)}
+                      >
+                        Send Request
+                      </Button>
                     </td>
                   </tr>
                 );

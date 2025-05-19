@@ -232,7 +232,7 @@ const RequestDataTable: React.FC<RequestDataTableProps> = ({ data }) => {
                 </TableRow>
                 <TableRow>
                   <TableCell className="px-4 py-3 sm:px-6 text-start">
-                    Final Price(including 18% GST)
+                    Amount Paid
                   </TableCell>
                   <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                     {requestDetails.amount}

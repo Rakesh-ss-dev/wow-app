@@ -13,14 +13,15 @@ const PatientSchema = new mongoose.Schema(
     status: { type: String, default: "created" },
     currency: { type: String, default: "INR" },
     method: { type: String, default: "" },
-    password:{type:String,default: ""},
-    email:{type:String,default:''},
-    date_of_birth:{type:Date,default:""},
-    bloodGroup:{type:String,default:''},
-    gender:{type:String,enum: ['Male', 'Female'],},
-    payed_at:{type:Date},
-    activated_at:{type:Date},
-    dueAmount:{type: Number, default: 0},
+    password: { type: String, default: "" },
+    email: { type: String, default: "" },
+    date_of_birth: { type: Date, default: "" },
+    bloodGroup: { type: String, default: "" },
+    gender: { type: String, enum: ["Male", "Female"] },
+    payed_at: { type: Date },
+    activated_at: { type: Date },
+    dueAmount: { type: Number, default: 0 },
+    ref: { type: mongoose.Schema.Types.ObjectId, ref: "Patient", default: null },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -32,7 +33,8 @@ const PatientSchema = new mongoose.Schema(
 
 PatientSchema.pre("save", async function (next) {
   if (!this.password) {
-    const namePart = this.name?.replace(/\s+/g, "").substring(0, 4).toLowerCase() || "user";
+    const namePart =
+      this.name?.replace(/\s+/g, "").substring(0, 4).toLowerCase() || "user";
     const phonePart = this.phone?.slice(-4) || "0000";
     this.password = `${namePart}${phonePart}`;
   }
