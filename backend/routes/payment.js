@@ -317,7 +317,7 @@ router.post("/success", async (req, res) => {
           "GST Amount": taxAmount,
           "Final Amount": finalAmount,
           "Amount Paid": payedAmount,
-          "Due Amount": dueAmount,
+          "Due Amount": dueAmount.toString(),
         };
 
         let emailTemplate = fs.readFileSync("mailers/successful_payment.html", "utf8");
