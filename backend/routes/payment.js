@@ -505,6 +505,172 @@ router.post("/generate-invoice", async (req, res) => {
   }
 });
 
+router.post("/user-status/", async (req, res) => {
+  try {
+    const { startDate, endDate } = req.body;
+    const users = await User.find({}).exec();
+    const wb = XLSX.utils.book_new();
+    const wsData = [];
+
+    const adjustedEndDate = new Date(endDate);
+    adjustedEndDate.setHours(23, 59, 59, 999);
+
+    // Push header row first
+    wsData.push([
+      "Coach", "Name", "Phone", "PaymentID", "Package", "Discount",
+      "Created_Date", "Paid_Date", "Currency",
+      "Amount_INR", "GST_INR", "RZR_INR", "WOW_INR", "Principle_INR", "TDS_INR", "Final_INR",
+      "Amount_USD", "GST_USD", "RZR_USD", "WOW_USD", "Principle_USD", "TDS_USD", "Final_USD"
+    ]);
+
+    for (const user of users) {
+      const requests = await Patients.find({
+        createdBy: user._id,
+        status: { $in: ["paid", "active", "old"] },
+        payed_at: {
+          $gte: new Date(startDate),
+          $lte: adjustedEndDate,
+        },
+      })
+        .sort({ createdAt: -1 })
+        .populate("package")
+        .exec();
+
+      if (requests.length > 0) {
+        let totalINR = 0, totalUSD = 0,
+          totalGSTINR = 0, totalRZRINR = 0, totalWOWINR = 0, totalPrincipleINR = 0, totalTDSINR = 0, totalFinalINR = 0,
+          totalGSTUSD = 0, totalRZRUSD = 0, totalWOWUSD = 0, totalPrincipleUSD = 0, totalTDSUSD = 0, totalFinalUSD = 0;
+
+        for (let i = 0; i < requests.length; i++) {
+          const reqItem = requests[i];
+          const excelRowNum = wsData.length + 1; // Excel rows start at 1, +1 for header row
+
+          let amountINR = 0, amountUSD = 0;
+          if (reqItem.currency === "INR") {
+            amountINR = reqItem.amount || 0;
+          } else if (reqItem.currency === "USD") {
+            amountUSD = reqItem.amount || 0;
+          }
+
+          // Push a data row with formulas rounded to 2 decimals
+          wsData.push([
+            user.name || "",
+            reqItem.name || "",
+            reqItem.phone || "",
+            reqItem.paymentId || "",
+            reqItem.package?.name || "",
+            reqItem.discount !== undefined ? `${reqItem.discount}%` : "",
+            reqItem.createdAt ? new Date(reqItem.createdAt).toLocaleDateString("en-US") : "",
+            reqItem.payed_at ? new Date(reqItem.payed_at).toLocaleDateString("en-US") : "",
+            reqItem.currency || "",
+
+            amountINR,
+            { f: `ROUND(J${excelRowNum}*1.18-J${excelRowNum}, 2)` },   // GST_INR
+            { f: `ROUND(J${excelRowNum}*0.0275, 2)` }, // RZR_INR
+            { f: `ROUND((J${excelRowNum}-K${excelRowNum}-L${excelRowNum})*0.3, 2)` }, // WOW_INR
+            { f: `ROUND((J${excelRowNum}-K${excelRowNum}-L${excelRowNum})*0.7, 2)` }, // Principle_INR
+            { f: `ROUND(N${excelRowNum}*0.02, 2)` },   // TDS_INR
+            { f: `ROUND(N${excelRowNum}-O${excelRowNum}, 2)` }, // Final_INR
+
+            amountUSD,
+            { f: `ROUND(Q${excelRowNum}*1.18-Q${excelRowNum}, 2)` },   // GST_USD
+            { f: `ROUND(Q${excelRowNum}*0.0275, 2)` }, // RZR_USD
+            { f: `ROUND((Q${excelRowNum}-R${excelRowNum}-S${excelRowNum})*0.3, 2)` }, // WOW_USD
+            { f: `ROUND((Q${excelRowNum}-R${excelRowNum}-S${excelRowNum})*0.7, 2)` }, // Principle_USD
+            { f: `ROUND(U${excelRowNum}*0.02, 2)` },   // TDS_USD
+            { f: `ROUND(U${excelRowNum}-V${excelRowNum}, 2)` }, // Final_USD
+          ]);
+
+          // Accumulate totals for INR
+          if (reqItem.currency === "INR") {
+            totalINR += amountINR;
+            totalGSTINR += amountINR * 0.18;
+            totalRZRINR += amountINR * 0.0275;
+            totalWOWINR += (amountINR - (amountINR * 0.18) - (amountINR * 0.0275)) * 0.3;
+            totalPrincipleINR += (amountINR - (amountINR * 0.18) - (amountINR * 0.0275)) * 0.7;
+            totalTDSINR += ((amountINR - (amountINR * 0.18) - (amountINR * 0.0275)) * 0.7) * 0.02;
+            totalFinalINR += ((amountINR - (amountINR * 0.18) - (amountINR * 0.0275)) * 0.7) - (((amountINR - (amountINR * 0.18) - (amountINR * 0.0275)) * 0.7) * 0.02);
+          }
+
+          // Accumulate totals for USD
+          if (reqItem.currency === "USD") {
+            totalUSD += amountUSD;
+            totalGSTUSD += amountUSD * 0.18;
+            totalRZRUSD += amountUSD * 0.0275;
+            totalWOWUSD += (amountUSD - (amountUSD * 0.18) - (amountUSD * 0.0275)) * 0.3;
+            totalPrincipleUSD += (amountUSD - (amountUSD * 0.18) - (amountUSD * 0.0275)) * 0.7;
+            totalTDSUSD += ((amountUSD - (amountUSD * 0.18) - (amountUSD * 0.0275)) * 0.7) * 0.02;
+            totalFinalUSD += ((amountUSD - (amountUSD * 0.18) - (amountUSD * 0.0275)) * 0.7) - (((amountUSD - (amountUSD * 0.18) - (amountUSD * 0.0275)) * 0.7) * 0.02);
+          }
+        }
+
+        // Empty row for spacing
+        wsData.push([]);
+
+        // Totals INR row (rounded in JS for total display)
+        wsData.push([
+          user.name, "TOTAL_INR", "", "", "", "", "", "", "INR",
+          totalINR.toFixed(2),
+          totalGSTINR.toFixed(2),
+          totalRZRINR.toFixed(2),
+          totalWOWINR.toFixed(2),
+          totalPrincipleINR.toFixed(2),
+          totalTDSINR.toFixed(2),
+          totalFinalINR.toFixed(2),
+
+          "", "", "", "", "", "", ""
+        ]);
+
+        // Totals USD row (rounded in JS for total display)
+        wsData.push([
+          user.name, "TOTAL_USD", "", "", "", "", "", "", "USD",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+
+          totalUSD.toFixed(2),
+          totalGSTUSD.toFixed(2),
+          totalRZRUSD.toFixed(2),
+          totalWOWUSD.toFixed(2),
+          totalPrincipleUSD.toFixed(2),
+          totalTDSUSD.toFixed(2),
+          totalFinalUSD.toFixed(2),
+        ]);
+
+        // Another empty row for spacing
+        wsData.push([]);
+      }
+    }
+
+    // Create worksheet from array of arrays
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+    XLSX.utils.book_append_sheet(wb, ws, "All Users");
+
+    const timestamp = Date.now();
+    const filePath = path.join(__dirname, `payments_${timestamp}.xlsx`);
+
+    XLSX.writeFile(wb, filePath);
+
+    res.download(filePath, `payments_${timestamp}.xlsx`, (err) => {
+      if (err) {
+        console.error("Error sending file:", err);
+      }
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+    });
+
+  } catch (error) {
+    console.error("Error generating report:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error", error });
+  }
+});
+
 //generating reports from start date to end date
 router.post("/user-status/", async (req, res) => {
   try {
