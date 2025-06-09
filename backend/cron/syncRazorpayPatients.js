@@ -31,7 +31,6 @@ async function syncRazorpayToPatients() {
     const patients = await Patients.find({
         $or: [
           { status: "created" },
-          { status: "paid" },
           { status: { $exists: false } },
           { status: "" },
           { status: null },
