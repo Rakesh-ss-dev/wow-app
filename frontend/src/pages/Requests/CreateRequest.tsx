@@ -74,6 +74,7 @@ const CreateRequest: React.FC = () => {
   const [discountAmount, setDiscountAmount] = useState<number>(0);
   const [tax, setTax] = useState<number>(0);
   const [finalAmount, setFinalAmount] = useState<number>(0);
+  const [programStartDate, setProgramStartDate] = useState<string>("");
   const [paymentLink, setPaymentLink] = useState<string>("");
   const [copied, setCopied] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -168,9 +169,10 @@ const CreateRequest: React.FC = () => {
           phone,
           category,
           discount,
-          installment: "Installment 1",
+          installment: installment,
           finalAmount: finalAmount.toFixed(2),
           tobePaid: installment.toFixed(2),
+          programStartDate
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -217,6 +219,13 @@ const CreateRequest: React.FC = () => {
               placeholder="Discount (%)"
               step=".01"
               className="input"
+            />
+            <Input
+              type="date"
+              placeholder="Program Start Date"
+              className="input"
+              value={programStartDate}
+              onChange={(e) => setProgramStartDate(e.target.value)}
             />
             <div className="flex items-center gap-3">
               <Checkbox

@@ -175,6 +175,7 @@ router.post("/create-payment-link", authMiddleware, async (req, res) => {
       finalAmount,
       tobePaid,
       installment,
+      programStartDate,
     } = req.body;
     const category_from_db = await Package.findOne({ name: category });
     let description = `Payment for your Golden 90 ${category_from_db.name} | Tax: 18%`;
@@ -215,6 +216,7 @@ router.post("/create-payment-link", authMiddleware, async (req, res) => {
       installment: installment,
       createdBy: req.user,
       amount: finalAmount,
+      programStartDate: programStartDate,
       dueAmount:
         tobePaid == 0
           ? 0

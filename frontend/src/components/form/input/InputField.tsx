@@ -61,6 +61,7 @@ const Input: FC<InputProps> = ({
             dateFormat: "Y-m-d", 
             disableMobile: true
           }}
+          placeholder={placeholder}
           value={value as string}
           onChange={(selectedDates) => onDateChange?.(selectedDates)}
           className={inputClasses}
