@@ -290,6 +290,7 @@ router.post("/getPaymentDetails", authMiddleware, async (req, res) => {
   try {
     const { request } = req.body;
     const paymentLink = await razorpay.paymentLink.fetch(request.paymentId);
+    console.log("Payment Link Details:", paymentLink);
     let output = {
       ...request,
       status: paymentLink.status,
