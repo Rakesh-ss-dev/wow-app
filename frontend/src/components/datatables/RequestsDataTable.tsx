@@ -19,7 +19,7 @@ type Request = {
   package: {
     name: string;
   };
-  createdAt: string;
+  payed_at: string;
   createdBy?: {
     name: string;
   };
@@ -78,8 +78,8 @@ const RequestDataTable: React.FC<RequestDataTableProps> = ({ data }) => {
       header: "Package",
     },
     {
-      accessorKey: "createdAt",
-      header: "Created At",
+      accessorKey: "payed_at",
+      header: "Date",
       cell: (info: CellContext<Request, any | undefined>) =>
         formatReadableDate(info.getValue() || ""),
     },
@@ -118,7 +118,7 @@ const RequestDataTable: React.FC<RequestDataTableProps> = ({ data }) => {
     initialState: {
       sorting: [
         {
-          id: "createdAt", // Match accessorKey
+          id: "payed_at", // Match accessorKey
           desc: true,
         },
       ],
@@ -266,10 +266,10 @@ const RequestDataTable: React.FC<RequestDataTableProps> = ({ data }) => {
                 </TableRow>
                 <TableRow>
                   <TableCell className="px-4 py-3 sm:px-6 text-start">
-                    Created At
+                    Date
                   </TableCell>
                   <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                    { formatReadableDate(requestDetails.createdAt)}
+                    { formatReadableDate(requestDetails.payed_at)}
                   </TableCell>
                 </TableRow>
               </TableBody>

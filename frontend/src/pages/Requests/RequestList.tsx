@@ -9,6 +9,7 @@ interface Request {
     name: string;
   };
   createdAt: string;
+  payed_at: string;
   createdBy?: {
     name: string;
   };
