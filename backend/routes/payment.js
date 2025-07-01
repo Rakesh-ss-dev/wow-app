@@ -16,123 +16,17 @@ const HealthReport = require("../models/HealthReport");
 const router = express.Router();
 
 require("dotenv").config();
-function formatFinancialData(data) {
-  try {
-    let totalINR = 0,
-      totalUSD = 0,
-      totalGSTINR = 0,
-      totalGSTUSD = 0,
-      totalRazINR = 0,
-      totalRazUSD = 0,
-      totalWowINR = 0,
-      totalWowUSD = 0,
-      totalPrincipleINR = 0,
-      totalPrincipleUSD = 0,
-      totalTDSINR = 0,
-      totalTDSUSD = 0,
-      totalFinalINR = 0,
-      totalFinalUSD = 0;
+const { google } = require("googleapis");
+const configPath = path.join(__dirname, "../report-config.json");
+const credentialsPath = path.join(
+  __dirname,
+  "../wow-sheets-464605-b6fdde8d81b1.json"
+);
 
-    const formattedData = data.map((entry) => {
-      const {
-        name,
-        phone,
-        paymentId,
-        package: pkg,
-        discount,
-        createdAt,
-        payed_at,
-        amount,
-        currency,
-      } = entry;
-
-      const raz = (amount * 0.0275).toFixed(2);
-      const gst = (amount * 1.18 - amount).toFixed(2);
-      const wow = ((amount - gst - raz) * 0.3).toFixed(2);
-      const principle = ((amount - gst - raz) * 0.7).toFixed(2);
-      const tds = (principle * 0.02).toFixed(2);
-      const final = (parseFloat(principle) - parseFloat(tds)).toFixed(2);
-
-      const createdDate = new Date(createdAt).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      });
-
-      const paidDate = payed_at
-        ? new Date(payed_at).toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-          })
-        : "N/A";
-
-      const formattedEntry = {
-        Name: name,
-        Phone: phone,
-        PaymentID: paymentId,
-        Package: pkg?.name || "unknown",
-        Discount: `${discount}%`,
-        Created_Date: createdDate,
-        Paid_Date: paidDate,
-        Currency: currency,
-        [`RZR_${currency}`]: Number(raz),
-        [`GST_${currency}`]: Number(gst),
-        [`WOW_${currency}`]: Number(wow),
-        [`Principle_${currency}`]: Number(principle),
-        [`TDS_${currency}`]: Number(tds),
-        [`Final_${currency}`]: Number(final),
-        [`Amount_${currency}`]: amount,
-      };
-
-      // Accumulate totals
-      if (currency === "INR") {
-        totalINR += amount;
-        totalGSTINR += Number(gst);
-        totalRazINR += Number(raz);
-        totalWowINR += Number(wow);
-        totalPrincipleINR += Number(principle);
-        totalTDSINR += Number(tds);
-        totalFinalINR += Number(final);
-      } else if (currency === "USD") {
-        totalUSD += amount;
-        totalGSTUSD += Number(gst);
-        totalRazUSD += Number(raz);
-        totalWowUSD += Number(wow);
-        totalPrincipleUSD += Number(principle);
-        totalTDSUSD += Number(tds);
-        totalFinalUSD += Number(final);
-      }
-
-      return formattedEntry;
-    });
-
-    return {
-      data: formattedData,
-      Total_INR: totalINR,
-      Total_RZR_INR: totalRazINR,
-      Total_GST_INR: totalGSTINR,
-      Total_WOW_INR: totalWowINR,
-      Total_Priciple_INR: totalPrincipleINR,
-      Total_TDS_INR: totalTDSINR,
-      Total_Final_INR: totalFinalINR,
-      Total_USD: totalUSD,
-      Total_RZR_USD: totalRazUSD,
-      Total_GST_USD: totalGSTUSD,
-      Total_WOW_USD: totalWowUSD,
-      Total_Priciple_USD: totalPrincipleUSD,
-      Total_TDS_USD: totalTDSUSD,
-      Total_Final_USD: totalFinalUSD,
-    };
-  } catch (error) {
-    console.error("Error formatting financial data:", error.message);
-    return {
-      data: [],
-      error: true,
-      message: "An error occurred while processing the data.",
-    };
-  }
-}
+const auth = new google.auth.GoogleAuth({
+  keyFile: credentialsPath,
+  scopes: ["https://www.googleapis.com/auth/spreadsheets"],
+});
 
 // helper function to format date to indian format
 const formatReadableDate = (isoString) => {
@@ -515,18 +409,6 @@ router.post("/generate-invoice", async (req, res) => {
   }
 });
 
-const { google } = require("googleapis");
-const configPath = path.join(__dirname, "../report-config.json");
-const credentialsPath = path.join(
-  __dirname,
-  "../wow-sheets-464605-b6fdde8d81b1.json"
-);
-
-const auth = new google.auth.GoogleAuth({
-  keyFile: credentialsPath,
-  scopes: ["https://www.googleapis.com/auth/spreadsheets"],
-});
-
 router.post("/user-status", async (req, res) => {
   try {
     const client = await auth.getClient();
@@ -534,19 +416,14 @@ router.post("/user-status", async (req, res) => {
 
     const config = JSON.parse(fs.readFileSync(configPath, "utf8"));
     const spreadsheetId = config.spreadsheetId;
-    const startDate = new Date(
-      config.lastEndDate || "2000-01-01T00:00:00.000Z"
-    );
+    const startDate = new Date(config.lastEndDate || "2000-01-01T00:00:00.000Z");
     const endDate = new Date();
     endDate.setHours(23, 59, 59, 999);
 
     const spreadsheetInfo = await sheets.spreadsheets.get({ spreadsheetId });
-    const existingSheets = spreadsheetInfo.data.sheets.map(
-      (s) => s.properties.title
-    );
+    const existingSheets = spreadsheetInfo.data.sheets;
 
     const monthWiseSheets = {};
-
     const users = await User.find({}).exec();
 
     for (const user of users) {
@@ -568,7 +445,6 @@ router.post("/user-status", async (req, res) => {
         });
 
         if (!grouped[dateKey]) grouped[dateKey] = [];
-
         grouped[dateKey].push(reqItem);
       }
 
@@ -576,29 +452,10 @@ router.post("/user-status", async (req, res) => {
         if (!monthWiseSheets[month]) {
           monthWiseSheets[month] = [
             [
-              "Coach",
-              "Name",
-              "Phone",
-              "PaymentID",
-              "Package",
-              "Discount",
-              "Created_Date",
-              "Paid_Date",
-              "Currency",
-              "Amount_INR",
-              "GST_INR",
-              "RZR_INR",
-              "WOW_INR",
-              "Principle_INR",
-              "TDS_INR",
-              "Final_INR",
-              "Amount_USD",
-              "GST_USD",
-              "RZR_USD",
-              "WOW_USD",
-              "Principle_USD",
-              "TDS_USD",
-              "Final_USD",
+              "Coach", "Name", "Phone", "PaymentID", "Package", "Discount",
+              "Created_Date", "Paid_Date", "Currency",
+              "Amount_INR", "GST_INR", "RZR_INR", "WOW_INR", "Principle_INR", "TDS_INR", "Final_INR",
+              "Amount_USD", "GST_USD", "RZR_USD", "WOW_USD", "Principle_USD", "TDS_USD", "Final_USD"
             ],
           ];
         }
@@ -608,10 +465,8 @@ router.post("/user-status", async (req, res) => {
 
         for (const reqItem of items) {
           const rowNum = rows.length + 1;
-          const amountINR =
-            reqItem.currency === "INR" ? reqItem.amount || 0 : 0;
-          const amountUSD =
-            reqItem.currency === "USD" ? reqItem.amount || 0 : 0;
+          const amountINR = reqItem.currency === "INR" ? reqItem.amount || 0 : 0;
+          const amountUSD = reqItem.currency === "USD" ? reqItem.amount || 0 : 0;
 
           rows.push([
             user.name || "",
@@ -620,12 +475,8 @@ router.post("/user-status", async (req, res) => {
             reqItem.paymentId || "",
             reqItem.package?.name || "",
             reqItem.discount !== undefined ? `${reqItem.discount}%` : "",
-            reqItem.createdAt
-              ? new Date(reqItem.createdAt).toLocaleDateString("en-IN")
-              : "",
-            reqItem.payed_at
-              ? new Date(reqItem.payed_at).toLocaleDateString("en-IN")
-              : "",
+            reqItem.createdAt ? new Date(reqItem.createdAt).toLocaleDateString("en-IN") : "",
+            reqItem.payed_at ? new Date(reqItem.payed_at).toLocaleDateString("en-IN") : "",
             reqItem.currency || "",
 
             amountINR,
@@ -642,7 +493,7 @@ router.post("/user-status", async (req, res) => {
             `=ROUND((Q${rowNum}-R${rowNum}-S${rowNum})*0.3, 2)`,
             `=ROUND((Q${rowNum}-R${rowNum}-S${rowNum})*0.7, 2)`,
             `=ROUND(U${rowNum}*0.02, 2)`,
-            `=ROUND(U${rowNum}-V${rowNum}, 2)`,
+            `=ROUND(U${rowNum}-V${rowNum}, 2)`
           ]);
         }
 
@@ -650,16 +501,9 @@ router.post("/user-status", async (req, res) => {
 
         rows.push([]);
 
+        // Totals for INR
         rows.push([
-          user.name,
-          "TOTAL_INR",
-          "",
-          "",
-          "",
-          "",
-          "",
-          "",
-          "INR",
+          user.name, "TOTAL_INR", "", "", "", "", "", "", "INR",
           `=SUM(J${startRow}:J${endRow})`,
           `=SUM(K${startRow}:K${endRow})`,
           `=SUM(L${startRow}:L${endRow})`,
@@ -667,39 +511,19 @@ router.post("/user-status", async (req, res) => {
           `=SUM(N${startRow}:N${endRow})`,
           `=SUM(O${startRow}:O${endRow})`,
           `=SUM(P${startRow}:P${endRow})`,
-          "",
-          "",
-          "",
-          "",
-          "",
-          "",
-          "",
+          "", "", "", "", "", "", ""
         ]);
 
+        // Totals for USD
         rows.push([
-          user.name,
-          "TOTAL_USD",
-          "",
-          "",
-          "",
-          "",
-          "",
-          "",
-          "USD",
-          "",
-          "",
-          "",
-          "",
-          "",
-          "",
-          "",
+          user.name, "TOTAL_USD", "", "", "", "", "", "", "USD", "", "", "", "", "", "", "",
           `=SUM(Q${startRow}:Q${endRow})`,
           `=SUM(R${startRow}:R${endRow})`,
           `=SUM(S${startRow}:S${endRow})`,
           `=SUM(T${startRow}:T${endRow})`,
           `=SUM(U${startRow}:U${endRow})`,
           `=SUM(V${startRow}:V${endRow})`,
-          `=SUM(W${startRow}:W${endRow})`,
+          `=SUM(W${startRow}:W${endRow})`
         ]);
 
         rows.push([]);
@@ -707,15 +531,25 @@ router.post("/user-status", async (req, res) => {
     }
 
     const sortedMonths = Object.keys(monthWiseSheets).sort((a, b) => {
-      const dateA = new Date("01 " + a);
-      const dateB = new Date("01 " + b);
-      return dateA - dateB;
+      return new Date("01 " + a) - new Date("01 " + b);
     });
 
     for (const month of sortedMonths) {
       const rows = monthWiseSheets[month];
 
-      if (!existingSheets.includes(month)) {
+      // Delete and recreate sheet if exists
+      const existingSheet = existingSheets.find(s => s.properties.title === month);
+      if (existingSheet) {
+        await sheets.spreadsheets.batchUpdate({
+          spreadsheetId,
+          requestBody: {
+            requests: [
+              { deleteSheet: { sheetId: existingSheet.properties.sheetId } },
+              { addSheet: { properties: { title: month } } },
+            ],
+          },
+        });
+      } else {
         await sheets.spreadsheets.batchUpdate({
           spreadsheetId,
           requestBody: {
@@ -747,135 +581,7 @@ router.post("/user-status", async (req, res) => {
   }
 });
 
-//generating reports from start date to end date
-router.post("/user-status/", async (req, res) => {
-  try {
-    const { startDate, endDate } = req.body;
-    const users = await User.find({}).exec();
-    const wb = XLSX.utils.book_new();
-    const wsData = [];
 
-    const adjustedEndDate = new Date(endDate);
-    adjustedEndDate.setHours(23, 59, 59, 999);
-
-    for (const user of users) {
-      const requests = await Patients.find({
-        createdBy: user._id,
-        status: { $in: ["paid", "active", "old"] },
-        payed_at: {
-          $gte: new Date(startDate),
-          $lte: adjustedEndDate,
-        },
-      })
-        .sort({ createdAt: -1 })
-        .populate("package")
-        .exec();
-
-      if (requests.length > 0) {
-        const formattedData = formatFinancialData(requests);
-        const data = formattedData.data.map((row) => ({
-          ...row,
-          Coach: user.name,
-        }));
-
-        data.push({}); // Empty row
-
-        data.push({
-          Coach: user.name,
-          Name: "TOTAL_INR",
-          Phone: "",
-          PaymentID: "",
-          Package: "",
-          Discount: "",
-          Created_Date: "",
-          Paid_Date: "",
-          Currency: "INR",
-          Amount_INR: formattedData.Total_INR || 0,
-          GST_INR: formattedData.Total_GST_INR || 0,
-          RZR_INR: formattedData.Total_RZR_INR || 0,
-          WOW_INR: formattedData.Total_WOW_INR || 0,
-          Principle_INR: formattedData.Total_Priciple_INR || 0,
-          TDS_INR: formattedData.Total_TDS_INR || 0,
-          Final_INR: formattedData.Total_Final_INR || 0,
-          Amount_USD: "",
-        });
-
-        data.push({
-          Coach: user.name,
-          Name: "TOTAL_USD",
-          Phone: "",
-          PaymentID: "",
-          Package: "",
-          Discount: "",
-          Created_Date: "",
-          Paid_Date: "",
-          Currency: "USD",
-          Amount_INR: "",
-          Amount_USD: formattedData.Total_USD || 0,
-          RZR_USD: formattedData.Total_RZR_USD || 0,
-          GST_USD: formattedData.Total_GST_USD || 0,
-          WOW_USD: formattedData.Total_WOW_USD || 0,
-          Principle_USD: formattedData.Total_Priciple_USD || 0,
-          TDS_USD: formattedData.Total_TDS_USD || 0,
-          Final_USD: formattedData.Total_Final_USD || 0,
-        });
-
-        data.push({}); // Another empty row for spacing
-        wsData.push(...data);
-      }
-    }
-
-    // Create worksheet with extended headers
-    const ws = XLSX.utils.json_to_sheet(wsData, {
-      header: [
-        "Coach",
-        "Name",
-        "Phone",
-        "PaymentID",
-        "Package",
-        "Discount",
-        "Created_Date",
-        "Paid_Date",
-        "Currency",
-        "Amount_INR",
-        "GST_INR",
-        "RZR_INR",
-        "WOW_INR",
-        "Principle_INR",
-        "TDS_INR",
-        "Final_INR",
-        "Amount_USD",
-        "GST_USD",
-        "RZR_USD",
-        "WOW_USD",
-        "Principle_USD",
-        "TDS_USD",
-        "Final_USD",
-      ],
-    });
-
-    XLSX.utils.book_append_sheet(wb, ws, "All Users");
-
-    const timestamp = Date.now();
-    const filePath = path.join(__dirname, `payments_${timestamp}.xlsx`);
-
-    XLSX.writeFile(wb, filePath);
-
-    res.download(filePath, `payments_${timestamp}.xlsx`, (err) => {
-      if (err) {
-        console.error("Error sending file:", err);
-      }
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-      }
-    });
-  } catch (error) {
-    console.error("Error generating report:", error);
-    res
-      .status(500)
-      .json({ success: false, message: "Internal Server Error", error });
-  }
-});
 
 // Details of all the paid requests made
 router.get("/get_requests", authMiddleware, async (req, res) => {
