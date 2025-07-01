@@ -33,3 +33,5 @@ build/
 # OS-specific
 Thumbs.db
 Desktop.ini
+backend/report-config.json
+backend/wow-sheets-464605-b6fdde8d81b1.json

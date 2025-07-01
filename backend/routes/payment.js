@@ -18,13 +18,20 @@ const router = express.Router();
 require("dotenv").config();
 function formatFinancialData(data) {
   try {
-    let totalINR = 0, totalUSD = 0,
-        totalGSTINR = 0, totalGSTUSD = 0,
-        totalRazINR = 0, totalRazUSD = 0,
-        totalWowINR = 0, totalWowUSD = 0,
-        totalPrincipleINR = 0, totalPrincipleUSD = 0,
-        totalTDSINR = 0, totalTDSUSD = 0,
-        totalFinalINR = 0, totalFinalUSD = 0;
+    let totalINR = 0,
+      totalUSD = 0,
+      totalGSTINR = 0,
+      totalGSTUSD = 0,
+      totalRazINR = 0,
+      totalRazUSD = 0,
+      totalWowINR = 0,
+      totalWowUSD = 0,
+      totalPrincipleINR = 0,
+      totalPrincipleUSD = 0,
+      totalTDSINR = 0,
+      totalTDSUSD = 0,
+      totalFinalINR = 0,
+      totalFinalUSD = 0;
 
     const formattedData = data.map((entry) => {
       const {
@@ -40,19 +47,23 @@ function formatFinancialData(data) {
       } = entry;
 
       const raz = (amount * 0.0275).toFixed(2);
-      const gst = ((amount * 1.18) - amount).toFixed(2);
+      const gst = (amount * 1.18 - amount).toFixed(2);
       const wow = ((amount - gst - raz) * 0.3).toFixed(2);
       const principle = ((amount - gst - raz) * 0.7).toFixed(2);
       const tds = (principle * 0.02).toFixed(2);
       const final = (parseFloat(principle) - parseFloat(tds)).toFixed(2);
 
       const createdDate = new Date(createdAt).toLocaleDateString("en-US", {
-        year: "numeric", month: "short", day: "numeric"
+        year: "numeric",
+        month: "short",
+        day: "numeric",
       });
 
       const paidDate = payed_at
         ? new Date(payed_at).toLocaleDateString("en-US", {
-            year: "numeric", month: "short", day: "numeric"
+            year: "numeric",
+            month: "short",
+            day: "numeric",
           })
         : "N/A";
 
@@ -113,17 +124,15 @@ function formatFinancialData(data) {
       Total_TDS_USD: totalTDSUSD,
       Total_Final_USD: totalFinalUSD,
     };
-
   } catch (error) {
     console.error("Error formatting financial data:", error.message);
     return {
       data: [],
       error: true,
-      message: "An error occurred while processing the data."
+      message: "An error occurred while processing the data.",
     };
   }
 }
-
 
 // helper function to format date to indian format
 const formatReadableDate = (isoString) => {
@@ -362,12 +371,10 @@ router.post("/success", async (req, res) => {
         }
       } catch (err) {
         console.error("Error calculating final/due/payed amounts:", err);
-        return res
-          .status(500)
-          .json({
-            success: false,
-            message: "Error calculating payment details.",
-          });
+        return res.status(500).json({
+          success: false,
+          message: "Error calculating payment details.",
+        });
       }
 
       let emailContent;
@@ -508,125 +515,177 @@ router.post("/generate-invoice", async (req, res) => {
   }
 });
 
-router.post("/user-status/", async (req, res) => {
+const { google } = require("googleapis");
+const configPath = path.join(__dirname, "../report-config.json");
+const credentialsPath = path.join(
+  __dirname,
+  "../wow-sheets-464605-b6fdde8d81b1.json"
+);
+
+const auth = new google.auth.GoogleAuth({
+  keyFile: credentialsPath,
+  scopes: ["https://www.googleapis.com/auth/spreadsheets"],
+});
+
+router.post("/user-status", async (req, res) => {
   try {
-    const { startDate, endDate } = req.body;
+    const client = await auth.getClient();
+    const sheets = google.sheets({ version: "v4", auth: client });
+
+    const config = JSON.parse(fs.readFileSync(configPath, "utf8"));
+    const spreadsheetId = config.spreadsheetId;
+    const startDate = new Date(
+      config.lastEndDate || "2000-01-01T00:00:00.000Z"
+    );
+    const endDate = new Date();
+    endDate.setHours(23, 59, 59, 999);
+
+    const spreadsheetInfo = await sheets.spreadsheets.get({ spreadsheetId });
+    const existingSheets = spreadsheetInfo.data.sheets.map(
+      (s) => s.properties.title
+    );
+
+    const monthWiseSheets = {};
+
     const users = await User.find({}).exec();
-    const wb = XLSX.utils.book_new();
-    const wsData = [];
-
-    const adjustedEndDate = new Date(endDate);
-    adjustedEndDate.setHours(23, 59, 59, 999);
-
-    // Push header row first
-    wsData.push([
-      "Coach", "Name", "Phone", "PaymentID", "Package", "Discount",
-      "Created_Date", "Paid_Date", "Currency",
-      "Amount_INR", "GST_INR", "RZR_INR", "WOW_INR", "Principle_INR", "TDS_INR", "Final_INR",
-      "Amount_USD", "GST_USD", "RZR_USD", "WOW_USD", "Principle_USD", "TDS_USD", "Final_USD"
-    ]);
 
     for (const user of users) {
       const requests = await Patients.find({
         createdBy: user._id,
         status: { $in: ["paid", "active", "old"] },
-        payed_at: {
-          $gte: new Date(startDate),
-          $lte: adjustedEndDate,
-        },
+        payed_at: { $gte: startDate, $lte: endDate },
       })
         .sort({ createdAt: -1 })
         .populate("package")
         .exec();
 
-      if (requests.length > 0) {
-        let totalINR = 0, totalUSD = 0,
-          totalGSTINR = 0, totalRZRINR = 0, totalWOWINR = 0, totalPrincipleINR = 0, totalTDSINR = 0, totalFinalINR = 0,
-          totalGSTUSD = 0, totalRZRUSD = 0, totalWOWUSD = 0, totalPrincipleUSD = 0, totalTDSUSD = 0, totalFinalUSD = 0;
+      const grouped = {};
 
-        for (let i = 0; i < requests.length; i++) {
-          const reqItem = requests[i];
-          const excelRowNum = wsData.length + 1; // Excel rows start at 1, +1 for header row
+      for (const reqItem of requests) {
+        const dateKey = reqItem.payed_at.toLocaleString("default", {
+          month: "long",
+          year: "numeric",
+        });
 
-          let amountINR = 0, amountUSD = 0;
-          if (reqItem.currency === "INR") {
-            amountINR = reqItem.amount || 0;
-          } else if (reqItem.currency === "USD") {
-            amountUSD = reqItem.amount || 0;
-          }
+        if (!grouped[dateKey]) grouped[dateKey] = [];
 
-          // Push a data row with formulas rounded to 2 decimals
-          wsData.push([
+        grouped[dateKey].push(reqItem);
+      }
+
+      for (const [month, items] of Object.entries(grouped)) {
+        if (!monthWiseSheets[month]) {
+          monthWiseSheets[month] = [
+            [
+              "Coach",
+              "Name",
+              "Phone",
+              "PaymentID",
+              "Package",
+              "Discount",
+              "Created_Date",
+              "Paid_Date",
+              "Currency",
+              "Amount_INR",
+              "GST_INR",
+              "RZR_INR",
+              "WOW_INR",
+              "Principle_INR",
+              "TDS_INR",
+              "Final_INR",
+              "Amount_USD",
+              "GST_USD",
+              "RZR_USD",
+              "WOW_USD",
+              "Principle_USD",
+              "TDS_USD",
+              "Final_USD",
+            ],
+          ];
+        }
+
+        const rows = monthWiseSheets[month];
+        const startRow = rows.length + 1;
+
+        for (const reqItem of items) {
+          const rowNum = rows.length + 1;
+          const amountINR =
+            reqItem.currency === "INR" ? reqItem.amount || 0 : 0;
+          const amountUSD =
+            reqItem.currency === "USD" ? reqItem.amount || 0 : 0;
+
+          rows.push([
             user.name || "",
             reqItem.name || "",
             reqItem.phone || "",
             reqItem.paymentId || "",
             reqItem.package?.name || "",
             reqItem.discount !== undefined ? `${reqItem.discount}%` : "",
-            reqItem.createdAt ? new Date(reqItem.createdAt).toLocaleDateString("en-US") : "",
-            reqItem.payed_at ? new Date(reqItem.payed_at).toLocaleDateString("en-US") : "",
+            reqItem.createdAt
+              ? new Date(reqItem.createdAt).toLocaleDateString("en-IN")
+              : "",
+            reqItem.payed_at
+              ? new Date(reqItem.payed_at).toLocaleDateString("en-IN")
+              : "",
             reqItem.currency || "",
 
             amountINR,
-            { f: `ROUND(J${excelRowNum}*1.18-J${excelRowNum}, 2)` },   // GST_INR
-            { f: `ROUND(J${excelRowNum}*0.0275, 2)` }, // RZR_INR
-            { f: `ROUND((J${excelRowNum}-K${excelRowNum}-L${excelRowNum})*0.3, 2)` }, // WOW_INR
-            { f: `ROUND((J${excelRowNum}-K${excelRowNum}-L${excelRowNum})*0.7, 2)` }, // Principle_INR
-            { f: `ROUND(N${excelRowNum}*0.02, 2)` },   // TDS_INR
-            { f: `ROUND(N${excelRowNum}-O${excelRowNum}, 2)` }, // Final_INR
+            `=ROUND(J${rowNum}*1.18 - J${rowNum}, 2)`,
+            `=ROUND(J${rowNum}*0.0275, 2)`,
+            `=ROUND((J${rowNum}-K${rowNum}-L${rowNum})*0.3, 2)`,
+            `=ROUND((J${rowNum}-K${rowNum}-L${rowNum})*0.7, 2)`,
+            `=ROUND(N${rowNum}*0.02, 2)`,
+            `=ROUND(N${rowNum}-O${rowNum}, 2)`,
 
             amountUSD,
-            { f: `ROUND(Q${excelRowNum}*1.18-Q${excelRowNum}, 2)` },   // GST_USD
-            { f: `ROUND(Q${excelRowNum}*0.0275, 2)` }, // RZR_USD
-            { f: `ROUND((Q${excelRowNum}-R${excelRowNum}-S${excelRowNum})*0.3, 2)` }, // WOW_USD
-            { f: `ROUND((Q${excelRowNum}-R${excelRowNum}-S${excelRowNum})*0.7, 2)` }, // Principle_USD
-            { f: `ROUND(U${excelRowNum}*0.02, 2)` },   // TDS_USD
-            { f: `ROUND(U${excelRowNum}-V${excelRowNum}, 2)` }, // Final_USD
+            `=ROUND(Q${rowNum}*1.18 - Q${rowNum}, 2)`,
+            `=ROUND(Q${rowNum}*0.0275, 2)`,
+            `=ROUND((Q${rowNum}-R${rowNum}-S${rowNum})*0.3, 2)`,
+            `=ROUND((Q${rowNum}-R${rowNum}-S${rowNum})*0.7, 2)`,
+            `=ROUND(U${rowNum}*0.02, 2)`,
+            `=ROUND(U${rowNum}-V${rowNum}, 2)`,
           ]);
-
-          // Accumulate totals for INR
-          if (reqItem.currency === "INR") {
-            totalINR += amountINR;
-            totalGSTINR += amountINR * 0.18;
-            totalRZRINR += amountINR * 0.0275;
-            totalWOWINR += (amountINR - (amountINR * 0.18) - (amountINR * 0.0275)) * 0.3;
-            totalPrincipleINR += (amountINR - (amountINR * 0.18) - (amountINR * 0.0275)) * 0.7;
-            totalTDSINR += ((amountINR - (amountINR * 0.18) - (amountINR * 0.0275)) * 0.7) * 0.02;
-            totalFinalINR += ((amountINR - (amountINR * 0.18) - (amountINR * 0.0275)) * 0.7) - (((amountINR - (amountINR * 0.18) - (amountINR * 0.0275)) * 0.7) * 0.02);
-          }
-
-          // Accumulate totals for USD
-          if (reqItem.currency === "USD") {
-            totalUSD += amountUSD;
-            totalGSTUSD += amountUSD * 0.18;
-            totalRZRUSD += amountUSD * 0.0275;
-            totalWOWUSD += (amountUSD - (amountUSD * 0.18) - (amountUSD * 0.0275)) * 0.3;
-            totalPrincipleUSD += (amountUSD - (amountUSD * 0.18) - (amountUSD * 0.0275)) * 0.7;
-            totalTDSUSD += ((amountUSD - (amountUSD * 0.18) - (amountUSD * 0.0275)) * 0.7) * 0.02;
-            totalFinalUSD += ((amountUSD - (amountUSD * 0.18) - (amountUSD * 0.0275)) * 0.7) - (((amountUSD - (amountUSD * 0.18) - (amountUSD * 0.0275)) * 0.7) * 0.02);
-          }
         }
 
-        // Empty row for spacing
-        wsData.push([]);
+        const endRow = rows.length;
 
-        // Totals INR row (rounded in JS for total display)
-        wsData.push([
-          user.name, "TOTAL_INR", "", "", "", "", "", "", "INR",
-          totalINR.toFixed(2),
-          totalGSTINR.toFixed(2),
-          totalRZRINR.toFixed(2),
-          totalWOWINR.toFixed(2),
-          totalPrincipleINR.toFixed(2),
-          totalTDSINR.toFixed(2),
-          totalFinalINR.toFixed(2),
+        rows.push([]);
 
-          "", "", "", "", "", "", ""
+        rows.push([
+          user.name,
+          "TOTAL_INR",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "INR",
+          `=SUM(J${startRow}:J${endRow})`,
+          `=SUM(K${startRow}:K${endRow})`,
+          `=SUM(L${startRow}:L${endRow})`,
+          `=SUM(M${startRow}:M${endRow})`,
+          `=SUM(N${startRow}:N${endRow})`,
+          `=SUM(O${startRow}:O${endRow})`,
+          `=SUM(P${startRow}:P${endRow})`,
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
         ]);
 
-        // Totals USD row (rounded in JS for total display)
-        wsData.push([
-          user.name, "TOTAL_USD", "", "", "", "", "", "", "USD",
+        rows.push([
+          user.name,
+          "TOTAL_USD",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "USD",
           "",
           "",
           "",
@@ -634,43 +693,57 @@ router.post("/user-status/", async (req, res) => {
           "",
           "",
           "",
-
-          totalUSD.toFixed(2),
-          totalGSTUSD.toFixed(2),
-          totalRZRUSD.toFixed(2),
-          totalWOWUSD.toFixed(2),
-          totalPrincipleUSD.toFixed(2),
-          totalTDSUSD.toFixed(2),
-          totalFinalUSD.toFixed(2),
+          `=SUM(Q${startRow}:Q${endRow})`,
+          `=SUM(R${startRow}:R${endRow})`,
+          `=SUM(S${startRow}:S${endRow})`,
+          `=SUM(T${startRow}:T${endRow})`,
+          `=SUM(U${startRow}:U${endRow})`,
+          `=SUM(V${startRow}:V${endRow})`,
+          `=SUM(W${startRow}:W${endRow})`,
         ]);
 
-        // Another empty row for spacing
-        wsData.push([]);
+        rows.push([]);
       }
     }
 
-    // Create worksheet from array of arrays
-    const ws = XLSX.utils.aoa_to_sheet(wsData);
-
-    XLSX.utils.book_append_sheet(wb, ws, "All Users");
-
-    const timestamp = Date.now();
-    const filePath = path.join(__dirname, `payments_${timestamp}.xlsx`);
-
-    XLSX.writeFile(wb, filePath);
-
-    res.download(filePath, `payments_${timestamp}.xlsx`, (err) => {
-      if (err) {
-        console.error("Error sending file:", err);
-      }
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-      }
+    const sortedMonths = Object.keys(monthWiseSheets).sort((a, b) => {
+      const dateA = new Date("01 " + a);
+      const dateB = new Date("01 " + b);
+      return dateA - dateB;
     });
 
-  } catch (error) {
-    console.error("Error generating report:", error);
-    res.status(500).json({ success: false, message: "Internal Server Error", error });
+    for (const month of sortedMonths) {
+      const rows = monthWiseSheets[month];
+
+      if (!existingSheets.includes(month)) {
+        await sheets.spreadsheets.batchUpdate({
+          spreadsheetId,
+          requestBody: {
+            requests: [{ addSheet: { properties: { title: month } } }],
+          },
+        });
+      }
+
+      await sheets.spreadsheets.values.update({
+        spreadsheetId,
+        range: `${month}!A1`,
+        valueInputOption: "USER_ENTERED",
+        resource: { values: rows },
+      });
+    }
+
+    config.lastEndDate = endDate.toISOString();
+    fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+
+    res.json({
+      success: true,
+      message: `Reports written to sheets`,
+      lastFetchedTo: config.lastEndDate,
+      sheetUrl: `https://docs.google.com/spreadsheets/d/${spreadsheetId}`,
+    });
+  } catch (err) {
+    console.error("Monthly sheet split failed:", err);
+    res.status(500).json({ success: false, error: err.message });
   }
 });
 
@@ -755,10 +828,29 @@ router.post("/user-status/", async (req, res) => {
     // Create worksheet with extended headers
     const ws = XLSX.utils.json_to_sheet(wsData, {
       header: [
-        "Coach", "Name", "Phone", "PaymentID", "Package", "Discount",
-        "Created_Date", "Paid_Date", "Currency",
-        "Amount_INR", "GST_INR", "RZR_INR", "WOW_INR", "Principle_INR", "TDS_INR", "Final_INR",
-        "Amount_USD", "GST_USD", "RZR_USD", "WOW_USD", "Principle_USD", "TDS_USD", "Final_USD",
+        "Coach",
+        "Name",
+        "Phone",
+        "PaymentID",
+        "Package",
+        "Discount",
+        "Created_Date",
+        "Paid_Date",
+        "Currency",
+        "Amount_INR",
+        "GST_INR",
+        "RZR_INR",
+        "WOW_INR",
+        "Principle_INR",
+        "TDS_INR",
+        "Final_INR",
+        "Amount_USD",
+        "GST_USD",
+        "RZR_USD",
+        "WOW_USD",
+        "Principle_USD",
+        "TDS_USD",
+        "Final_USD",
       ],
     });
 
@@ -777,13 +869,13 @@ router.post("/user-status/", async (req, res) => {
         fs.unlinkSync(filePath);
       }
     });
-
   } catch (error) {
     console.error("Error generating report:", error);
-    res.status(500).json({ success: false, message: "Internal Server Error", error });
+    res
+      .status(500)
+      .json({ success: false, message: "Internal Server Error", error });
   }
 });
-
 
 // Details of all the paid requests made
 router.get("/get_requests", authMiddleware, async (req, res) => {
