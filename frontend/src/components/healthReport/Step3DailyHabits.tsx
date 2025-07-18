@@ -62,7 +62,7 @@ const Step3DailyHabits: FC<Props> = ({ formData, setFormData, errors, setErrors 
           <label className="block mb-1 font-medium">Alchohol Usage</label>
           <TextArea
             value={formData.alcoholUsage || ''}
-            onChange={(e: any) => handleChange('alcoholUsage', e.target.value)}
+            onChange={(e: any) => handleChange('alcoholUsage', e)}
             className="w-full border border-gray-300 rounded px-3 py-2"
             placeholder="How often and how much alcohol do you consume?"
           />
@@ -100,7 +100,7 @@ const Step3DailyHabits: FC<Props> = ({ formData, setFormData, errors, setErrors 
           <label className="block mb-1 font-medium">Dietary Supplements</label>
           <TextArea
             value={formData.dietarySupplements || ''}
-            onChange={(e: any) => handleChange('dietarySupplements', e.target.value)}
+            onChange={(e: any) => handleChange('dietarySupplements', e)}
             className="w-full border border-gray-300 rounded px-3 py-2"
           />
         </div>

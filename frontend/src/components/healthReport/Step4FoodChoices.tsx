@@ -24,7 +24,7 @@ const Step4FoodChoices: React.FC<Props> = ({ formData, setFormData, errors, setE
           <label className="block mb-1 font-medium">Allergic Foods</label>
           <TextArea
             value={formData.allergicFoods || ''}
-            onChange={(e: any) => handleChange('allergicFoods', e.target.value)}
+            onChange={(e: any) => handleChange('allergicFoods', e)}
             placeholder='List any foods you are allergic to'
           />
         </div>
@@ -86,7 +86,7 @@ const Step4FoodChoices: React.FC<Props> = ({ formData, setFormData, errors, setE
                     {formData.cuisinePreference === 'other' && (
                       <TextArea
                         value={formData.otherCuisine || ''}
-                        onChange={(e: any) => handleChange('otherCuisine', e.target.value)}
+                        onChange={(e: any) => handleChange('otherCuisine', e)}
                         placeholder='Please specify your cuisine preference'
                       />
                     )}
@@ -98,7 +98,7 @@ const Step4FoodChoices: React.FC<Props> = ({ formData, setFormData, errors, setE
                   <label className="block mb-1 text-sm font-medium">Food Favourites</label>
                   <TextArea
                     value={formData.foodFavorites || ''}
-                    onChange={(e: any) => handleChange('foodFavorites', e.target.value)}
+                    onChange={(e: any) => handleChange('foodFavorites', e)}
                     placeholder='List your favorite foods'
                   />
                 </div>
@@ -106,7 +106,7 @@ const Step4FoodChoices: React.FC<Props> = ({ formData, setFormData, errors, setE
                   <label className="block mb-1 text-sm font-medium">Food Avoidances</label>
                   <TextArea
                     value={formData.foodAvoidance || ''}
-                    onChange={(e: any) => handleChange('foodAvoidance', e.target.value)}
+                    onChange={(e: any) => handleChange('foodAvoidance', e)}
                     placeholder='List foods you avoid'
                   />
                 </div>

@@ -128,7 +128,7 @@ const Step2HealthBackground: FC<Props> = ({ formData, setFormData, errors, setEr
           <label className="block mb-1 font-medium">Existing Health Conditions or Metabolic Syndrome</label>
           <TextArea
             value={formData.healthConditions || ''}
-            onChange={(e: any) => handleChange('healthConditions', e)}
+            onChange={(e) => handleChange('healthConditions', e)}
             rows={3}
             placeholder='Describe any existing health conditions or metabolic syndrome'
           />
