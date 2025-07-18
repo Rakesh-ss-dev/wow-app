@@ -22,13 +22,14 @@ import ClientProfile from "./pages/ClientProfile";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ClientDetails from "./components/UserProfile/ClientDetails";
 import PendingInstallment from "./pages/Requests/PendingInstallment";
+import HealthLifestyleForm from "./pages/HealthLifestyleForm";
 
 const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
 
 export default function App() {
   useEffect(() => {
     const token = localStorage.getItem("token");
-    const publicRoutes = ["/", "/user", "/payment_success"];
+    const publicRoutes = ["/", "/user", "/payment_success", "/health-form"];
 
     if (publicRoutes.includes(location.pathname)) return;
 
@@ -51,10 +52,12 @@ export default function App() {
   return (
     <Router>
       <Routes>
+
         <Route element={<AuthLayout />}>
           <Route path="/" element={<SignIn />} />
           <Route path="/user" element={<UserLogin />} />
           <Route path="/payment_success" element={<Payment_successful />} />
+          <Route path="/health-form" element={<HealthLifestyleForm />} />
         </Route>
 
         <Route element={<ProtectedRoute allowedRole="user"><AppLayout /></ProtectedRoute>}>
@@ -78,6 +81,7 @@ export default function App() {
         </Route>
 
         <Route path="*" element={<NotFound />} />
+        
       </Routes>
     </Router>
   );
