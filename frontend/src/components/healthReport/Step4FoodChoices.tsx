@@ -32,7 +32,7 @@ const Step4FoodChoices: React.FC<Props> = ({ formData, setFormData, errors, setE
           <label className="block mb-1 font-medium">Dietary Preference</label>
           <div className='rounded overflow-hidden border bg-white p-3'>
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-              <div className='my-3 flex items-center justify-between'>
+              <div className='my-3 flex flex-nowrap items-center justify-between'>
                 <Radio
                   id='Vegetarian'
                   name='dietaryPreference'
@@ -55,7 +55,7 @@ const Step4FoodChoices: React.FC<Props> = ({ formData, setFormData, errors, setE
               <label className="block mb-1 font-medium text-sm">Cuisine Preference</label>
               <div className='rounded overflow-hidden border bg-white p-3'>
                 <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                  <div className='my-3 flex items-center justify-between'>
+                  <div className='my-3 flex flex-nowrap items-center justify-between'>
                     <Radio
                       id='South_Indian'
                       name='cuisinePreference'

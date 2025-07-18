@@ -19,9 +19,9 @@ const Step5DigestiveMental: React.FC<Props> = ({ formData, setFormData, errors, 
       <h2 className="text-xl font-semibold mb-4">Digestive & Metabolic Indicators</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className='md:col-span-2 p-5 border rounded bg-gray-50'>
-          <div className='flex align-center gap-4 justify-between'>
+          <div className='block md:flex flex-nowrap align-center gap-4 justify-between'>
             <label className="w-full md:w-1/3 block mb-1 font-medium">Burping</label>
-            <div className='w-full md:w-2/3 flex align-center gap-4'>
+            <div className='w-full md:w-2/3 flex flex-nowrap align-center gap-4'>
               <Radio
                 id="burpingSevere"
                 name="burping"
@@ -53,9 +53,9 @@ const Step5DigestiveMental: React.FC<Props> = ({ formData, setFormData, errors, 
           </div>
         </div>
         <div className='md:col-span-2 p-5 border rounded bg-gray-50'>
-          <div className='flex align-center gap-4 justify-between'>
+          <div className='block md:flex flex-nowrap align-center gap-4 justify-between'>
             <label className="w-full md:w-1/3 block mb-1 font-medium">Bloating</label>
-            <div className='w-full md:w-2/3 flex align-center gap-4'>
+            <div className='w-full md:w-2/3 flex flex-nowrap align-center gap-4'>
               <Radio
                 id="bloatingSevere"
                 name="bloating"
@@ -78,9 +78,9 @@ const Step5DigestiveMental: React.FC<Props> = ({ formData, setFormData, errors, 
           </div>
         </div>
         <div className='md:col-span-2 p-5 border rounded bg-gray-50'>
-          <div className='flex align-center gap-4 justify-between'>
+          <div className='block md:flex flex-nowrap align-center gap-4 justify-between'>
             <label className="w-full md:w-1/3 block mb-1 font-medium">Prolonged Fullness</label>
-            <div className='w-full md:w-2/3 flex align-center gap-4'>
+            <div className='w-full md:w-2/3 flex flex-nowrap align-center gap-4'>
               <Radio
                 id="prolongedFullnessSevere"
                 name="prolongedFullness"
@@ -112,9 +112,9 @@ const Step5DigestiveMental: React.FC<Props> = ({ formData, setFormData, errors, 
           </div>
         </div>
         <div className='md:col-span-2 p-5 border rounded bg-gray-50'>
-          <div className='flex align-center gap-4 justify-between'>
+          <div className='block md:flex flex-nowrap align-center gap-4 justify-between'>
             <label className="w-full md:w-1/3 block mb-1 font-medium">Improper Bowel Movements</label>
-            <div className='w-full md:w-2/3 flex align-center gap-4'>
+            <div className='w-full md:w-2/3 flex flex-nowrap align-center gap-4'>
               <Radio
                 id="improperBowelMovementsConstipation"
                 name="improperBowelMovements"
@@ -137,9 +137,9 @@ const Step5DigestiveMental: React.FC<Props> = ({ formData, setFormData, errors, 
           </div>
         </div>
         <div className='md:col-span-2 p-5 border rounded bg-gray-50'>
-          <div className='flex align-center gap-4 justify-between'>
+          <div className='block md:flex flex-nowrap align-center gap-4 justify-between'>
             <label className="w-full md:w-1/3 block mb-1 font-medium">Post-Meal Tiredness</label>
-            <div className='w-full md:w-2/3 flex align-center gap-4'>
+            <div className='w-full md:w-2/3 flex flex-nowrap align-center gap-4'>
               <Radio
                 id="postMealTirednessSevere"
                 name="postMealTiredness"
@@ -171,9 +171,9 @@ const Step5DigestiveMental: React.FC<Props> = ({ formData, setFormData, errors, 
           </div>
         </div>
         <div className='md:col-span-2 p-5 border rounded bg-gray-50'>
-          <div className='flex align-center gap-4 justify-between'>
+          <div className='block md:flex flex-nowrap align-center gap-4 justify-between'>
             <label className="w-full md:w-1/3 block mb-1 font-medium">Acidity or Heatburn</label>
-            <div className='w-full md:w-2/3 flex align-center gap-4'>
+            <div className='w-full md:w-2/3 flex flex-nowrap align-center gap-4'>
               <Radio
                 id="acidityOrHeartburnSevere"
                 name="acidityOrHeartburn"

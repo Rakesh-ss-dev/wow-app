@@ -25,7 +25,7 @@ const Step3DailyHabits: FC<Props> = ({ formData, setFormData, errors, setErrors 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 align-center">
         <div className='md:col-span-2'>
           <label className="block mb-1 font-medium">Caffeine Consumption</label>
-          <div className='flex align-center gap-4 justify-between'>
+          <div className='flex flex-nowrap align-center gap-4 justify-between'>
             <div>
               <Label> Coffee: </Label>
               <Input
@@ -79,7 +79,7 @@ const Step3DailyHabits: FC<Props> = ({ formData, setFormData, errors, setErrors 
         </div>
         <div className='md:col-span-2'>
           <label className="block mb-1 font-medium">Smoking</label>
-          <div className='flex items-center justify-between align-center my-4'>
+          <div className='flex flex-nowrap items-center justify-between align-center my-4'>
             <Switch
               label="Smoking Habits"
               defaultChecked={false}
@@ -106,7 +106,7 @@ const Step3DailyHabits: FC<Props> = ({ formData, setFormData, errors, setErrors 
         </div>
         <div className='md:col-span-2'>
           <label className="block mb-1 font-medium">Activity Description & Frequency</label>
-          <div className='flex items-center justify-between align-center my-4'>
+          <div className='block md:flex flex-nowrap items-center justify-between align-center my-4'>
             <Radio
               id="adf1"
               name="adf"
@@ -114,6 +114,7 @@ const Step3DailyHabits: FC<Props> = ({ formData, setFormData, errors, setErrors 
               checked={formData.adf === "Sedentary"}
               onChange={(value) => handleChange('adf', value)}
               label="Sedentary"
+              className='my-3 md:my-0'
             />
             <Radio
               id="adf2"
@@ -122,6 +123,7 @@ const Step3DailyHabits: FC<Props> = ({ formData, setFormData, errors, setErrors 
               checked={formData.adf === "Lightly Active"}
               onChange={(value) => handleChange('adf', value)}
               label="Lightly Active"
+              className='my-3 md:my-0'
             />
             <Radio
               id="adf3"
@@ -130,6 +132,7 @@ const Step3DailyHabits: FC<Props> = ({ formData, setFormData, errors, setErrors 
               checked={formData.adf === "Moderately Active"}
               onChange={(value) => handleChange('adf', value)}
               label="Moderately Active"
+              className='my-3 md:my-0'
             />
             <Radio
               id="adf4"
@@ -138,14 +141,15 @@ const Step3DailyHabits: FC<Props> = ({ formData, setFormData, errors, setErrors 
               checked={formData.adf === "Highly Active"}
               onChange={(value) => handleChange('adf', value)}
               label="Highly Active"
+              className='my-3 md:my-0'
             />
           </div>
 
         </div>
         <div className='md:col-span-2'>
           <label className="block mb-1 font-medium">Sleep Pattern</label>
-          <div className='flex items-center align-center justify-between gap-3 my-4'>
-            <div className='w-1/4'>
+          <div className='block md:flex flex-nowrap items-center align-center justify-between gap-3 my-4'>
+            <div className='w-full md:w-1/4'>
               <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Sleep Duration (hours)</label>
               <Input
                 type='number'
@@ -156,7 +160,7 @@ const Step3DailyHabits: FC<Props> = ({ formData, setFormData, errors, setErrors 
             </div>
             <div className='w-1/2'>
               <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Sleep Quality</label>
-              <div className='flex justify-between items-center gap-2'>
+              <div className='block md:flex flex-nowrap justify-between items-center gap-2'>
                 <Radio
                   id="sleepQuality1"
                   name="sleepQuality"
@@ -164,6 +168,7 @@ const Step3DailyHabits: FC<Props> = ({ formData, setFormData, errors, setErrors 
                   checked={formData.sleepQuality === "Satisfactory"}
                   onChange={(value) => handleChange('sleepQuality', value)}
                   label="Satisfactory"
+                  className='my-3 md:my-0'
                 />
                 <Radio
                   id="sleepQuality2"
@@ -172,6 +177,7 @@ const Step3DailyHabits: FC<Props> = ({ formData, setFormData, errors, setErrors 
                   checked={formData.sleepQuality === "Need Improvement"}
                   onChange={(value) => handleChange('sleepQuality', value)}
                   label="Need Improvement"
+                  className='my-3 md:my-0'
                 />
                 <Radio
                   id="sleepQuality3"
@@ -180,6 +186,7 @@ const Step3DailyHabits: FC<Props> = ({ formData, setFormData, errors, setErrors 
                   checked={formData.sleepQuality === "Poor"}
                   onChange={(value) => handleChange('sleepQuality', value)}
                   label="Poor"
+                  className='my-3 md:my-0'
                 />
               </div>
             </div>
