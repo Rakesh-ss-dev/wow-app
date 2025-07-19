@@ -42,6 +42,25 @@ const Step1PersonalDetails: FC<Props> = ({ formData, setFormData , errors, setEr
         </div>
 
         <div>
+          <label className="block mb-1 font-medium">Mobile Number</label>
+          <Input
+            type="tel"
+            value={formData.mobile || ''}
+            onChange={(e) => handleChange('mobile', e.target.value)}
+          />
+          {errors.mobile && <p className="text-red-500 text-sm">{errors.mobile}</p>}
+        </div>
+        <div>
+          <label className="block mb-1 font-medium">Email Address</label>
+          <Input
+            type="email"
+            value={formData.email || ''}
+            onChange={(e) => handleChange('email', e.target.value)}
+          />
+          {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
+        </div>
+
+        <div>
           <label className="block mb-1 font-medium">Gender</label>
           <select
             value={formData.gender || ''}

@@ -22,6 +22,7 @@ const HealthLifestyleForm = () => {
         if (!formData.profession) stepErrors.profession = 'Profession is required';
         if (!formData.height) stepErrors.height = 'Height is required';
         if (!formData.weight) stepErrors.weight = 'Weight is required';
+        if (!formData.mobile) stepErrors.mobile = 'Mobile number is required';
         if (!formData.bmi) stepErrors.bmi = 'BMI is required';
         if (!formData.goals) stepErrors.goals = 'Goals are required';
 
