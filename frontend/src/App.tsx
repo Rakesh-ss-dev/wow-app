@@ -23,6 +23,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import ClientDetails from "./components/UserProfile/ClientDetails";
 import PendingInstallment from "./pages/Requests/PendingInstallment";
 import HealthLifestyleForm from "./pages/HealthLifestyleForm";
+import SugarInputForm from "./pages/ClientPages/SugarInputForm";
 
 const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
 
@@ -78,6 +79,7 @@ export default function App() {
           <Route path="/add-report" element={<HealthReportForm />} />
           <Route path="/view-reports" element={<HealthReportsList />} />
           <Route path="/view-profile" element={<ClientProfile />} />
+          <Route path="/sugar-input" element={<SugarInputForm />} />
         </Route>
 
         <Route path="*" element={<NotFound />} />
