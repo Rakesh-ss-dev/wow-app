@@ -567,7 +567,6 @@ router.post("/user-status", async (req, res) => {
     }
 
     config.lastEndDate = endDate.toISOString();
-    fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
 
     res.json({
       success: true,
