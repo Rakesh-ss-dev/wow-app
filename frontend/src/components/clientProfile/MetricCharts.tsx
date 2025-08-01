@@ -76,8 +76,6 @@ const chartOptions = (
     xaxis: { type: "category", labels: { rotate: -45 } },
     yaxis: {
       title: { text: yTitle },
-      min: range?.min,
-      max: range?.max,
       labels: {
         formatter: (value) => {
           return value.toFixed(2);
