@@ -5,6 +5,9 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const clientMiddleware = require("../middleware/clientMiddleware");
 const HealthReport = require("../models/HealthReport");
+const DailyWeight = require("../models/DailyWeight");
+const Diabetes = require("../models/Diabetes");
+const { route } = require("./payment");
 
 router.post("/login", async (req, res) => {
   try {
@@ -138,6 +141,75 @@ router.get("/health-metrics", clientMiddleware, async (req, res) => {
     res.status(200).json(latest);
   } catch (error) {
     res.status(500).json({ message: "Failed to fetch the report", error });
+  }
+});
+router.post("/weight/submit", clientMiddleware, async (req, res) => {
+  const today = new Date();
+  const dateOnly = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate()
+  );
+  try {
+    const { weight } = req.body;
+    const user = req.user;
+    const weightInput = await DailyWeight.findOneAndUpdate(
+      { userId: user, date: dateOnly },
+      { $set: { weight: weight } },
+      { upsert: true, new: true }
+    );
+    res
+      .status(201)
+      .json({ success: true, message: "Weight submitted successfully!" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+router.post("/fastingSugar/submit", clientMiddleware, async (req, res) => {
+  const { fastingValue } = req.body;
+  const user = req.user;
+  const today = new Date();
+  const dateOnly = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate()
+  );
+  try {
+    const fastingInput = await Diabetes.findOneAndUpdate(
+      { userId: user, date: dateOnly },
+      { $set: { fastingValue: fastingValue } },
+      { upsert: true, new: true }
+    );
+    res
+      .status(201)
+      .json({ success: true, message: "Fasting value submitted successfully!" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+router.post("/randomSugar/submit", clientMiddleware, async (req, res) => {
+  const { randomValue } = req.body;
+  const user = req.user;
+  const today = new Date();
+  const dateOnly = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate()
+  );
+  try {
+    const randomInput = await Diabetes.findOneAndUpdate(
+      { userId: user, date: dateOnly },
+      { $set: { randomValue: randomValue } },
+      { upsert: true, new: true }
+    );
+    console.log(randomValue);
+    res
+      .status(201)
+      .json({ success: true, message: "Random value submitted successfully!" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 

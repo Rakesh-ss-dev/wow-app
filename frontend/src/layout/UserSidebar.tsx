@@ -24,6 +24,11 @@ const navItems: NavItem[] = [
     path: "/patient-dashboard",
   },
   {
+    icon:<GridIcon />,
+    name:"Sugar Inputs",
+    path:"/sugar-input"
+  },
+  {
     icon: <DocsIcon />,
     name: "Reports",
     path: "/view-reports",

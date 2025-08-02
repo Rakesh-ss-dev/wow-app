@@ -17,13 +17,13 @@ import { useEffect } from "react";
 import PendingRequestList from "./pages/Requests/PendingRequests";
 import UserDashboard from "./pages/Dashboard/UserDashboard";
 import HealthReportForm from "./pages/ClientPages/HealthReportForm";
-import HealthReportsList from "./pages/ClientPages/HealthReportsList";
 import ClientProfile from "./pages/ClientProfile";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ClientDetails from "./components/UserProfile/ClientDetails";
 import PendingInstallment from "./pages/Requests/PendingInstallment";
 import HealthLifestyleForm from "./pages/HealthLifestyleForm";
 import SugarInputForm from "./pages/ClientPages/SugarInputForm";
+import WeightInputForm from "./pages/ClientPages/WeightInputForm";
 
 const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
 
@@ -75,9 +75,9 @@ export default function App() {
         </Route>
 
         <Route element={<ProtectedRoute allowedRole="patient"><UserLayout /></ProtectedRoute>}>
-          <Route path="/patient-dashboard" element={<UserDashboard />} />
+          <Route path="/patient-dashboard" element={<WeightInputForm />} />
           <Route path="/add-report" element={<HealthReportForm />} />
-          <Route path="/view-reports" element={<HealthReportsList />} />
+          <Route path="/view-reports" element={<UserDashboard />} />
           <Route path="/view-profile" element={<ClientProfile />} />
           <Route path="/sugar-input" element={<SugarInputForm />} />
         </Route>

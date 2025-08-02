@@ -36,7 +36,7 @@ const optimalRanges: Record<string, Range> = {
   "vitamins.iron": { min: 15, max: 300 },
   "diabetesAndLipidProfile.hba1c": { max: 5.7 },
   "diabetesAndLipidProfile.triglycerides": { max: 150 },
-  "diabetesAndLipidProfile.hdl": { min: 40 }, // Note: could be refined by gender
+  "diabetesAndLipidProfile.hdl": { min: 40 },
   "thyroidAndUricAcid.tsh": { min: 0.5, max: 4.5 },
   "thyroidAndUricAcid.uricAcid": { min: 2.4, max: 7.0 },
 };
@@ -59,7 +59,7 @@ const chartConfigs = [
 
 // Generate ApexChart options
 const chartOptions = (
-  
+
   yTitle: string,
   path: string
 ): ApexOptions => {
@@ -67,10 +67,13 @@ const chartOptions = (
 
   return {
     chart: {
-      type: "line",
+      type: "area",
       height: 300,
       toolbar: { show: false },
       fontFamily: "",
+    },
+    stroke: {
+      curve: 'smooth',
     },
     colors: ["#598D7B"],
     xaxis: { type: "category", labels: { rotate: -45 } },
@@ -84,22 +87,22 @@ const chartOptions = (
     },
     annotations: range
       ? {
-          yaxis: [
-            {
-              y: range.min,
-              y2: range.max,
-              borderColor: "#00E396",
-              fillColor: "rgba(0, 227, 150, 0.1)",
-              label: {
-                text: "Optimal Range",
-                style: {
-                  color: "#00E396",
-                  background: "transparent",
-                },
+        yaxis: [
+          {
+            y: range.min,
+            y2: range.max,
+            borderColor: "#00E396",
+            fillColor: "rgba(0, 227, 150, 0.3)",
+            label: {
+              text: "Optimal Range",
+              style: {
+                color: "#00E396",
+                background: "transparent",
               },
             },
-          ],
-        }
+          },
+        ],
+      }
       : {},
   };
 };
@@ -155,7 +158,7 @@ const MetricCharts = () => {
             <ReactApexChart
               options={chartOptions(unit, path)}
               series={prepareSeries(healthData, path)}
-              type="line"
+              type="area"
               height={300}
             />
           </div>
