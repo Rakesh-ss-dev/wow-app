@@ -74,23 +74,6 @@ const HealthReportForm: React.FC = () => {
       >
         <Input
           type="number"
-          placeholder="Height (cm)"
-          name="height"
-          value={formData.height}
-          onChange={handleChange}
-          required
-        />
-        <Input
-          type="number"
-          placeholder="Weight (kg)"
-          name="weight"
-          value={formData.weight}
-          onChange={handleChange}
-          required
-        />
-
-        <Input
-          type="number"
           placeholder="Vitamin D (ng/mL)"
           name="vitaminD"
           value={formData.vitaminD}
