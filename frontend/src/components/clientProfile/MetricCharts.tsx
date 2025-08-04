@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import ReactApexChart from "react-apexcharts";
 import axios from "axios";
 import { ApexOptions } from "apexcharts";
+import ComponentCard from "../common/ComponentCard";
 
 // Replace with your actual API base URL
 const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
@@ -154,21 +155,23 @@ const MetricCharts = () => {
   if (loading) return <p>Loading charts...</p>;
   if (healthData.length == 0) return <p>Please enter your reports</p>;
   return (
+    <ComponentCard title="Progess charts" className="mt-5">
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6 p-4">
       {chartConfigs.map(({ title, unit, path }) => (
-        <div key={path} className="rounded-2xl shadow-md bg-white">
-          <p className="bg-brand-500 text-white rounded-t-2xl p-3">{title}</p>
+        <div key={path} className="shadow border border-brand-300">
+          <p className="bg-brand-500 text-white p-3">{title}</p>
           <div className="p-6">
             <ReactApexChart
               options={chartOptions(unit, path)}
               series={prepareSeries(healthData, path)}
               type="area"
-              height={300}
+              height={250}
             />
           </div>
         </div>
       ))}
     </div>
+    </ComponentCard>
   );
 };
 

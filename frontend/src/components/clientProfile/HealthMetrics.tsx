@@ -1,9 +1,8 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+import ComponentCard from "../common/ComponentCard";
 const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
 const token = localStorage.getItem("token");
-const patient: any = localStorage.getItem("patient");
-const parsedPatient = JSON.parse(patient);
 type data = {
   height: any;
   weight: any;
@@ -50,9 +49,8 @@ const MetricBar = ({ label, value, min, max, unit = "" }: MetricProps) => {
       </div>
       <div className="w-full bg-gray-200 rounded-full h-2.5">
         <div
-          className={`h-2.5 rounded-full ${
-            isGood ? "bg-success-500" : "bg-error-500"
-          }`}
+          className={`h-2.5 rounded-full ${isGood ? "bg-success-500" : "bg-error-500"
+            }`}
           style={{ width: `${percent}%` }}
         ></div>
       </div>
@@ -75,8 +73,6 @@ const HealthCard = () => {
       .catch((err) => console.error(err))
       .finally(() => setLoading(false));
   }, []);
-  if (!parsedPatient?.gender)
-    return <div className="p-4 text-gray-500">Please Update your details</div>;
   if (loading) return <div className="p-4 text-gray-500">Loading...</div>;
   if (!healthData)
     return (
@@ -84,92 +80,83 @@ const HealthCard = () => {
     );
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 p-4">
-      <div className="rounded-2xl shadow-md col-span-full">
-        <h2 className="bg-brand-500 text-white rounded-t-2xl p-3">General Info</h2>
-        <div className="p-6">
-          <p className="mb-2">Height: {healthData?.height} cm</p>
-          <p className="mb-2">Weight: {healthData?.weight} kg</p>
-          <p className="mb-4">
-            BMI: {healthData?.bmi} ({healthData?.bmiStatus})
-          </p>
+      <ComponentCard title="Present Values">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 p-4">
+        <div className="shadow-md">
+          <h2 className="bg-brand-500 text-white p-3">Vitamin & Nutrients</h2>
+          <div className="p-6">
+            <MetricBar
+              label="Vitamin D"
+              value={healthData?.vitamins.vitaminD}
+              min={30}
+              max={50}
+              unit="ng/mL"
+            />
+            <MetricBar
+              label="Vitamin B12"
+              value={healthData?.vitamins.vitaminB12}
+              min={500}
+              max={900}
+              unit="pg/mL"
+            />
+            <MetricBar
+              label="Iron"
+              value={healthData?.vitamins.iron}
+              min={30}
+              max={300}
+              unit="ng/mL"
+            />
+          </div>
         </div>
-      </div>
 
-      <div className="rounded-2xl shadow-md">
-        <h2 className="bg-brand-500 text-white rounded-t-2xl p-3">Vitamin & Nutrients</h2>
-        <div className="p-6">
-          <MetricBar
-            label="Vitamin D"
-            value={healthData?.vitamins.vitaminD}
-            min={30}
-            max={50}
-            unit="ng/mL"
-          />
-          <MetricBar
-            label="Vitamin B12"
-            value={healthData?.vitamins.vitaminB12}
-            min={500}
-            max={900}
-            unit="pg/mL"
-          />
-          <MetricBar
-            label="Iron"
-            value={healthData?.vitamins.iron}
-            min={30}
-            max={300}
-            unit="ng/mL"
-          />
+        <div className="shadow-md">
+          <h2 className="bg-brand-500 text-white p-3">Diabetes & Lipid Profile</h2>
+          <div className="p-6">
+            <MetricBar
+              label="HbA1c"
+              value={healthData?.diabetesAndLipidProfile.hba1c}
+              min={4}
+              max={6.4}
+              unit="%"
+            />
+            <MetricBar
+              label="Triglycerides"
+              value={healthData?.diabetesAndLipidProfile.triglycerides}
+              min={0}
+              max={150}
+              unit="mg/dL"
+            />
+            <MetricBar
+              label="HDL"
+              value={healthData?.diabetesAndLipidProfile.hdl}
+              min={40}
+              max={80}
+              unit="mg/dL"
+            />
+          </div>
         </div>
-      </div>
 
-      <div className="rounded-2xl shadow-md">
-        <h2 className="bg-brand-500 text-white rounded-t-2xl p-3">Diabetes & Lipid Profile</h2>
-        <div className="p-6">
-          <MetricBar
-            label="HbA1c"
-            value={healthData?.diabetesAndLipidProfile.hba1c}
-            min={4}
-            max={6.4}
-            unit="%"
-          />
-          <MetricBar
-            label="Triglycerides"
-            value={healthData?.diabetesAndLipidProfile.triglycerides}
-            min={0}
-            max={150}
-            unit="mg/dL"
-          />
-          <MetricBar
-            label="HDL"
-            value={healthData?.diabetesAndLipidProfile.hdl}
-            min={40}
-            max={80}
-            unit="mg/dL"
-          />
+        <div className="shadow-md">
+          <h2 className="bg-brand-500 text-white p-3">Thyroid & Uric Acid</h2>
+          <div className="p-6">
+            <MetricBar
+              label="TSH"
+              value={healthData?.thyroidAndUricAcid.tsh}
+              min={0.5}
+              max={4.5}
+              unit="µIU/mL"
+            />
+            <MetricBar
+              label="Uric Acid"
+              value={healthData?.thyroidAndUricAcid.uricAcid}
+              min={2.4}
+              max={7.0}
+              unit="mg/dL"
+            />
+          </div>
         </div>
       </div>
-
-      <div className="rounded-2xl shadow-md">
-        <h2 className="bg-brand-500 text-white rounded-t-2xl p-3">Thyroid & Uric Acid</h2>
-        <div className="p-6">
-          <MetricBar
-            label="TSH"
-            value={healthData?.thyroidAndUricAcid.tsh}
-            min={0.5}
-            max={4.5}
-            unit="µIU/mL"
-          />
-          <MetricBar
-            label="Uric Acid"
-            value={healthData?.thyroidAndUricAcid.uricAcid}
-            min={2.4}
-            max={7.0}
-            unit="mg/dL"
-          />
-        </div>
-      </div>
-    </div>
+    </ComponentCard>
   );
 };
 
