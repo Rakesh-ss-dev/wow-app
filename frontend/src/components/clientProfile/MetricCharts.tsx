@@ -71,10 +71,14 @@ const chartOptions = (
       height: 300,
       toolbar: { show: false },
       fontFamily: "",
+      zoom: {
+        enabled: false,
+      },
     },
     stroke: {
       curve: 'smooth',
     },
+    
     colors: ["#598D7B"],
     xaxis: { type: "category", labels: { rotate: -45 } },
     yaxis: {
