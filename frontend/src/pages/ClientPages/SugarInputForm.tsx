@@ -9,41 +9,41 @@ const SugarInputForm = () => {
   const [fastingValue, setFastingValue] = useState(120);
   const [value, setValue] = useState(120);
   const token = localStorage.getItem("token");
-    const config = {
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
-    };
-  const handleFastSubmit=async ()=>{
-        try {
-            const response = await axios.post(`${SERVER_URL}/client/fastingSugar/submit`, {
-                fastingValue: fastingValue,
-            }, config); 
-            if (response.status === 201) {
-                alert("Fasting Sugar submitted successfully!");
-            } else {
-                alert("Failed to submit weight.");
-            }
-        } catch (error) {
-            console.error("Error submitting weight:", error);
-        }
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+  const handleFastSubmit = async () => {
+    try {
+      const response = await axios.post(`${SERVER_URL}/client/fastingSugar/submit`, {
+        fastingValue: fastingValue,
+      }, config);
+      if (response.status === 201) {
+        alert("Fasting Sugar submitted successfully!");
+      } else {
+        alert("Failed to submit weight.");
+      }
+    } catch (error) {
+      console.error("Error submitting weight:", error);
     }
-  const handleRandomSubmit= async()=>{
-      try {
-            const response = await axios.post(`${SERVER_URL}/client/randomSugar/submit`, {
-                randomValue: value,
-            }, config); 
-            if (response.status === 201) {
-                alert("Random Sugar submitted successfully!");
-            } else {
-                alert("Failed to submit weight.");
-            }
-        } catch (error) {
-            console.error("Error submitting weight:", error);
-        }
+  }
+  const handleRandomSubmit = async () => {
+    try {
+      const response = await axios.post(`${SERVER_URL}/client/randomSugar/submit`, {
+        randomValue: value,
+      }, config);
+      if (response.status === 201) {
+        alert("Random Sugar submitted successfully!");
+      } else {
+        alert("Failed to submit weight.");
+      }
+    } catch (error) {
+      console.error("Error submitting weight:", error);
+    }
   }
   return (
-    <div className="flex flex-col md:flex-row items-center justify-around h-full">
+    <div className="flex flex-col md:flex-row gap-3 items-center justify-around h-full">
       <ComponentCard title="Fasting Blood Sugar Level" className="!p-4 w-full md:w-1/2 lg:w-1/3">
         <Box className="flex flex-col items-center">
           <CircularSlider
@@ -61,6 +61,7 @@ const SugarInputForm = () => {
             onChange={(val: any) => setFastingValue(val)}
             knobSize={35}
             knobPosition="bottom"
+            labelBottom={true}
           />
           <Button size="sm" className="mt-4" onClick={handleFastSubmit}>
             Submit
@@ -84,6 +85,7 @@ const SugarInputForm = () => {
             onChange={(val: any) => setValue(val)}
             knobSize={35}
             knobPosition="bottom"
+            labelBottom={true}
           />
           <Button size="sm" className="mt-4" onClick={handleRandomSubmit}>
             Submit

@@ -70,7 +70,7 @@ const chartOptions = (
       type: "area",
       height: 300,
       toolbar: { show: false },
-      fontFamily: "",
+      fontFamily: "Outfit, sans-serif",
       zoom: {
         enabled: false,
       },

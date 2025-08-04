@@ -166,6 +166,15 @@ router.post("/weight/submit", clientMiddleware, async (req, res) => {
   }
 });
 
+router.get('/weights',clientMiddleware,async(req,res)=>{
+   try {
+    const weights = await DailyWeight.find({ userId: req.user }).sort({ date: 1 });
+    res.json(weights);
+  } catch (err) {
+    res.status(500).json({ error: "Server error" });
+  }
+})
+
 router.post("/fastingSugar/submit", clientMiddleware, async (req, res) => {
   const { fastingValue } = req.body;
   const user = req.user;
