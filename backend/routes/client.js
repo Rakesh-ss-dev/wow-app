@@ -19,7 +19,7 @@ router.post("/login", async (req, res) => {
         .json({ error: "Mobile and password are required." });
     }
 
-    const patient = await Patient.findOne({ phone: mobile, status: "active" })
+    const patient = await Patient.findOne({ phone: mobile, status: { $in: ["paid", "active", "old"] }, })
       .select("+password")
       .populate(["createdBy", "package"])
       .exec();
