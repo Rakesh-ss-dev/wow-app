@@ -1,5 +1,6 @@
 import PageMeta from "../components/common/PageMeta";
 import ClientInfoCard from "../components/clientProfile/ClientInfoCard";
+import ChangeClientPassword from '../components/clientProfile/ChangeClientPassword' ;
 
 export default function ClientProfile() {
   return (
@@ -11,7 +12,7 @@ export default function ClientProfile() {
         </h3>
         <div className="space-y-6">
           <ClientInfoCard/>
-          {/* <ChangeClientPassword /> */}
+          <ChangeClientPassword />
         </div>
       </div>
     </>

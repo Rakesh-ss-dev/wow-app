@@ -33,15 +33,19 @@ const PatientSchema = new mongoose.Schema(
 );
 
 PatientSchema.pre("save", async function (next) {
+  // Set default password if not provided
   if (!this.password) {
-    const namePart =
-      this.name?.replace(/\s+/g, "").substring(0, 4).toLowerCase() || "user";
+    const namePart = this.name?.replace(/\s+/g, "").substring(0, 4).toLowerCase() || "user";
     const phonePart = this.phone?.slice(-4) || "0000";
     this.password = `${namePart}${phonePart}`;
   }
+
+  // Only hash if password is modified
   if (this.isModified("password")) {
     this.password = await bcrypt.hash(this.password, 10);
   }
+
   next();
 });
+
 module.exports = mongoose.model("Patient", PatientSchema);

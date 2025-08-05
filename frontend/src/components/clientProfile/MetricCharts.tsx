@@ -156,7 +156,7 @@ const MetricCharts = () => {
   if (healthData.length == 0) return <p>Please enter your reports</p>;
   return (
     <ComponentCard title="Progess charts" className="mt-5">
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6 p-4">
+    <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-3 gap-6 p-4">
       {chartConfigs.map(({ title, unit, path }) => (
         <div key={path} className="shadow border border-brand-300">
           <p className="bg-brand-500 text-white p-3">{title}</p>

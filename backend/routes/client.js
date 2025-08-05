@@ -12,22 +12,78 @@ const { route } = require("./payment");
 router.post("/login", async (req, res) => {
   try {
     const { mobile, password } = req.body;
-    console.log(mobile, password);
+
+    if (!mobile || !password) {
+      return res
+        .status(400)
+        .json({ error: "Mobile and password are required." });
+    }
+
     const patient = await Patient.findOne({ phone: mobile, status: "active" })
+      .select("+password")
       .populate(["createdBy", "package"])
       .exec();
-    if (!patient) return res.status(400).json({ error: "User not found" });
+
+    if (!patient) {
+      return res.status(401).json({ error: "User not found or inactive." });
+    }
+
     const isMatch = await bcrypt.compare(password, patient.password);
-    if (!isMatch) return res.status(400).json({ error: "Invalid credentials" });
+
+    if (!isMatch) {
+      return res.status(401).json({ error: "Invalid credentials." });
+    }
+
     const token = jwt.sign({ id: patient._id }, process.env.JWT_SECRET, {
       expiresIn: "1d",
     });
-    res.json({ token, patient });
+    const { password: _, ...patientData } = patient.toObject();
+
+    res.json({ token, patient: patientData });
   } catch (err) {
-    console.log(err);
-    res.status(500).json({ error: "Server error", err });
+    console.error("Login error:", err);
+    res.status(500).json({ error: "Server error." });
   }
 });
+
+router.post("/change-password", clientMiddleware, async (req, res) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+
+    if (!oldPassword || !newPassword) {
+      return res.status(400).json({ error: "Both old and new passwords are required." });
+    }
+
+    if (newPassword.length < 8) {
+      return res.status(400).json({ error: "New password must be at least 8 characters." });
+    }
+
+    const patient = await Patient.findById(req.user._id).select("+password");
+
+    if (!patient) {
+      return res.status(404).json({ error: "User not found." });
+    }
+
+    const isMatch = await bcrypt.compare(oldPassword, patient.password);
+    if (!isMatch) {
+      return res.status(400).json({ error: "Incorrect old password." });
+    }
+
+    const isSame = await bcrypt.compare(newPassword, patient.password);
+    if (isSame) {
+      return res.status(400).json({ error: "New password must be different from old password." });
+    }
+
+    patient.password = newPassword; // Let the schema hash it
+    await patient.save();
+
+    res.json({ success: true, message: "Password updated successfully." });
+  } catch (error) {
+    console.error("Error changing password:", error);
+    res.status(500).json({ error: "Internal server error." });
+  }
+});
+
 
 router.post("/update", clientMiddleware, async (req, res) => {
   try {
@@ -50,32 +106,6 @@ router.post("/update", clientMiddleware, async (req, res) => {
     res
       .status(500)
       .json({ message: "Failed to update your Profile", error: err.message });
-  }
-});
-
-router.post("/change-password", clientMiddleware, async (req, res) => {
-  try {
-    const { oldPassword, newPassword } = req.body;
-    if (!oldPassword || !newPassword) {
-      return res
-        .status(400)
-        .json({ error: "Old password and new password are required." });
-    }
-    const patient = await Patient.findById(req.user._id);
-    if (!patient) {
-      return res.status(404).json({ error: "User not found." });
-    }
-    const isMatch = await bcrypt.compare(oldPassword, patient.password);
-    if (!isMatch) {
-      return res.status(400).json({ error: "Incorrect old password." });
-    }
-    const salt = await bcrypt.genSalt(10);
-    patient.password = await bcrypt.hash(newPassword, salt);
-    await patient.save();
-    res.json({ success: true, message: "Password updated successfully." });
-  } catch (error) {
-    console.error("Error changing password:", error);
-    res.status(500).json({ error: "Internal server error." });
   }
 });
 
@@ -166,14 +196,16 @@ router.post("/weight/submit", clientMiddleware, async (req, res) => {
   }
 });
 
-router.get('/weights',clientMiddleware,async(req,res)=>{
-   try {
-    const weights = await DailyWeight.find({ userId: req.user }).sort({ date: 1 });
+router.get("/weights", clientMiddleware, async (req, res) => {
+  try {
+    const weights = await DailyWeight.find({ userId: req.user }).sort({
+      date: 1,
+    });
     res.json(weights);
   } catch (err) {
     res.status(500).json({ error: "Server error" });
   }
-})
+});
 
 router.post("/fastingSugar/submit", clientMiddleware, async (req, res) => {
   const { fastingValue } = req.body;
@@ -192,7 +224,10 @@ router.post("/fastingSugar/submit", clientMiddleware, async (req, res) => {
     );
     res
       .status(201)
-      .json({ success: true, message: "Fasting value submitted successfully!" });
+      .json({
+        success: true,
+        message: "Fasting value submitted successfully!",
+      });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -217,6 +252,15 @@ router.post("/randomSugar/submit", clientMiddleware, async (req, res) => {
     res
       .status(201)
       .json({ success: true, message: "Random value submitted successfully!" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+router.get("/sugar-values", clientMiddleware, async (req, res) => {
+  try {
+    const sugar_values = await Diabetes.find({ userId: req.user });
+    res.json(sugar_values);
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

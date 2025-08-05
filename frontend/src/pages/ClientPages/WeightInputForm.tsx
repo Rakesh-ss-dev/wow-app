@@ -14,13 +14,7 @@ interface WeightEntry {
     weight: number;
 }
 
-const optimalRanges: Record<string, { min: number; max: number }> = {
-    weight: { min: 60, max: 80 },
-};
-
-// Reusable chart options generator
-const chartOptions = (yTitle: string, path: string): ApexOptions => {
-    const range = optimalRanges[path];
+const chartOptions = (yTitle: string): ApexOptions => {
     return {
         chart: {
             type: "area",
@@ -41,25 +35,6 @@ const chartOptions = (yTitle: string, path: string): ApexOptions => {
                 formatter: (value: number) => value.toFixed(2),
             },
         },
-        annotations: range
-            ? {
-                yaxis: [
-                    {
-                        y: range.min,
-                        y2: range.max,
-                        borderColor: "#00E396",
-                        fillColor: "rgba(0, 227, 150, 0.5)",
-                        label: {
-                            text: "Optimal Range",
-                            style: {
-                                color: "#00E396",
-                                background: "transparent",
-                            },
-                        },
-                    },
-                ],
-            }
-            : {},
     };
 };
 
@@ -149,7 +124,7 @@ const WeightInputForm = () => {
             <ComponentCard title="Daily Weight Report" className="w-full md:w-2/3">
                 <div className="w-full">
                     <Chart
-                        options={chartOptions("Weight (kg)", "weight")}
+                        options={chartOptions("Weight (kg)")}
                         series={prepareSeries(graphData)}
                         type="area"
                         height={300}
