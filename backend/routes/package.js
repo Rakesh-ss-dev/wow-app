@@ -4,7 +4,6 @@ const router = express.Router();
 
 router.post('/add',async(req,res)=>{
     const {name,amount,currency} =req.body;
-    console.log(name,amount,currency);
     try {
         let pack = await Package.findOne({name});
         if(pack) return res.status(400).json({ error: "Package already exists" });

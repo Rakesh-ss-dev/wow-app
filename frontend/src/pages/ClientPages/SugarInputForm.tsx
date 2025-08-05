@@ -141,7 +141,7 @@ const SugarInputForm = () => {
   }
   return (
     <div className="flex flex-col md:flex-row gap-3 flex-wrap items-center justify-around h-full">
-      <div className="flex flex-col md:flex-row gap-3">
+      <div className="flex flex-col md:flex-row gap-3 w-full md:w-2/3">
       <ComponentCard title="Fasting Blood Sugar Level" className="!p-4 w-full md:w-1/2 lg:w-1/2">
         <Box className="flex flex-col items-center">
           <CircularSlider

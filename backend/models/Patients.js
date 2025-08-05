@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
+require("dotenv").config();
 const PatientSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
@@ -35,9 +36,7 @@ const PatientSchema = new mongoose.Schema(
 PatientSchema.pre("save", async function (next) {
   // Set default password if not provided
   if (!this.password) {
-    const namePart = this.name?.replace(/\s+/g, "").substring(0, 4).toLowerCase() || "user";
-    const phonePart = this.phone?.slice(-4) || "0000";
-    this.password = `${namePart}${phonePart}`;
+    this.password = process.env.INITIAL_PASS;
   }
 
   // Only hash if password is modified
