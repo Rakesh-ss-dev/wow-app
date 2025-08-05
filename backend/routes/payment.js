@@ -720,16 +720,13 @@ router.get("/get_old_users", authMiddleware, async (req, res) => {
 
 router.post("/make_active", authMiddleware, async (req, res) => {
   try {
-    const { id, from } = req.body;
+    const { id } = req.body;
     const user = await Patient.findById(id);
     const namePart =
       user.name?.replace(/\s+/g, "").substring(0, 4).toLowerCase() || "user";
     const phonePart = user.phone?.slice(-4) || "0000";
     const password = `${namePart}${phonePart}`;
-    user.status = "active";
-    if (from === "paid") {
-      user.activated_at = new Date();
-    }
+    user.status = "paid";
     await user.save();
     res.json({
       success: true,

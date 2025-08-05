@@ -12,8 +12,8 @@ const PaidUsers = () => {
     setLoading(true);
     try {
       const res = await axios.post(
-        `${SERVER_URL}/payment/make_active`,
-        { id, from: "paid" },
+        `${SERVER_URL}/payment/deactivate_user`,
+        { id },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       alert(res.data.message);
@@ -71,7 +71,7 @@ const PaidUsers = () => {
           date={request.payed_at}
           plan={request.package.name}
           placeButton={true}
-          buttonText={"Activate User"}
+          buttonText={"Deactivate User"}
           clickFunction={() => handleClick(request._id)}
         />
       ))}
