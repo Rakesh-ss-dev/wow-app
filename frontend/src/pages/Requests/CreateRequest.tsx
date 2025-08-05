@@ -78,7 +78,8 @@ const CreateRequest: React.FC = () => {
   const [paymentLink, setPaymentLink] = useState<string>("");
   const [copied, setCopied] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-  const [installment, setInstallment] = useState<number>(0);
+  const [installmentAmount, setInstallmentAmount] = useState<number>(0);
+  const [installment, setInstallment] = useState('')
   const [isInstallmentChecked, setIsInstallementChecked] = useState(false);
 
   const copyFallback = (text: string) => {
@@ -119,7 +120,8 @@ const CreateRequest: React.FC = () => {
   const changeInstallmentCheck = () => {
     setIsInstallementChecked((prev) => {
       if (prev) {
-        setInstallment(0);
+        setInstallmentAmount(0);
+        setInstallment('');
       }
       return !prev;
     });
@@ -153,9 +155,12 @@ const CreateRequest: React.FC = () => {
   }, [discount, price]);
 
   useEffect(() => {
-    if (!isInstallmentChecked) setInstallment(0);
+    if (!isInstallmentChecked) {
+      setInstallmentAmount(0);
+      setInstallment('');
+    }
     setPaymentLink("");
-  }, [installment, isInstallmentChecked]);
+  }, [installmentAmount, isInstallmentChecked]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -171,7 +176,7 @@ const CreateRequest: React.FC = () => {
           discount,
           installment: installment,
           finalAmount: finalAmount.toFixed(2),
-          tobePaid: installment.toFixed(2),
+          tobePaid: installmentAmount.toFixed(2),
           programStartDate
         },
         { headers: { Authorization: `Bearer ${token}` } }
@@ -238,9 +243,9 @@ const CreateRequest: React.FC = () => {
               <div>
                 <Input
                   type="number"
-                  onChange={(e) => setInstallment(Number(e.target.value))}
+                  onChange={(e) => { setInstallmentAmount(Number(e.target.value)); setInstallment('Installment 1') }}
                   placeholder="Installment Amount"
-                  value={installment}
+                  value={installmentAmount}
                 />
               </div>
             )}
@@ -311,7 +316,7 @@ const CreateRequest: React.FC = () => {
                     To be Paid
                   </TableCell>
                   <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                    {installment.toFixed(2)}
+                    {installmentAmount.toFixed(2)}
                   </TableCell>
                 </TableRow>
                 <TableRow>
@@ -319,7 +324,7 @@ const CreateRequest: React.FC = () => {
                     Balance
                   </TableCell>
                   <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                    {(finalAmount - installment).toFixed(2)}
+                    {(finalAmount - installmentAmount).toFixed(2)}
                   </TableCell>
                 </TableRow>
               </>
