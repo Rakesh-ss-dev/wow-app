@@ -12,11 +12,9 @@ const HealthReportSchema = new mongoose.Schema({
   },
   height: {
     type: Number, // cm
-    required: true,
   },
   weight: {
     type: Number, // kg
-    required: true,
   },
   bmi: {
     type: Number,
