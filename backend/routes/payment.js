@@ -118,7 +118,7 @@ router.post("/create-payment-link", authMiddleware, async (req, res) => {
       discount: discount,
       installment: installment,
       createdBy: req.user,
-      amount: finalAmount,
+      amount: finalAmount.toFixed(2),
       programStartDate: programStartDate,
       dueAmount:
         tobePaid == 0
@@ -416,7 +416,9 @@ router.post("/user-status", async (req, res) => {
 
     const config = JSON.parse(fs.readFileSync(configPath, "utf8"));
     const spreadsheetId = config.spreadsheetId;
-    const startDate = new Date(config.lastEndDate || "2000-01-01T00:00:00.000Z");
+    const startDate = new Date(
+      config.lastEndDate || "2000-01-01T00:00:00.000Z"
+    );
     const endDate = new Date();
     endDate.setHours(23, 59, 59, 999);
 
@@ -452,10 +454,29 @@ router.post("/user-status", async (req, res) => {
         if (!monthWiseSheets[month]) {
           monthWiseSheets[month] = [
             [
-              "Coach", "Name", "Phone", "PaymentID", "Package", "Discount",
-              "Created_Date", "Paid_Date", "Currency",
-              "Amount_INR", "GST_INR", "RZR_INR", "WOW_INR", "Principle_INR", "TDS_INR", "Final_INR",
-              "Amount_USD", "GST_USD", "RZR_USD", "WOW_USD", "Principle_USD", "TDS_USD", "Final_USD"
+              "Coach",
+              "Name",
+              "Phone",
+              "PaymentID",
+              "Package",
+              "Discount",
+              "Created_Date",
+              "Paid_Date",
+              "Currency",
+              "Amount_INR",
+              "GST_INR",
+              "RZR_INR",
+              "WOW_INR",
+              "Principle_INR",
+              "TDS_INR",
+              "Final_INR",
+              "Amount_USD",
+              "GST_USD",
+              "RZR_USD",
+              "WOW_USD",
+              "Principle_USD",
+              "TDS_USD",
+              "Final_USD",
             ],
           ];
         }
@@ -465,8 +486,10 @@ router.post("/user-status", async (req, res) => {
 
         for (const reqItem of items) {
           const rowNum = rows.length + 1;
-          const amountINR = reqItem.currency === "INR" ? reqItem.amount || 0 : 0;
-          const amountUSD = reqItem.currency === "USD" ? reqItem.amount || 0 : 0;
+          const amountINR =
+            reqItem.currency === "INR" ? reqItem.amount || 0 : 0;
+          const amountUSD =
+            reqItem.currency === "USD" ? reqItem.amount || 0 : 0;
 
           rows.push([
             user.name || "",
@@ -475,8 +498,12 @@ router.post("/user-status", async (req, res) => {
             reqItem.paymentId || "",
             reqItem.package?.name || "",
             reqItem.discount !== undefined ? `${reqItem.discount}%` : "",
-            reqItem.createdAt ? new Date(reqItem.createdAt).toLocaleDateString("en-IN") : "",
-            reqItem.payed_at ? new Date(reqItem.payed_at).toLocaleDateString("en-IN") : "",
+            reqItem.createdAt
+              ? new Date(reqItem.createdAt).toLocaleDateString("en-IN")
+              : "",
+            reqItem.payed_at
+              ? new Date(reqItem.payed_at).toLocaleDateString("en-IN")
+              : "",
             reqItem.currency || "",
 
             amountINR,
@@ -493,7 +520,7 @@ router.post("/user-status", async (req, res) => {
             `=ROUND((Q${rowNum}-R${rowNum}-S${rowNum})*0.3, 2)`,
             `=ROUND((Q${rowNum}-R${rowNum}-S${rowNum})*0.7, 2)`,
             `=ROUND(U${rowNum}*0.02, 2)`,
-            `=ROUND(U${rowNum}-V${rowNum}, 2)`
+            `=ROUND(U${rowNum}-V${rowNum}, 2)`,
           ]);
         }
 
@@ -503,7 +530,15 @@ router.post("/user-status", async (req, res) => {
 
         // Totals for INR
         rows.push([
-          user.name, "TOTAL_INR", "", "", "", "", "", "", "INR",
+          user.name,
+          "TOTAL_INR",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "INR",
           `=SUM(J${startRow}:J${endRow})`,
           `=SUM(K${startRow}:K${endRow})`,
           `=SUM(L${startRow}:L${endRow})`,
@@ -511,19 +546,40 @@ router.post("/user-status", async (req, res) => {
           `=SUM(N${startRow}:N${endRow})`,
           `=SUM(O${startRow}:O${endRow})`,
           `=SUM(P${startRow}:P${endRow})`,
-          "", "", "", "", "", "", ""
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
         ]);
 
         // Totals for USD
         rows.push([
-          user.name, "TOTAL_USD", "", "", "", "", "", "", "USD", "", "", "", "", "", "", "",
+          user.name,
+          "TOTAL_USD",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "USD",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
           `=SUM(Q${startRow}:Q${endRow})`,
           `=SUM(R${startRow}:R${endRow})`,
           `=SUM(S${startRow}:S${endRow})`,
           `=SUM(T${startRow}:T${endRow})`,
           `=SUM(U${startRow}:U${endRow})`,
           `=SUM(V${startRow}:V${endRow})`,
-          `=SUM(W${startRow}:W${endRow})`
+          `=SUM(W${startRow}:W${endRow})`,
         ]);
 
         rows.push([]);
@@ -538,7 +594,9 @@ router.post("/user-status", async (req, res) => {
       const rows = monthWiseSheets[month];
 
       // Delete and recreate sheet if exists
-      const existingSheet = existingSheets.find(s => s.properties.title === month);
+      const existingSheet = existingSheets.find(
+        (s) => s.properties.title === month
+      );
       if (existingSheet) {
         await sheets.spreadsheets.batchUpdate({
           spreadsheetId,
@@ -579,8 +637,6 @@ router.post("/user-status", async (req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 });
-
-
 
 // Details of all the paid requests made
 router.get("/get_requests", authMiddleware, async (req, res) => {
