@@ -23,25 +23,26 @@ const formatReadableDate = (isoString: string): string => {
     hour12: false,
   });
 };
-const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
-const token = localStorage.getItem("token");
+
 const PendingInstallment = () => {
+  const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
+  const token = localStorage.getItem("token");
   const [installments, setInstallments] = useState<Installment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const sendRequest = async (id: string, dueAmount: number) => {
-    try{
-    const response = await axios.post(
-      `${SERVER_URL}/payment/request-installment`,
-      {
-        id,
-        dueAmount,
-      },
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
-    alert("Payment link sent to your number" + " " + response.data?.payment_link);
+    try {
+      const response = await axios.post(
+        `${SERVER_URL}/payment/request-installment`,
+        {
+          id,
+          dueAmount,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      alert("Payment link sent to your number" + " " + response.data?.payment_link);
     } catch (err) {
       alert("Failed to generate payment link");
     } finally {

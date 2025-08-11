@@ -1,8 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import ComponentCard from "../common/ComponentCard";
-const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
-const token = localStorage.getItem("token");
+
 type data = {
   height: any;
   weight: any;
@@ -65,6 +64,8 @@ const HealthCard = () => {
   const [healthData, setHealthData] = useState<data | null>(null);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
+    const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
+    const token = localStorage.getItem("token");
     axios
       .get(`${SERVER_URL}/client/health-metrics`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -80,7 +81,7 @@ const HealthCard = () => {
     );
 
   return (
-      <ComponentCard title="Present Values">
+    <ComponentCard title="Present Values">
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 p-4">
         <div className="shadow-md">
           <h2 className="bg-brand-500 text-white p-3">Vitamin & Nutrients</h2>

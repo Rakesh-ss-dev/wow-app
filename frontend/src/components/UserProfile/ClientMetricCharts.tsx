@@ -3,9 +3,7 @@ import ReactApexChart from "react-apexcharts";
 import axios from "axios";
 import { ApexOptions } from "apexcharts";
 
-// Replace with your actual API base URL
-const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
-const token = localStorage.getItem("token");
+
 
 // Data structure from server
 interface HealthData {
@@ -82,22 +80,22 @@ const chartOptions = (yTitle: string, path: string): ApexOptions => {
     },
     annotations: range
       ? {
-          yaxis: [
-            {
-              y: range.min,
-              y2: range.max,
-              borderColor: "#00E396",
-              fillColor: "rgba(0, 227, 150, 0.1)",
-              label: {
-                text: "Optimal Range",
-                style: {
-                  color: "#00E396",
-                  background: "transparent",
-                },
+        yaxis: [
+          {
+            y: range.min,
+            y2: range.max,
+            borderColor: "#00E396",
+            fillColor: "rgba(0, 227, 150, 0.1)",
+            label: {
+              text: "Optimal Range",
+              style: {
+                color: "#00E396",
+                background: "transparent",
               },
             },
-          ],
-        }
+          },
+        ],
+      }
       : {},
   };
 };
@@ -126,6 +124,9 @@ interface ClientMetricChartProp {
   userId: any;
 }
 const ClientMetricCharts: React.FC<ClientMetricChartProp> = ({ userId }) => {
+  // Replace with your actual API base URL
+  const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
+  const token = localStorage.getItem("token");
   const [healthData, setHealthData] = useState<HealthData[]>([]);
   const [loading, setLoading] = useState(true);
 

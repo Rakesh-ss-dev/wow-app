@@ -6,9 +6,10 @@ import Button from "../ui/button/Button";
 import { Modal } from "../ui/modal";
 import Select from "../form/Select";
 import axios from "axios";
-const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
-const token = localStorage.getItem("token");
+
 const ClientInfoCard = () => {
+  const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
+  const token = localStorage.getItem("token");
   const patient: any = localStorage.getItem("patient");
   const parsedPatient = JSON.parse(patient);
   const [name, setName] = useState(parsedPatient.name || "");
@@ -17,7 +18,7 @@ const ClientInfoCard = () => {
   );
   const [gender, setGender] = useState(parsedPatient.gender || "");
   const [email, setEmail] = useState(parsedPatient.email || "");
-  const [bloodGroup,setBloodGroup] =useState(parsedPatient.bloodGroup||'')
+  const [bloodGroup, setBloodGroup] = useState(parsedPatient.bloodGroup || '')
   const { isOpen, openModal, closeModal } = useModal();
   const payedAt = new Date(parsedPatient.payed_at);
   const formattedDate = payedAt.toLocaleString('en-IN', {
@@ -54,7 +55,7 @@ const ClientInfoCard = () => {
     try {
       const res = await axios.post(
         `${SERVER_URL}/client/update`,
-        { name, dateOfBirth, gender, email,bloodGroup },
+        { name, dateOfBirth, gender, email, bloodGroup },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       alert(res.data.message);
@@ -269,7 +270,7 @@ const ClientInfoCard = () => {
             </p>
           </div>
         </div>
-        
+
       </div>
     </>
   );

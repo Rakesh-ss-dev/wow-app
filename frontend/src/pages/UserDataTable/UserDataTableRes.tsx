@@ -7,9 +7,9 @@ import axios from "axios";
 const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
 const token = localStorage.getItem("token");
 const UserDataTableRes: React.FC = () => {
-  
+
   const [users, setUsers] = useState([]);
- 
+
   useEffect(() => {
     const config = {
       headers: {
@@ -22,10 +22,10 @@ const UserDataTableRes: React.FC = () => {
     };
     getUsers();
   }, []);
-  
+
   return (
-      <div className="w-full max-w-4xl">
-        <div className="flex justify-between items-center mb-4">
+    <div className="w-full max-w-4xl">
+      <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold dark:text-gray-400">Coaches</h2>
         <a
           href='/create-coach'
@@ -34,8 +34,8 @@ const UserDataTableRes: React.FC = () => {
           Add Coach
         </a>
       </div>
-        <UserDataTable data={users} />
-      </div>
+      <UserDataTable data={users} />
+    </div>
   );
 };
 

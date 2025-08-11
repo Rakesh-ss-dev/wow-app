@@ -1,7 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
-const token = localStorage.getItem("token");
+
 type data = {
   height: any;
   weight: any;
@@ -32,6 +31,7 @@ type MetricProps = {
 };
 
 const MetricBar = ({ label, value, min, max, unit = "" }: MetricProps) => {
+
   const percent = Math.min(
     100,
     Math.max(0, ((value - min) / (max - min)) * 100)
@@ -48,9 +48,8 @@ const MetricBar = ({ label, value, min, max, unit = "" }: MetricProps) => {
       </div>
       <div className="w-full bg-gray-200 rounded-full h-2.5">
         <div
-          className={`h-2.5 rounded-full ${
-            isGood ? "bg-success-500" : "bg-error-500"
-          }`}
+          className={`h-2.5 rounded-full ${isGood ? "bg-success-500" : "bg-error-500"
+            }`}
           style={{ width: `${percent}%` }}
         ></div>
       </div>
@@ -64,6 +63,8 @@ interface ClientHealthCardProp {
   userId: any;
 }
 const ClientHealthCard: React.FC<ClientHealthCardProp> = ({ userId }) => {
+  const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
+  const token = localStorage.getItem("token");
   const [healthData, setHealthData] = useState<data | null>(null);
   const [loading, setLoading] = useState(true);
   const [userData, setUserData] = useState<any>({});
@@ -94,7 +95,7 @@ const ClientHealthCard: React.FC<ClientHealthCardProp> = ({ userId }) => {
           General Info
         </h2>
         <div className="p-6">
-          
+
           <p className="mb-2">Name: {userData.name}</p>
           <p className="mb-2">Phone: {userData.phone}</p>
           <p className="mb-2">Package: {userData.package.name}</p>
