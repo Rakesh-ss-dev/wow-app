@@ -25,63 +25,40 @@ const options: Option[] = [
   { label: "Golden 90 Premium - 11,665", value: "Premium", price: 11665 },
   { label: "Golden 90 Elite - 16,665", value: "Elite", price: 16665 },
   { label: "Golden 90 Couple - 12,833", value: "Couple", price: 12833 },
-  {
-    label: "Golden 90-Premium Couple - 16,448",
-    value: "Premium_Couple",
-    price: 16448,
-  },
-  {
-    label: "Golden 90 Elite Couple - 23,498",
-    value: "Elite_Couple",
-    price: 23498,
-  },
-  {
-    label: "Golden 90 International (USA) - $200",
-    value: "International_USA",
-    price: 200,
-  },
-  {
-    label: "International Premium (USA) - $300",
-    value: "International_Premium_USA_300",
-    price: 300,
-  },
-  {
-    label: "International Elite (USA) - $400",
-    value: "International_Elite_USA_400",
-    price: 400,
-  },
-
-  {
-    label: "DHMPC - DIAMOND HEALTH MASTERY PLAN - 24999",
-    value: "DHMPC",
-    price: 24999,
-  },
-  {
-    label: "DHMPC - DIAMOND HEALTH MASTERY PLAN for COUPLE - 39999",
-    value: "DHMPC_Couple",
-    price: 39999,
-  },
+  { label: "Golden 90-Premium Couple - 16,448", value: "Premium_Couple", price: 16448 },
+  { label: "Golden 90 Elite Couple - 23,498", value: "Elite_Couple", price: 23498 },
+  { label: "Golden 90 International (USA) - $200", value: "International_USA", price: 200 },
+  { label: "International Premium (USA) - $300", value: "International_Premium_USA_300", price: 300 },
+  { label: "International Elite (USA) - $400", value: "International_Elite_USA_400", price: 400 },
+  { label: "DHMPC - DIAMOND HEALTH MASTERY PLAN - 24999", value: "DHMPC", price: 24999 },
+  { label: "DHMPC - DIAMOND HEALTH MASTERY PLAN for COUPLE - 39999", value: "DHMPC_Couple", price: 39999 },
 ];
 
 const CreateRequest: React.FC = () => {
-  const [name, setName] = useState<string>("");
-  const [phone, setPhone] = useState<string>("");
-  const [category, setCategory] = useState<string>("");
-  const [isPhoneValid, setIsPhoneValid] = useState<boolean>(false);
-  const [isCategoryValid, setIsCategoryValid] = useState<boolean>(false);
-  const [price, setPrice] = useState<number>(0);
-  const [discount, setDiscount] = useState<number>(0);
-  const [discountAmount, setDiscountAmount] = useState<number>(0);
-  const [tax, setTax] = useState<number>(0);
-  const [finalAmount, setFinalAmount] = useState<number>(0);
-  const [programStartDate, setProgramStartDate] = useState<string>("");
-  const [paymentLink, setPaymentLink] = useState<string>("");
-  const [copied, setCopied] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [installmentAmount, setInstallmentAmount] = useState<number>(0);
-  const [installment, setInstallment] = useState('')
-  const [isInstallmentChecked, setIsInstallementChecked] = useState(false);
+  // Form data states
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [category, setCategory] = useState("");
+  const [discount, setDiscount] = useState(0);
+  const [programStartDate, setProgramStartDate] = useState("");
 
+  // Calculation states
+  const [price, setPrice] = useState(0);
+  const [discountAmount, setDiscountAmount] = useState(0);
+  const [tax, setTax] = useState(0);
+  const [finalAmount, setFinalAmount] = useState(0);
+  const [installmentAmount, setInstallmentAmount] = useState<any>(0);
+  const [installment, setInstallment] = useState("");
+
+  // Other states
+  const [isPhoneValid, setIsPhoneValid] = useState(false);
+  const [isCategoryValid, setIsCategoryValid] = useState(false);
+  const [isInstallmentChecked, setIsInstallmentChecked] = useState(false);
+  const [paymentLink, setPaymentLink] = useState("");
+  const [copied, setCopied] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  // Clipboard fallback
   const copyFallback = (text: string) => {
     const textarea = document.createElement("textarea");
     textarea.value = text;
@@ -93,75 +70,74 @@ const CreateRequest: React.FC = () => {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const copyToClipboard = () => {
-    if (paymentLink) {
-      if (navigator.clipboard?.writeText) {
-        navigator.clipboard
-          .writeText(paymentLink)
-          .then(() => {
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
-          })
-          .catch(() => copyFallback(paymentLink));
-      } else {
-        copyFallback(paymentLink);
-      }
-    } else {
-      console.error("paymentLink is undefined.");
+  // Copy payment link
+  const copyToClipboard = async () => {
+    if (!paymentLink) return console.error("No payment link available");
+    try {
+      await navigator.clipboard.writeText(paymentLink);
+      setCopied(true);
+    } catch {
+      copyFallback(paymentLink);
+    } finally {
+      setTimeout(() => setCopied(false), 2000);
     }
   };
 
+  // Mobile validation
   const validateMobile = (number: string) => {
     const mobilePattern = /^[6-9]\d{9}$/;
     setIsPhoneValid(mobilePattern.test(number.replace(/\s+/g, "")));
     setPhone(number.replace(/\s+/g, ""));
-    setPaymentLink("");
   };
+
+  // Category validation
+  const validateSelect = (value: string) => {
+    setIsCategoryValid(value !== "");
+    setCategory(value);
+  };
+
+  // Installment checkbox toggle
   const changeInstallmentCheck = () => {
-    setIsInstallementChecked((prev) => {
-      if (prev) {
+    setIsInstallmentChecked((prev) => {
+      if (!prev) {
+        setInstallmentAmount((finalAmount / 2).toFixed(2)); // default 50%
+        setInstallment("Installment 1");
+      } else {
         setInstallmentAmount(0);
-        setInstallment('');
+        setInstallment("");
       }
       return !prev;
     });
   };
 
-  const validateSelect = (value: string) => {
-    setIsCategoryValid(value !== "");
-    setCategory(value);
-    setPaymentLink("");
-  };
-
+  // Central calculation logic
   useEffect(() => {
-    const selectedOption = options.find((option) => option.value === category);
-    if (selectedOption) {
-      const amount = selectedOption.price;
-      const taxAmount = amount * 0.18;
-      setPrice(amount);
-      setTax(taxAmount);
-      setFinalAmount(amount + taxAmount);
-      setPaymentLink("");
+    const selectedOption = options.find((opt) => opt.value === category);
+    if (!selectedOption) return;
+
+    const basePrice = selectedOption.price;
+    const discountVal = basePrice * (discount / 100);
+    const taxVal = (basePrice - discountVal) * 0.18;
+    const total = basePrice - discountVal + taxVal;
+
+    setPrice(basePrice);
+    setDiscountAmount(discountVal);
+    setTax(taxVal);
+    setFinalAmount(total);
+
+    if (isInstallmentChecked) {
+      const firstInstallment: Number = total / 2;
+      setInstallmentAmount(firstInstallment.toFixed(2));
+      setInstallment("Installment 1");
     }
-  }, [category]);
+  }, [category, discount, isInstallmentChecked]);
 
+  // Reset payment link whenever key fields change
   useEffect(() => {
-    const discountPrice = price * (discount / 100);
-    const taxAmount = (price - discountPrice) * 0.18;
-    setDiscountAmount(discountPrice);
-    setTax(taxAmount);
-    setFinalAmount(price - discountPrice + taxAmount);
     setPaymentLink("");
-  }, [discount, price]);
+  }, [category, discount, price, installmentAmount, isInstallmentChecked]);
 
-  useEffect(() => {
-    if (!isInstallmentChecked) {
-      setInstallmentAmount(0);
-      setInstallment('');
-    }
-    setPaymentLink("");
-  }, [installmentAmount, isInstallmentChecked]);
-
+  // Submit handler
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -174,10 +150,10 @@ const CreateRequest: React.FC = () => {
           phone,
           category,
           discount,
-          installment: installment,
-          finalAmount: finalAmount.toFixed(2),
-          tobePaid: installmentAmount.toFixed(2),
-          programStartDate
+          installment,
+          finalAmount: Number(finalAmount.toFixed(2)),
+          tobePaid: Number(installmentAmount.toFixed(2)),
+          programStartDate,
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -198,82 +174,32 @@ const CreateRequest: React.FC = () => {
             Initiate Payment
           </h3>
           <form className="space-y-4" onSubmit={handleSubmit}>
-            <Input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Name"
-              required
-              className="input"
-            />
-            <Input
-              type="text"
-              value={phone}
-              onChange={(e) => validateMobile(e.target.value)}
-              placeholder="Phone"
-              required
-              className="input"
-            />
+            <Input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" required />
+            <Input type="text" value={phone} onChange={(e) => validateMobile(e.target.value)} placeholder="Phone" required />
             <Select options={options} onChange={validateSelect} />
-            <Input
-              type="number"
-              min="0"
-              max="100"
-              value={discount == 0 ? "" : discount}
-              onChange={(e) => setDiscount(Number(e.target.value))}
-              placeholder="Discount (%)"
-              step=".01"
-              className="input"
-            />
-            <Input
-              type="date"
-              placeholder="Program Start Date"
-              className="input"
-              value={programStartDate}
-              onChange={(e) => setProgramStartDate(e.target.value)}
-            />
-            <div className="flex items-center gap-3">
-              <Checkbox
-                checked={isInstallmentChecked}
-                onChange={changeInstallmentCheck}
-                label="Installment"
-              />
-            </div>
+            <Input type="number" min="0" max="100" value={discount === 0 ? "" : discount} onChange={(e) => setDiscount(Number(e.target.value))} placeholder="Discount (%)" step=".01" />
+            <Input type="date" placeholder="Program Start Date" value={programStartDate} onChange={(e) => setProgramStartDate(e.target.value)} />
+            <Checkbox checked={isInstallmentChecked} onChange={changeInstallmentCheck} label="Installment" />
             {isInstallmentChecked && (
-              <div>
-                <Input
-                  type="number"
-                  onChange={(e) => { setInstallmentAmount(Number(e.target.value)); setInstallment('Installment 1') }}
-                  placeholder="Installment Amount"
-                  value={installmentAmount}
-                />
-              </div>
+              <Input type="number" value={installmentAmount} onChange={(e) => setInstallmentAmount(Number(e.target.value))} placeholder="Installment Amount" />
             )}
-            <Button
-              type="submit"
-              disabled={!isPhoneValid || !isCategoryValid || !name || loading}
-              className="btn btn-primary"
-            >
+            <Button type="submit" disabled={!isPhoneValid || !isCategoryValid || !name || loading}>
               {loading ? "Processing..." : "Send Payment Link"}
             </Button>
           </form>
+
           {paymentLink && (
             <div className="flex items-center justify-between bg-white p-4 shadow-md rounded-lg mt-4">
-              <span className="truncate font-medium text-blue-600">
-                {paymentLink}
-              </span>
+              <span className="truncate font-medium text-blue-600">{paymentLink}</span>
               <Button onClick={copyToClipboard} className="flex items-center">
-                {copied ? (
-                  <ClipboardCheck size={18} />
-                ) : (
-                  <Clipboard size={18} />
-                )}
+                {copied ? <ClipboardCheck size={18} /> : <Clipboard size={18} />}
                 <span className="ml-2">{copied ? "Copied!" : "Copy Link"}</span>
               </Button>
             </div>
           )}
         </div>
       </div>
+
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
         <Table>
           <TableBody>
@@ -316,7 +242,7 @@ const CreateRequest: React.FC = () => {
                     To be Paid
                   </TableCell>
                   <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                    {installmentAmount.toFixed(2)}
+                    {installmentAmount}
                   </TableCell>
                 </TableRow>
                 <TableRow>
