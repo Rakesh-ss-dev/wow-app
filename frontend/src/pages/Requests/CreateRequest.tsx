@@ -32,7 +32,7 @@ const options: Option[] = [
   { label: "International Elite (USA) - $400", value: "International_Elite_USA_400", price: 400 },
   { label: "DHMPC - DIAMOND HEALTH MASTERY PLAN - 24999", value: "DHMPC", price: 24999 },
   { label: "DHMPC - DIAMOND HEALTH MASTERY PLAN for COUPLE - 39999", value: "DHMPC_Couple", price: 39999 },
-  { label: "WG5 Course - 39999", value: "WG5 Course", price: 9999 },
+  { label: "WG5 Course - 9999", value: "WG5 Course", price: 9999 },
 ];
 
 const CreateRequest: React.FC = () => {
