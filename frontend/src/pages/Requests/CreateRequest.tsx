@@ -22,18 +22,18 @@ interface Option {
 
 // Make sure each `value` EXACTLY equals the Package.name stored in DB
 const options: Option[] = [
-  { label: "Golden 90 - 9,110", value: "Golden 90 - 9,110", price: 9110 },
-  { label: "Golden 90 Premium - 11,665", value: "Golden 90 Premium - 11,665", price: 11665 },
-  { label: "Golden 90 Elite - 16,665", value: "Golden 90 Elite - 16,665", price: 16665 },
-  { label: "Golden 90 Couple - 12,833", value: "Golden 90 Couple - 12,833", price: 12833 },
-  { label: "Golden 90-Premium Couple - 16,448", value: "Golden 90-Premium Couple - 16,448", price: 16448 },
-  { label: "Golden 90 Elite Couple - 23,498", value: "Golden 90 Elite Couple - 23,498", price: 23498 },
-  { label: "Golden 90 International (USA) - $200", value: "Golden 90 International (USA) - $200", price: 200 },
-  { label: "International Premium (USA) - $300", value: "International Premium (USA) - $300", price: 300 },
-  { label: "International Elite (USA) - $400", value: "International Elite (USA) - $400", price: 400 },
-  { label: "DHMPC - DIAMOND HEALTH MASTERY PLAN - 24999", value: "DHMPC - DIAMOND HEALTH MASTERY PLAN - 24999", price: 24999 },
-  { label: "DHMPC - DIAMOND HEALTH MASTERY PLAN for COUPLE - 39999", value: "DHMPC - DIAMOND HEALTH MASTERY PLAN for COUPLE - 39999", price: 39999 },
-  { label: "WG5 Course - 9999", value: "WG5 Course - 9999", price: 9999 },
+  { label: "Golden 90 - 9,110", value: "Basic", price: 9110 },
+  { label: "Golden 90 Premium - 11,665", value: "Premium", price: 11665 },
+  { label: "Golden 90 Elite - 16,665", value: "Elite", price: 16665 },
+  { label: "Golden 90 Couple - 12,833", value: "Couple", price: 12833 },
+  { label: "Golden 90-Premium Couple - 16,448", value: "Premium_Couple", price: 16448 },
+  { label: "Golden 90 Elite Couple - 23,498", value: "Elite_Couple", price: 23498 },
+  { label: "Golden 90 International (USA) - $200", value: "International_USA", price: 200 },
+  { label: "International Premium (USA) - $300", value: "International_300", price: 300 },
+  { label: "International Elite (USA) - $400", value: "International_400", price: 400 },
+  { label: "DHMPC - DIAMOND HEALTH MASTERY PLAN - 24999", value: "DHMPC", price: 24999 },
+  { label: "DHMPC - DIAMOND HEALTH MASTERY PLAN for COUPLE - 39999", value: "DHMPC_Couple", price: 39999 },
+  { label: "WG5 Course - 9999", value: "WG5_Course", price: 9999 },
 ];
 
 const CreateRequest: React.FC = () => {
