@@ -39,7 +39,7 @@ const CreateRequest: React.FC = () => {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [category, setCategory] = useState("");
-  const [discount, setDiscount] = useState(0);
+  const [discount, setDiscount] = useState<string>("");
   const [programStartDate, setProgramStartDate] = useState("");
 
   // Calculation states
@@ -47,7 +47,7 @@ const CreateRequest: React.FC = () => {
   const [discountAmount, setDiscountAmount] = useState(0);
   const [tax, setTax] = useState(0);
   const [finalAmount, setFinalAmount] = useState(0);
-  const [installmentAmount, setInstallmentAmount] = useState<any>(0);
+  const [installmentAmount, setInstallmentAmount] = useState<number>(0);
   const [installment, setInstallment] = useState("");
 
   // Other states
@@ -100,7 +100,7 @@ const CreateRequest: React.FC = () => {
   const changeInstallmentCheck = () => {
     setIsInstallmentChecked((prev) => {
       if (!prev) {
-        setInstallmentAmount((finalAmount / 2).toFixed(2)); // default 50%
+        setInstallmentAmount(Number((finalAmount / 2).toFixed(2))); // default 50%
         setInstallment("Installment 1");
       } else {
         setInstallmentAmount(0);
@@ -116,7 +116,7 @@ const CreateRequest: React.FC = () => {
     if (!selectedOption) return;
 
     const basePrice = selectedOption.price;
-    const discountVal = basePrice * (discount / 100);
+    const discountVal = basePrice * (Number(discount) / 100);
     const taxVal = (basePrice - discountVal) * 0.18;
     const total = basePrice - discountVal + taxVal;
 
@@ -126,8 +126,7 @@ const CreateRequest: React.FC = () => {
     setFinalAmount(total);
 
     if (isInstallmentChecked) {
-      const firstInstallment: Number = total / 2;
-      setInstallmentAmount(firstInstallment.toFixed(2));
+      setInstallmentAmount(Number((total / 2).toFixed(2)));
       setInstallment("Installment 1");
     }
   }, [category, discount, isInstallmentChecked]);
@@ -143,28 +142,49 @@ const CreateRequest: React.FC = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
+
+      // Base payload
+      let data: any = {
+        name,
+        phone,
+        category,
+        discount: Number(discount) || 0,
+        finalAmount: Number(finalAmount.toFixed(2)),
+        programStartDate,
+      };
+
+      // If installment is enabled
+      if (isInstallmentChecked) {
+        if (installmentAmount <= 0 || isNaN(installmentAmount)) {
+          alert("Invalid installment amount");
+          setLoading(false);
+          return;
+        }
+        data = {
+          ...data,
+          installment,
+          tobePaid: Number(installmentAmount.toFixed(2)),
+        };
+      }
+
+      console.log("Sending data:", data);
+
       const res = await axios.post(
         `${SERVER_URL}/payment/create-payment-link`,
-        {
-          name,
-          phone,
-          category,
-          discount,
-          installment,
-          finalAmount: Number(finalAmount.toFixed(2)),
-          tobePaid: Number(installmentAmount.toFixed(2)),
-          programStartDate,
-        },
+        data,
         { headers: { Authorization: `Bearer ${token}` } }
       );
+
       setPaymentLink(res.data.payment_link);
       alert("Payment link sent to your number");
-    } catch (err) {
+    } catch (err: any) {
+      console.error("Error creating payment link:", err.response?.data || err.message);
       alert("Failed to generate payment link");
     } finally {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="flex h-full items-center justify-center flex-col md:flex-row p-4">
@@ -177,20 +197,44 @@ const CreateRequest: React.FC = () => {
             <Input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" required />
             <Input type="text" value={phone} onChange={(e) => validateMobile(e.target.value)} placeholder="Phone" required />
             <Select options={options} onChange={validateSelect} />
-            <Input type="number" min="0" max="100" value={discount === 0 ? "" : discount} onChange={(e) => setDiscount(Number(e.target.value))} placeholder="Discount (%)" step=".01" />
-            <Input type="date" placeholder="Program Start Date" value={programStartDate} onChange={(e) => setProgramStartDate(e.target.value)} />
+            <Input
+              type="number"
+              min="0"
+              max="100"
+              value={discount}
+              onChange={(e) => setDiscount(e.target.value)}
+              placeholder="Discount (%)"
+              step=".01"
+            />
+            <Input
+              type="date"
+              placeholder="Program Start Date"
+              value={programStartDate}
+              min={new Date().toISOString().split("T")[0]}
+              onChange={(e) => setProgramStartDate(e.target.value)}
+            />
             <Checkbox checked={isInstallmentChecked} onChange={changeInstallmentCheck} label="Installment" />
             {isInstallmentChecked && (
-              <Input type="number" value={installmentAmount} onChange={(e) => setInstallmentAmount(Number(e.target.value))} placeholder="Installment Amount" />
+              <Input
+                type="number"
+                value={installmentAmount}
+                onChange={(e) => setInstallmentAmount(Number(e.target.value))}
+                placeholder="Installment Amount"
+              />
             )}
-            <Button type="submit" disabled={!isPhoneValid || !isCategoryValid || !name || loading}>
+            <Button
+              type="submit"
+              disabled={!isPhoneValid || !isCategoryValid || !name}
+            >
               {loading ? "Processing..." : "Send Payment Link"}
             </Button>
           </form>
 
           {paymentLink && (
             <div className="flex items-center justify-between bg-white p-4 shadow-md rounded-lg mt-4">
-              <span className="truncate font-medium text-blue-600">{paymentLink}</span>
+              <a href={paymentLink} target="_blank" className="truncate font-medium text-blue-600 underline">
+                {paymentLink}
+              </a>
               <Button onClick={copyToClipboard} className="flex items-center">
                 {copied ? <ClipboardCheck size={18} /> : <Clipboard size={18} />}
                 <span className="ml-2">{copied ? "Copied!" : "Copy Link"}</span>
@@ -242,7 +286,7 @@ const CreateRequest: React.FC = () => {
                     To be Paid
                   </TableCell>
                   <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                    {installmentAmount}
+                    {installmentAmount.toFixed(2)}
                   </TableCell>
                 </TableRow>
                 <TableRow>
