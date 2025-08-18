@@ -30,7 +30,6 @@ interface RequestDataTableProps {
 }
 
 const formatReadableDate = (isoString: string): string => {
-  if (!isoString) return "Invalid Date";
   const date = new Date(isoString);
   return date.toLocaleString("en-IN", {
     timeZone: "Asia/Kolkata",
@@ -85,12 +84,12 @@ const RequestDataTable: React.FC<RequestDataTableProps> = ({ data }) => {
     },
     ...(parsedUser?.isSuperUser
       ? [
-          {
-            accessorFn: (row: any) => row.createdBy?.name || "N/A",
-            id: "createdBy.name",
-            header: "Created By",
-          },
-        ]
+        {
+          accessorFn: (row: any) => row.createdBy?.name || "N/A",
+          id: "createdBy.name",
+          header: "Created By",
+        },
+      ]
       : []),
     {
       id: "actions",
@@ -269,7 +268,7 @@ const RequestDataTable: React.FC<RequestDataTableProps> = ({ data }) => {
                     Date
                   </TableCell>
                   <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                    { formatReadableDate(requestDetails.payed_at)}
+                    {formatReadableDate(requestDetails.payed_at)}
                   </TableCell>
                 </TableRow>
               </TableBody>
