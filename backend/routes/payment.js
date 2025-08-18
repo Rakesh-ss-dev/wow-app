@@ -80,56 +80,71 @@ router.post("/create-payment-link", authMiddleware, async (req, res) => {
       installment,
       programStartDate,
     } = req.body;
+
+    // 1) Validate package exists
     const category_from_db = await Package.findOne({ name: category });
-    let description = `Payment for your Golden 90 ${category_from_db.name} | Tax: 18%`;
-    let amount;
-    if (parseFloat(tobePaid) == 0) {
-      amount = finalAmount * 100;
-    } else {
-      amount = tobePaid * 100;
+    if (!category_from_db) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid package selected" });
     }
+
+    // 2) Build description + amount (in subunits)
+    let description = `Payment for ${category_from_db.name} | Tax: 18%`;
+    let amount =
+      tobePaid && parseFloat(tobePaid) > 0
+        ? parseFloat(tobePaid) * 100
+        : parseFloat(finalAmount) * 100;
+
     if (discount > 0) {
       description += ` | Discount: ${discount}%`;
     }
+
     const options = {
-      amount: parseInt(amount),
-      currency: category_from_db.currency,
+      amount: parseInt(amount, 10),
+      currency: category_from_db.currency || "INR",
       accept_partial: false,
-      description: description,
+      description,
       customer: {
-        name: name,
-        contact: `+91${phone}`,
+        name,
+        contact: `+91${phone}`, // keep as-is per your flow
       },
-      notify: {
-        sms: true,
-        email: true,
-        whatsapp: true,
-      },
+      notify: { sms: true, email: true, whatsapp: true },
       reminder_enable: true,
       callback_method: "get",
       callback_url: `${process.env.FRONTEND_URL}/payment_success`,
     };
+
+    // 3) Create link with Razorpay
     const order = await razorpay.paymentLink.create(options);
-    const patient = await new Patient({
-      name: name,
-      phone: phone,
+
+    // 4) Persist
+    const patient = new Patient({
+      name,
+      phone,
       package: category_from_db,
       paymentId: order.id,
-      discount: discount,
-      installment: installment,
+      discount: Number(discount) || 0,
+      installment, // your existing installment logic
       createdBy: req.user,
-      amount: finalAmount.toFixed(2),
-      programStartDate: programStartDate,
+      amount: Number(parseFloat(finalAmount).toFixed(2)), // store number
+      programStartDate,
       dueAmount:
-        tobePaid == 0
+        Number(tobePaid) === 0
           ? 0
-          : parseFloat(finalAmount).toFixed(2) -
-            parseFloat(tobePaid).toFixed(2),
+          : Number((parseFloat(finalAmount) - parseFloat(tobePaid)).toFixed(2)),
     });
+
     await patient.save();
+
+    // 5) Response
     res.json({ success: true, payment_link: order.short_url });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error("Payment link error:", error);
+    res.status(500).json({
+      success: false,
+      message: error?.error?.description || error.message,
+    });
   }
 });
 

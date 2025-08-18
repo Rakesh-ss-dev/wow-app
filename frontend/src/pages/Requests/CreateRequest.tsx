@@ -16,34 +16,35 @@ const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
 
 interface Option {
   label: string;
-  value: string;
-  price: number;
+  value: string; // MUST match Package.name in your DB
+  price: number; // used only for UI calculation
 }
 
+// Make sure each `value` EXACTLY equals the Package.name stored in DB
 const options: Option[] = [
-  { label: "Golden 90 - 9,110", value: "Basic", price: 9110 },
-  { label: "Golden 90 Premium - 11,665", value: "Premium", price: 11665 },
-  { label: "Golden 90 Elite - 16,665", value: "Elite", price: 16665 },
-  { label: "Golden 90 Couple - 12,833", value: "Couple", price: 12833 },
-  { label: "Golden 90-Premium Couple - 16,448", value: "Premium_Couple", price: 16448 },
-  { label: "Golden 90 Elite Couple - 23,498", value: "Elite_Couple", price: 23498 },
-  { label: "Golden 90 International (USA) - $200", value: "International_USA", price: 200 },
-  { label: "International Premium (USA) - $300", value: "International_Premium_USA_300", price: 300 },
-  { label: "International Elite (USA) - $400", value: "International_Elite_USA_400", price: 400 },
-  { label: "DHMPC - DIAMOND HEALTH MASTERY PLAN - 24999", value: "DHMPC", price: 24999 },
-  { label: "DHMPC - DIAMOND HEALTH MASTERY PLAN for COUPLE - 39999", value: "DHMPC_Couple", price: 39999 },
-  { label: "WG5 Course - 9999", value: "WG5_Course", price: 9999 },
+  { label: "Golden 90 - 9,110", value: "Golden 90 - 9,110", price: 9110 },
+  { label: "Golden 90 Premium - 11,665", value: "Golden 90 Premium - 11,665", price: 11665 },
+  { label: "Golden 90 Elite - 16,665", value: "Golden 90 Elite - 16,665", price: 16665 },
+  { label: "Golden 90 Couple - 12,833", value: "Golden 90 Couple - 12,833", price: 12833 },
+  { label: "Golden 90-Premium Couple - 16,448", value: "Golden 90-Premium Couple - 16,448", price: 16448 },
+  { label: "Golden 90 Elite Couple - 23,498", value: "Golden 90 Elite Couple - 23,498", price: 23498 },
+  { label: "Golden 90 International (USA) - $200", value: "Golden 90 International (USA) - $200", price: 200 },
+  { label: "International Premium (USA) - $300", value: "International Premium (USA) - $300", price: 300 },
+  { label: "International Elite (USA) - $400", value: "International Elite (USA) - $400", price: 400 },
+  { label: "DHMPC - DIAMOND HEALTH MASTERY PLAN - 24999", value: "DHMPC - DIAMOND HEALTH MASTERY PLAN - 24999", price: 24999 },
+  { label: "DHMPC - DIAMOND HEALTH MASTERY PLAN for COUPLE - 39999", value: "DHMPC - DIAMOND HEALTH MASTERY PLAN for COUPLE - 39999", price: 39999 },
+  { label: "WG5 Course - 9999", value: "WG5 Course - 9999", price: 9999 },
 ];
 
 const CreateRequest: React.FC = () => {
-  // Form data states
+  // Form fields
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [category, setCategory] = useState("");
   const [discount, setDiscount] = useState<string>("");
   const [programStartDate, setProgramStartDate] = useState("");
 
-  // Calculation states
+  // Calculations
   const [price, setPrice] = useState(0);
   const [discountAmount, setDiscountAmount] = useState(0);
   const [tax, setTax] = useState(0);
@@ -51,7 +52,7 @@ const CreateRequest: React.FC = () => {
   const [installmentAmount, setInstallmentAmount] = useState<number>(0);
   const [installment, setInstallment] = useState("");
 
-  // Other states
+  // UI state
   const [isPhoneValid, setIsPhoneValid] = useState(false);
   const [isCategoryValid, setIsCategoryValid] = useState(false);
   const [isInstallmentChecked, setIsInstallmentChecked] = useState(false);
@@ -71,7 +72,6 @@ const CreateRequest: React.FC = () => {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // Copy payment link
   const copyToClipboard = async () => {
     if (!paymentLink) return console.error("No payment link available");
     try {
@@ -84,20 +84,21 @@ const CreateRequest: React.FC = () => {
     }
   };
 
-  // Mobile validation
+  // Mobile validation (India)
   const validateMobile = (number: string) => {
     const mobilePattern = /^[6-9]\d{9}$/;
-    setIsPhoneValid(mobilePattern.test(number.replace(/\s+/g, "")));
-    setPhone(number.replace(/\s+/g, ""));
+    const cleaned = number.replace(/\s+/g, "");
+    setIsPhoneValid(mobilePattern.test(cleaned));
+    setPhone(cleaned);
   };
 
-  // Category validation
+  // Category change
   const validateSelect = (value: string) => {
-    setIsCategoryValid(value !== "");
+    setIsCategoryValid(!!value);
     setCategory(value);
   };
 
-  // Installment checkbox toggle
+  // Toggle installment
   const changeInstallmentCheck = () => {
     setIsInstallmentChecked((prev) => {
       if (!prev) {
@@ -111,19 +112,19 @@ const CreateRequest: React.FC = () => {
     });
   };
 
-  // Central calculation logic
+  // Recalculate totals
   useEffect(() => {
-    const selectedOption = options.find((opt) => opt.value === category);
-    if (!selectedOption) return;
+    const selected = options.find((o) => o.value === category);
+    if (!selected) return;
 
-    const basePrice = selectedOption.price;
-    const discountVal = basePrice * (Number(discount) / 100);
-    const taxVal = (basePrice - discountVal) * 0.18;
-    const total = basePrice - discountVal + taxVal;
+    const base = selected.price;
+    const disc = base * (Number(discount || 0) / 100);
+    const tx = (base - disc) * 0.18;
+    const total = base - disc + tx;
 
-    setPrice(basePrice);
-    setDiscountAmount(discountVal);
-    setTax(taxVal);
+    setPrice(base);
+    setDiscountAmount(disc);
+    setTax(tx);
     setFinalAmount(total);
 
     if (isInstallmentChecked) {
@@ -132,43 +133,37 @@ const CreateRequest: React.FC = () => {
     }
   }, [category, discount, isInstallmentChecked]);
 
-  // Reset payment link whenever key fields change
+  // Reset link on recalculation / toggles
   useEffect(() => {
     setPaymentLink("");
   }, [category, discount, price, installmentAmount, isInstallmentChecked]);
 
-  // Submit handler
+  // Submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
 
-      // Base payload
       let data: any = {
         name,
         phone,
-        category,
+        category, // MUST match Package.name in DB
         discount: Number(discount) || 0,
         finalAmount: Number(finalAmount.toFixed(2)),
         programStartDate,
       };
 
-      // If installment is enabled
       if (isInstallmentChecked) {
-        if (installmentAmount <= 0 || isNaN(installmentAmount)) {
+        if (!installmentAmount || installmentAmount <= 0) {
           alert("Invalid installment amount");
           setLoading(false);
           return;
         }
-        data = {
-          ...data,
-          installment,
-          tobePaid: Number(installmentAmount.toFixed(2)),
-        };
+        data = { ...data, installment, tobePaid: Number(installmentAmount.toFixed(2)) };
+      } else {
+        data.tobePaid = 0;
       }
-
-      console.log("Sending data:", data);
 
       const res = await axios.post(
         `${SERVER_URL}/payment/create-payment-link`,
@@ -177,15 +172,19 @@ const CreateRequest: React.FC = () => {
       );
 
       setPaymentLink(res.data.payment_link);
-      alert("Payment link sent to your number");
+      alert("Payment link generated successfully!");
     } catch (err: any) {
-      console.error("Error creating payment link:", err.response?.data || err.message);
-      alert("Failed to generate payment link");
+      if (axios.isAxiosError(err)) {
+        console.error("Create link error:", err.response?.data || err.message);
+        alert(`Failed: ${JSON.stringify(err.response?.data || err.message)}`);
+      } else {
+        console.error("Unexpected error:", err);
+        alert("Unexpected error occurred.");
+      }
     } finally {
       setLoading(false);
     }
   };
-
 
   return (
     <div className="flex h-full items-center justify-center flex-col md:flex-row p-4">
@@ -197,6 +196,7 @@ const CreateRequest: React.FC = () => {
           <form className="space-y-4" onSubmit={handleSubmit}>
             <Input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" required />
             <Input type="text" value={phone} onChange={(e) => validateMobile(e.target.value)} placeholder="Phone" required />
+            {/* Your Select should pass back the selected .value string */}
             <Select options={options} onChange={validateSelect} />
             <Input
               type="number"
@@ -223,17 +223,14 @@ const CreateRequest: React.FC = () => {
                 placeholder="Installment Amount"
               />
             )}
-            <Button
-              type="submit"
-              disabled={!isPhoneValid || !isCategoryValid || !name}
-            >
+            <Button type="submit" disabled={!isPhoneValid || !isCategoryValid || !name}>
               {loading ? "Processing..." : "Send Payment Link"}
             </Button>
           </form>
 
           {paymentLink && (
             <div className="flex items-center justify-between bg-white p-4 shadow-md rounded-lg mt-4">
-              <a href={paymentLink} target="_blank" className="truncate font-medium text-blue-600 underline">
+              <a href={paymentLink} target="_blank" className="truncate font-medium text-blue-600 underline" rel="noreferrer">
                 {paymentLink}
               </a>
               <Button onClick={copyToClipboard} className="flex items-center">
@@ -245,58 +242,35 @@ const CreateRequest: React.FC = () => {
         </div>
       </div>
 
+      {/* Summary */}
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
         <Table>
           <TableBody>
             <TableRow>
-              <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                Amount
-              </TableCell>
-              <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                {price.toFixed(2)}
-              </TableCell>
+              <TableCell className="px-4 py-3 text-gray-500 text-start">Amount</TableCell>
+              <TableCell className="px-4 py-3">{price.toFixed(2)}</TableCell>
             </TableRow>
             <TableRow>
-              <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                Discount
-              </TableCell>
-              <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                {discountAmount.toFixed(2)}
-              </TableCell>
+              <TableCell className="px-4 py-3 text-gray-500 text-start">Discount</TableCell>
+              <TableCell className="px-4 py-3">{discountAmount.toFixed(2)}</TableCell>
             </TableRow>
             <TableRow>
-              <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                Tax (18%)
-              </TableCell>
-              <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                {tax.toFixed(2)}
-              </TableCell>
+              <TableCell className="px-4 py-3 text-gray-500 text-start">Tax (18%)</TableCell>
+              <TableCell className="px-4 py-3">{tax.toFixed(2)}</TableCell>
             </TableRow>
             <TableRow>
-              <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                Final Price
-              </TableCell>
-              <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                {finalAmount.toFixed(2)}
-              </TableCell>
+              <TableCell className="px-4 py-3 text-gray-500 text-start">Final Price</TableCell>
+              <TableCell className="px-4 py-3">{finalAmount.toFixed(2)}</TableCell>
             </TableRow>
             {isInstallmentChecked && (
               <>
                 <TableRow>
-                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                    To be Paid
-                  </TableCell>
-                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                    {installmentAmount.toFixed(2)}
-                  </TableCell>
+                  <TableCell className="px-4 py-3 text-gray-500 text-start">To be Paid</TableCell>
+                  <TableCell className="px-4 py-3">{installmentAmount.toFixed(2)}</TableCell>
                 </TableRow>
                 <TableRow>
-                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                    Balance
-                  </TableCell>
-                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                    {(finalAmount - installmentAmount).toFixed(2)}
-                  </TableCell>
+                  <TableCell className="px-4 py-3 text-gray-500 text-start">Balance</TableCell>
+                  <TableCell className="px-4 py-3">{(finalAmount - installmentAmount).toFixed(2)}</TableCell>
                 </TableRow>
               </>
             )}
