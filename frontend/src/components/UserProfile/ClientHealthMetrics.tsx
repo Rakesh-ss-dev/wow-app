@@ -95,14 +95,11 @@ const ClientHealthCard: React.FC<ClientHealthCardProp> = ({ userId }) => {
           General Info
         </h2>
         <div className="p-6">
-
           <p className="mb-2">Name: {userData.name}</p>
           <p className="mb-2">Phone: {userData.phone}</p>
           <p className="mb-2">Package: {userData.package.name}</p>
           <p className="mb-2">Active From: {new Date(userData.activated_at).toLocaleDateString()}</p>
-
           <p className="mb-2">Height: {healthData?.height} cm</p>
-          <p className="mb-2">Weight: {healthData?.weight} kg</p>
           <p className="mb-4">
             BMI: {healthData?.bmi} ({healthData?.bmiStatus})
           </p>
