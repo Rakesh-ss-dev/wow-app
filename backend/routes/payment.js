@@ -13,6 +13,8 @@ const PDFDocument = require("pdfkit");
 const nodemailer = require("nodemailer");
 const { default: mongoose } = require("mongoose");
 const HealthReport = require("../models/HealthReport");
+const DailyWeight = require("../models/DailyWeight");
+const Diabetes = require("../models/Diabetes");
 const router = express.Router();
 
 require("dotenv").config();
@@ -888,6 +890,48 @@ router.get("/health-metrics/:userId", authMiddleware, async (req, res) => {
     res.status(200).json({ latest, user });
   } catch (error) {
     res.status(500).json({ message: "Failed to fetch the report", error });
+  }
+});
+
+router.get("/getWeightGraphData/:userId", authMiddleware, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ message: "Invalid user ID format" });
+    }
+    const user = await Patient.findById(userId).populate("package").exec();
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    const weights = await DailyWeight.find({ userId: user }).sort({
+      date: 1,
+    });
+    res.json(weights);
+  } catch (error) {
+    console.error("Error fetching weight graph data:", error);
+    res
+      .status(500)
+      .json({ message: "Failed to fetch weight graph data", error });
+  }
+});
+
+router.get("/getSugarData/:userId", authMiddleware, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ message: "Invalid user ID format" });
+    }
+    const user = await Patient.findById(userId).populate("package").exec();
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    const sugar_values = await Diabetes.find({ userId: user });
+    res.json(sugar_values);
+  } catch (error) {
+    console.error("Error fetching sugar graph data:", error);
+    res
+      .status(500)
+      .json({ message: "Failed to fetch sugar graph data", error });
   }
 });
 

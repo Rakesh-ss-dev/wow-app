@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import ReactApexChart from "react-apexcharts";
 import axios from "axios";
 import { ApexOptions } from "apexcharts";
-
-
+import ClientSugarGraph from "../charts/ClientSugarGraph";
+import ClientWeightGraph from "../charts/ClientWeightGraph";
 
 // Data structure from server
 interface HealthData {
@@ -56,22 +56,31 @@ const chartConfigs = [
 ];
 
 // Generate ApexChart options
-const chartOptions = (yTitle: string, path: string): ApexOptions => {
+const chartOptions = (
+
+  yTitle: string,
+  path: string
+): ApexOptions => {
   const range = optimalRanges[path];
 
   return {
     chart: {
-      type: "line",
+      type: "area",
       height: 300,
       toolbar: { show: false },
-      fontFamily: "",
+      fontFamily: "Outfit, sans-serif",
+      zoom: {
+        enabled: false,
+      },
     },
+    stroke: {
+      curve: 'smooth',
+    },
+
     colors: ["#598D7B"],
     xaxis: { type: "category", labels: { rotate: -45 } },
     yaxis: {
       title: { text: yTitle },
-      min: range?.min,
-      max: range?.max,
       labels: {
         formatter: (value) => {
           return value.toFixed(2);
@@ -84,8 +93,8 @@ const chartOptions = (yTitle: string, path: string): ApexOptions => {
           {
             y: range.min,
             y2: range.max,
-            borderColor: "#00E396",
-            fillColor: "rgba(0, 227, 150, 0.1)",
+            borderColor: "#9d2512ff",
+            fillColor: "rgba(44, 122, 96, 0.8)",
             label: {
               text: "Optimal Range",
               style: {
@@ -124,7 +133,6 @@ interface ClientMetricChartProp {
   userId: any;
 }
 const ClientMetricCharts: React.FC<ClientMetricChartProp> = ({ userId }) => {
-  // Replace with your actual API base URL
   const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
   const token = localStorage.getItem("token");
   const [healthData, setHealthData] = useState<HealthData[]>([]);
@@ -147,9 +155,13 @@ const ClientMetricCharts: React.FC<ClientMetricChartProp> = ({ userId }) => {
   }, []);
 
   if (loading) return <p>Loading charts...</p>;
-  if (healthData.length == 0) return <p>Reports Not Entered</p>;
   return (
-    <div>
+    <div className="">
+      <div className="flex">
+
+        <ClientWeightGraph userId={userId} />
+        <ClientSugarGraph userId={userId} />
+      </div>
       <h2 className="my-5 text-center">Individual Property Graphs</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 p-4">
         {chartConfigs.map(({ title, unit, path }) => (
@@ -166,7 +178,7 @@ const ClientMetricCharts: React.FC<ClientMetricChartProp> = ({ userId }) => {
           </div>
         ))}
       </div>
-    </div>
+    </div >
   );
 };
 

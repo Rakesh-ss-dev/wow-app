@@ -1,6 +1,7 @@
 import axios from "axios";
 import UserCard from "./UserCard";
 import { useEffect, useState } from "react";
+import { ChartArea } from "lucide-react";
 
 const PaidUsers = () => {
   const [requests, setRequests] = useState<any[]>([]);
@@ -24,7 +25,7 @@ const PaidUsers = () => {
     }
   };
   useEffect(() => {
-    
+
     const getUsers = async () => {
       try {
         const res = await axios(`${SERVER_URL}/payment/get_paid_users`, {
@@ -46,7 +47,7 @@ const PaidUsers = () => {
       }
     };
     getUsers();
-  }, [loading,requests]);
+  }, [loading, requests]);
 
   if (loading)
     return (
@@ -65,15 +66,20 @@ const PaidUsers = () => {
   return (
     <div className="grid grid-cols-1 mt-7 items-stretch auto-rows-fr gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {requests.map((request: any) => (
-        <UserCard
-          key={request._id}
-          title={request.name}
-          date={request.payed_at}
-          plan={request.package.name}
-          placeButton={true}
-          buttonText={"Deactivate User"}
-          clickFunction={() => handleClick(request._id)}
-        />
+        <div className="relative h-full">
+          <UserCard
+            key={request._id}
+            title={request.name}
+            date={request.payed_at}
+            plan={request.package.name}
+            placeButton={true}
+            buttonText={"Deactivate User"}
+            clickFunction={() => handleClick(request._id)}
+          />
+          <a className="absolute bottom-5 right-5 bg-theme-500 block p-2 rounded-full" href={`/client-details/${request._id}`}>
+            <ChartArea />
+          </a>
+        </div>
       ))}
     </div>
   );
