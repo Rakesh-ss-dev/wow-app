@@ -76,9 +76,15 @@ const PaidUsers = () => {
             buttonText={"Deactivate User"}
             clickFunction={() => handleClick(request._id)}
           />
-          <a className="absolute bottom-5 right-5 text-theme-500 block p-2 rounded-full" href={`/client-details/${request._id}`}>
-            <ChartSpline />
-          </a>
+          <div className="absolute bottom-5 right-5">
+            <a
+              href={`/client-details/${request._id}`}
+              className="group block p-2 rounded-full bg-brand-500 shadow-md text-theme-500 hover:bg-brand-100 transition"
+            >
+              <ChartSpline className="w-6 h-6 text-white group-hover:text-brand-600" />
+            </a>
+          </div>
+
         </div>
       ))}
     </div>
