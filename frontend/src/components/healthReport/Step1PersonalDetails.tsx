@@ -9,7 +9,7 @@ interface Props {
   setErrors: (errors: { [key: string]: string }) => void;
 }
 
-const Step1PersonalDetails: FC<Props> = ({ formData, setFormData , errors, setErrors }) => {
+const Step1PersonalDetails: FC<Props> = ({ formData, setFormData, errors, setErrors }) => {
 
   const handleChange = (key: string, value: string | number) => {
     setFormData({ ...formData, [key]: value });
@@ -58,6 +58,15 @@ const Step1PersonalDetails: FC<Props> = ({ formData, setFormData , errors, setEr
             onChange={(e) => handleChange('email', e.target.value)}
           />
           {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
+        </div>
+        <div>
+          <label className="block mb-1 font-medium">City</label>
+          <Input
+            type="text"
+            value={formData.city || ''}
+            onChange={(e) => handleChange('city', e.target.value)}
+          />
+          {errors.city && <p className="text-red-500 text-sm">{errors.city}</p>}
         </div>
 
         <div>

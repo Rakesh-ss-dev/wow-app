@@ -1,7 +1,7 @@
 import axios from "axios";
 import UserCard from "./UserCard";
 import { useEffect, useState } from "react";
-import { ChartArea } from "lucide-react";
+import { ChartSpline } from "lucide-react";
 
 const PaidUsers = () => {
   const [requests, setRequests] = useState<any[]>([]);
@@ -76,8 +76,8 @@ const PaidUsers = () => {
             buttonText={"Deactivate User"}
             clickFunction={() => handleClick(request._id)}
           />
-          <a className="absolute bottom-5 right-5 bg-theme-500 block p-2 rounded-full" href={`/client-details/${request._id}`}>
-            <ChartArea />
+          <a className="absolute bottom-5 right-5 text-theme-500 block p-2 rounded-full" href={`/client-details/${request._id}`}>
+            <ChartSpline />
           </a>
         </div>
       ))}
