@@ -1,8 +1,8 @@
 import Chart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
-import axios from "axios";
 import { useEffect, useState } from "react";
 import ComponentCard from "../common/ComponentCard";
+import axiosInstance from "../../api/axios";
 
 interface SugarEntries {
     date: string,
@@ -86,13 +86,9 @@ interface ClientSugarGraphProps {
 }
 const ClientSugarGraph = ({ userId }: ClientSugarGraphProps) => {
     const [sugarValues, setSugarValues] = useState<SugarEntries[]>([])
-    const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
-    const token = localStorage.getItem("token");
     const fetchSugarData = async () => {
         try {
-            const res = await axios.get(`${SERVER_URL}/payment/getSugarData/${userId}`, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
+            const res = await axiosInstance.get(`/payment/getSugarData/${userId}`);
             console.log("Sugar Data:", res.data);
             setSugarValues(res.data);
         } catch (error) {

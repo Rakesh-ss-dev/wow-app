@@ -1,5 +1,6 @@
-import axios from "axios";
+
 import { useEffect, useState } from "react";
+import axiosInstance from "../../api/axios";
 
 type data = {
   height: any;
@@ -63,16 +64,12 @@ interface ClientHealthCardProp {
   userId: any;
 }
 const ClientHealthCard: React.FC<ClientHealthCardProp> = ({ userId }) => {
-  const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
-  const token = localStorage.getItem("token");
   const [healthData, setHealthData] = useState<data | null>(null);
   const [loading, setLoading] = useState(true);
   const [userData, setUserData] = useState<any>({});
   useEffect(() => {
-    axios
-      .get(`${SERVER_URL}/payment/health-metrics/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+    axiosInstance
+      .get(`payment/health-metrics/${userId}`)
       .then((res) => {
         setHealthData(res.data.latest);
         setUserData(res.data.user);
@@ -95,10 +92,10 @@ const ClientHealthCard: React.FC<ClientHealthCardProp> = ({ userId }) => {
           General Info
         </h2>
         <div className="p-6">
-          <p className="mb-2">Name: {userData.name}</p>
-          <p className="mb-2">Phone: {userData.phone}</p>
-          <p className="mb-2">Package: {userData.package.name}</p>
-          <p className="mb-2">Active From: {new Date(userData.activated_at).toLocaleDateString()}</p>
+          <p className="mb-2">Name: {userData?.name}</p>
+          <p className="mb-2">Phone: {userData?.phone}</p>
+          <p className="mb-2">Package: {userData?.package.name}</p>
+          <p className="mb-2">Active From: {new Date(userData?.activated_at).toLocaleDateString()}</p>
           <p className="mb-2">Height: {healthData?.height} cm</p>
           <p className="mb-4">
             BMI: {healthData?.bmi} ({healthData?.bmiStatus})

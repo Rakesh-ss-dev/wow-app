@@ -68,7 +68,7 @@ const HealthReportForm: React.FC = () => {
   };
 
   return (
-    <ComponentCard className="w-3/4 mx-auto md:w-1/2" title="Health Report Form">
+    <ComponentCard className="w-full mx-auto md:w-1/2" title="Health Report Form">
       <form
         onSubmit={handleSubmit}
         className="grid grid-cols-1 md:grid-cols-2 gap-4"
@@ -140,7 +140,7 @@ const HealthReportForm: React.FC = () => {
           required
         />
 
-        <div className="col-span-2 flex justify-center mt-6">
+        <div className="md:col-span-2 flex justify-center mt-6">
           <button
             type="submit"
             className="bg-brand-600 hover:bg-brand-700 text-white font-semibold py-2 px-6 rounded-xl"

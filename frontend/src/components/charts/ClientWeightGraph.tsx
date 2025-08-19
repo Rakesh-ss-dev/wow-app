@@ -1,8 +1,8 @@
 import Chart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
-import axios from "axios";
 import { useEffect, useState } from "react";
 import ComponentCard from "../common/ComponentCard";
+import axiosInstance from "../../api/axios";
 
 interface ClientWeightGraphProps {
     userId: any;
@@ -52,13 +52,9 @@ const prepareWeightSeries = (data: WeightEntry[]) => {
 
 const ClientWeightGraph = ({ userId }: ClientWeightGraphProps) => {
     const [weightGraphData, setWeightGraphData] = useState<WeightEntry[]>([]);
-    const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
-    const token = localStorage.getItem("token");
     const getWeightGraphData = async () => {
         try {
-            const res = await axios.get(`${SERVER_URL}/payment/getWeightGraphData/${userId}`, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
+            const res = await axiosInstance.get(`/payment/getWeightGraphData/${userId}`);
             console.log("Weight Graph Data:", res.data);
             setWeightGraphData(res.data);
         } catch (error) {
