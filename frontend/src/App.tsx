@@ -84,9 +84,7 @@ export default function App() {
           <Route path="/view-profile" element={<ClientProfile />} />
           <Route path="/sugar-input" element={<SugarInputForm />} />
         </Route>
-
         <Route path="*" element={<NotFound />} />
-
       </Routes>
     </Router>
   );
