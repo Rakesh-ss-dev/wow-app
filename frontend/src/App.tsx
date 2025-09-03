@@ -56,9 +56,9 @@ export default function App() {
     <Router>
       <Routes>
         <Route element={<AuthLayout />}>
+          <Route path="/" element={<UserLogin />} />
           <Route path="/admin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
-          <Route path="/" element={<UserLogin />} />
           <Route path="/payment_success" element={<Payment_successful />} />
           <Route path="/health-form" element={<HealthLifestyleForm />} />
         </Route>

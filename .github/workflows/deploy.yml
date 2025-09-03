@@ -1,41 +1,29 @@
-name: Deploy MERN App
+- name: Deploy to AWS
+  uses: appleboy/ssh-action@master
+  with:
+    host: ${{ secrets.AWS_SSH_HOST }}
+    username: ${{ secrets.AWS_SSH_USER }}
+    key: ${{ secrets.AWS_SSH_KEY }}
+    script: |
+      # Clone fresh repo
+      rm -rf ~/wow-app
+      git clone https://github.com/Rakesh-ss-dev/wow-app.git ~/wow-app
+      cd ~/wow-app
+      git checkout main
 
-on:
-  push:
-    branches:
-      - main # Change to your main branch
+      # Frontend setup
+      cd frontend
+      npm install
+      npm run build
+      sudo rm -rf /var/www/html/wow-frontend/*
+      sudo cp -r dist/* /var/www/html/wow-frontend/
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
+      # Backend setup
+      cd ../backend
+      npm install
+      pm2 restart wow-backend || pm2 start server.js --name "wow-backend"
 
-      - name: Deploy to AWS
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.AWS_SSH_HOST }}
-          username: ${{ secrets.AWS_SSH_USER }}
-          key: ${{ secrets.AWS_SSH_KEY }}
-          script: |
-            cd ~/wow-app || git clone https://github.com/Rakesh-ss-dev/wow-app.git ~/wow-app && cd ~/wow-app
-            git pull origin main
-            cd frontend
-            sudo npm install
-            sudo npm run build
-            sudo cp -r dist/* /var/www/html/wow-frontend/
-
-            # Backend setup
-            cd ../backend
-            sudo npm install
-            pm2 restart wow-backend || pm2 start server.js --name "wow-backend"
-
-            # Frontend setup
-
-
-            cd ../frontend
-            #Update Nginx Configuration
-            sudo rm -f /etc/nginx/sites-enabled/wow-app
-            sudo ln -s /etc/nginx/sites-available/wow-app /etc/nginx/sites-enabled/
-            sudo systemctl restart nginx
+      # Nginx setup
+      sudo rm -f /etc/nginx/sites-enabled/wow-app
+      sudo ln -s /etc/nginx/sites-available/wow-app /etc/nginx/sites-enabled/
+      sudo systemctl restart nginx
