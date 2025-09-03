@@ -8,11 +8,11 @@ import axios from "axios";
 import { useNavigate } from "react-router";
 
 export default function UserAddressCard() {
-  const navigate=useNavigate();
+  const navigate = useNavigate();
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    navigate("/");
+    navigate("/admin");
   };
   const { isOpen, openModal, closeModal } = useModal();
   const [oldPassword, setOldPassword] = useState<string>("");
@@ -82,7 +82,7 @@ export default function UserAddressCard() {
         setConfirmPassword("");
         closeModal();
         logout();
-      } catch (error:any) {
+      } catch (error: any) {
         console.log(error);
         alert(error.response?.data?.error || "Something went wrong!");
       }

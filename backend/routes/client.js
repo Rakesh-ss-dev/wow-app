@@ -7,7 +7,33 @@ const clientMiddleware = require("../middleware/clientMiddleware");
 const HealthReport = require("../models/HealthReport");
 const DailyWeight = require("../models/DailyWeight");
 const Diabetes = require("../models/Diabetes");
-const { route } = require("./payment");
+const User = require("../models/User");
+
+router.post("/register", async (req, res) => {
+  try {
+    const { name, mobile, coachMobile, password } = req.body;
+
+    // Check if user already exists
+    let patient = await Patient.findOne({ phone: mobile });
+    if (patient) {
+      return res.status(400).json({ error: "User already exists." });
+    }
+    let user = await User.findOne({ mobile: coachMobile });
+    if (!user) {
+      return res.status(404).json({ error: "Coach not found." });
+    }
+    patient = new Patient({
+      name,
+      phone: mobile,
+      password: password,
+      createdBy: user,
+    });
+    await patient.save();
+    res.status(201).json({ message: "User registered successfully." });
+  } catch (error) {
+    res.status(500).json({ error: "Server error" });
+  }
+});
 
 router.post("/login", async (req, res) => {
   try {
@@ -19,7 +45,9 @@ router.post("/login", async (req, res) => {
         .json({ error: "Mobile and password are required." });
     }
 
-    const patient = await Patient.findOne({ phone: mobile, status: { $in: ["paid", "active", "old"] }, })
+    const patient = await Patient.findOne({
+      phone: mobile,
+    })
       .select("+password")
       .populate(["createdBy", "package"])
       .exec();
@@ -51,11 +79,15 @@ router.post("/change-password", clientMiddleware, async (req, res) => {
     const { oldPassword, newPassword } = req.body;
 
     if (!oldPassword || !newPassword) {
-      return res.status(400).json({ error: "Both old and new passwords are required." });
+      return res
+        .status(400)
+        .json({ error: "Both old and new passwords are required." });
     }
 
     if (newPassword.length < 8) {
-      return res.status(400).json({ error: "New password must be at least 8 characters." });
+      return res
+        .status(400)
+        .json({ error: "New password must be at least 8 characters." });
     }
 
     const patient = await Patient.findById(req.user._id).select("+password");
@@ -71,7 +103,9 @@ router.post("/change-password", clientMiddleware, async (req, res) => {
 
     const isSame = await bcrypt.compare(newPassword, patient.password);
     if (isSame) {
-      return res.status(400).json({ error: "New password must be different from old password." });
+      return res
+        .status(400)
+        .json({ error: "New password must be different from old password." });
     }
 
     patient.password = newPassword; // Let the schema hash it
@@ -83,7 +117,6 @@ router.post("/change-password", clientMiddleware, async (req, res) => {
     res.status(500).json({ error: "Internal server error." });
   }
 });
-
 
 router.post("/update", clientMiddleware, async (req, res) => {
   try {
@@ -222,12 +255,10 @@ router.post("/fastingSugar/submit", clientMiddleware, async (req, res) => {
       { $set: { fastingValue: fastingValue } },
       { upsert: true, new: true }
     );
-    res
-      .status(201)
-      .json({
-        success: true,
-        message: "Fasting value submitted successfully!",
-      });
+    res.status(201).json({
+      success: true,
+      message: "Fasting value submitted successfully!",
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

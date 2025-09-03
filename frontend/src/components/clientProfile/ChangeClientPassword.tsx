@@ -8,11 +8,11 @@ import axios from "axios";
 import { useNavigate } from "react-router";
 
 export default function UserAddressCard() {
-  const navigate=useNavigate();
+  const navigate = useNavigate();
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("patient");
-    navigate("/user");
+    navigate("/");
   };
   const { isOpen, openModal, closeModal } = useModal();
   const [oldPassword, setOldPassword] = useState<string>("");
@@ -71,14 +71,14 @@ export default function UserAddressCard() {
         const { data } = await axios.post(
           `${SERVER_URL}/client/change-password`,
           {
-            oldPassword:oldPassword.trim(),
-            newPassword:newPassword.trim(),
+            oldPassword: oldPassword.trim(),
+            newPassword: newPassword.trim(),
           },
           { headers: { Authorization: `Bearer ${token}` } }
         );
         alert(data.message || "Password changed successfully!");
         logout();
-      } catch (error:any) {
+      } catch (error: any) {
         console.log(error);
         alert(error.response?.data?.error || "Something went wrong!");
       }

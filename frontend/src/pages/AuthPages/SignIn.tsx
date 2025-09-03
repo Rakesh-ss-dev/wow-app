@@ -26,7 +26,7 @@ export default function SignIn() {
       });
       alert(res.data.message);
       location.reload();
-    } catch (error:any) {
+    } catch (error: any) {
       alert(error.response.data.error);
     }
   };
@@ -102,12 +102,6 @@ export default function SignIn() {
                       >
                         Forgot password?
                       </p>
-                      <a
-                        href="/user"
-                        className="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400 cursor-pointer"
-                      >
-                        Client Login
-                      </a>
                     </div>
                     <div>
                       <Button className="w-full" size="sm">

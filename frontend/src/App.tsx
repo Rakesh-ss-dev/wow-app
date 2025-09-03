@@ -24,13 +24,15 @@ import PendingInstallment from "./pages/Requests/PendingInstallment";
 import HealthLifestyleForm from "./pages/HealthLifestyleForm";
 import SugarInputForm from "./pages/ClientPages/SugarInputForm";
 import WeightInputForm from "./pages/ClientPages/WeightInputForm";
+import SignUp from "./pages/AuthPages/SignUp";
+import SelfRegistered from "./pages/SelfRegistered";
 
 const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
 
 export default function App() {
   useEffect(() => {
     const token = localStorage.getItem("token");
-    const publicRoutes = ["/", "/user", "/payment_success", "/health-form"];
+    const publicRoutes = ["/", "/signup", "/admin", "/payment_success", "/health-form"];
 
     if (publicRoutes.includes(location.pathname)) return;
 
@@ -55,8 +57,9 @@ export default function App() {
       <Routes>
 
         <Route element={<AuthLayout />}>
-          <Route path="/" element={<SignIn />} />
-          <Route path="/user" element={<UserLogin />} />
+          <Route path="/admin" element={<SignIn />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/" element={<UserLogin />} />
           <Route path="/payment_success" element={<Payment_successful />} />
           <Route path="/health-form" element={<HealthLifestyleForm />} />
         </Route>
@@ -72,6 +75,7 @@ export default function App() {
           <Route path="/create-coach" element={<CreateCoach />} />
           <Route path="/client-details/:userId" element={<ClientDetails />} />
           <Route path="/installments" element={<PendingInstallment />} />
+          <Route path="/self-registered" element={<SelfRegistered />} />
         </Route>
 
         <Route element={<ProtectedRoute allowedRole="patient"><UserLayout /></ProtectedRoute>}>
@@ -83,7 +87,7 @@ export default function App() {
         </Route>
 
         <Route path="*" element={<NotFound />} />
-        
+
       </Routes>
     </Router>
   );

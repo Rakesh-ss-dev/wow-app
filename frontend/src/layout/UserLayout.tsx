@@ -7,8 +7,8 @@ import Backdrop from "./Backdrop";
 const LayoutContent: React.FC = () => {
   const { isExpanded, isHovered, isMobileOpen } = useSidebar();
   const token = localStorage.getItem("token");
-  if(!token){
-    location.href = "/user";
+  if (!token) {
+    location.href = "/";
   }
   return (
     <div className="min-h-screen xl:flex">
@@ -17,9 +17,8 @@ const LayoutContent: React.FC = () => {
         <Backdrop />
       </div>
       <div
-        className={`flex-1 transition-all duration-300 ease-in-out ${
-          isExpanded || isHovered ? "lg:ml-[290px]" : "lg:ml-[90px]"
-        } ${isMobileOpen ? "ml-0" : ""}`}
+        className={`flex-1 transition-all duration-300 ease-in-out ${isExpanded || isHovered ? "lg:ml-[290px]" : "lg:ml-[90px]"
+          } ${isMobileOpen ? "ml-0" : ""}`}
       >
         <UserHeader />
         <div className="p-4 mx-auto max-w-screen-2xl md:p-6">

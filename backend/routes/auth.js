@@ -183,7 +183,10 @@ router.post("/forgot", async (req, res) => {
       await transporter.sendMail(mailOptions);
       user.password = encPwd;
       await user.save();
-      res.json({ success: true, message: "Temporary Password Sent Successfully!" });
+      res.json({
+        success: true,
+        message: "Temporary Password Sent Successfully!",
+      });
     } else {
       res.status(404).json({ error: "User not Found" });
     }

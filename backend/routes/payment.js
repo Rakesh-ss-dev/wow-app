@@ -834,6 +834,7 @@ router.get("/get_pending_requests", authMiddleware, async (req, res) => {
     if (userData.isSuperUser) {
       requests = await Patient.find({
         status: { $nin: ["paid", "active", "old"] },
+        package: { $ne: null },
       })
         .populate("package", "name amount")
         .populate("createdBy", "name email")
@@ -845,6 +846,29 @@ router.get("/get_pending_requests", authMiddleware, async (req, res) => {
       })
         .populate("package", "name amount")
         .exec();
+    }
+    res.json({ success: true, requests: requests });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error });
+  }
+});
+
+router.get("/getSelfRegistered", authMiddleware, async (req, res) => {
+  try {
+    const user = req.user;
+    const userData = await User.findById(user);
+    let requests;
+    if (userData.isSuperUser) {
+      requests = await Patient.find({
+        package: null,
+      })
+        .populate("createdBy", "name email")
+        .exec();
+    } else {
+      requests = await Patient.find({
+        createdBy: userData._id,
+        package: null,
+      }).exec();
     }
     res.json({ success: true, requests: requests });
   } catch (error) {

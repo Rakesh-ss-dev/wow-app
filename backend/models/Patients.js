@@ -5,7 +5,7 @@ const PatientSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
     phone: { type: String, required: true, trim: true },
-    paymentId: { type: String, required: true, unique: true },
+    paymentId: { type: String, unique: true },
     package: { type: mongoose.Schema.Types.ObjectId, ref: "Package" },
     discount: { type: Number, default: 0 },
     installment: { type: String, default: "", trim: true },
@@ -23,7 +23,11 @@ const PatientSchema = new mongoose.Schema(
     activated_at: { type: Date },
     programStartDate: { type: Date },
     dueAmount: { type: Number, default: 0 },
-    ref: { type: mongoose.Schema.Types.ObjectId, ref: "Patient", default: null },
+    ref: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Patient",
+      default: null,
+    },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
