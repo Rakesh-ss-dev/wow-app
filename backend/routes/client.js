@@ -27,6 +27,7 @@ router.post("/register", async (req, res) => {
       phone: mobile,
       password: password,
       createdBy: user,
+      paymentId: new Date().getTime().toString(),
     });
     await patient.save();
     res.status(201).json({ message: "User registered successfully." });
