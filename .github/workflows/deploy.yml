@@ -28,7 +28,7 @@ jobs:
             # Clean old frontend and backend to save disk space
             # --------------------------
             cd frontend
-            rm -rf node_modules dist
+            sudo rm -rf node_modules dist
             npm cache clean --force
             npm install
             npm run build
