@@ -34,7 +34,7 @@ const SelfRegisteredTable: React.FC<SelfRegisteredTableProps> = ({ data }) => {
                     {
                         accessorFn: (row: Request) => row.createdBy?.name || "N/A",
                         id: "createdBy.name",
-                        header: "Created By",
+                        header: "Coach",
                     },
                 ]
                 : []),
