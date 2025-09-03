@@ -55,7 +55,6 @@ export default function App() {
   return (
     <Router>
       <Routes>
-
         <Route element={<AuthLayout />}>
           <Route path="/admin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
