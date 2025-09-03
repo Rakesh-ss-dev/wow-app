@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import ReactApexChart from "react-apexcharts";
-import axios from "axios";
 import { ApexOptions } from "apexcharts";
 import ClientSugarGraph from "../charts/ClientSugarGraph";
 import ClientWeightGraph from "../charts/ClientWeightGraph";
+import axiosInstance from "../../api/axios";
 
 // Data structure from server
 interface HealthData {
@@ -133,16 +133,12 @@ interface ClientMetricChartProp {
   userId: any;
 }
 const ClientMetricCharts: React.FC<ClientMetricChartProp> = ({ userId }) => {
-  const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
-  const token = localStorage.getItem("token");
   const [healthData, setHealthData] = useState<HealthData[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios
-      .get(`${SERVER_URL}/payment/getRequests/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+    axiosInstance
+      .get(`/payment/getRequests/${userId}`)
       .then((res) => {
         if (Array.isArray(res.data.requests)) {
           setHealthData(res.data.requests);

@@ -77,7 +77,7 @@ const ClientHealthCard: React.FC<ClientHealthCardProp> = ({ userId }) => {
       .catch((err) => console.error(err))
       .finally(() => setLoading(false));
   }, []);
-  if (loading) return <div className="p-4 text-gray-500">Loading...</div>;
+  if (loading) return <div className="p-4 text-gray-500">Loading.....</div>;
   if (!healthData)
     return (
       <div className="p-4 text-gray-500">
@@ -96,10 +96,7 @@ const ClientHealthCard: React.FC<ClientHealthCardProp> = ({ userId }) => {
           <p className="mb-2">Phone: {userData?.phone}</p>
           <p className="mb-2">Package: {userData?.package.name}</p>
           <p className="mb-2">Active From: {new Date(userData?.activated_at).toLocaleDateString()}</p>
-          <p className="mb-2">Height: {healthData?.height} cm</p>
-          <p className="mb-4">
-            BMI: {healthData?.bmi} ({healthData?.bmiStatus})
-          </p>
+
         </div>
       </div>
 
