@@ -3,6 +3,7 @@ import axiosInstance from "../api/axios";
 import SelfRegisteredTable from "../components/datatables/SelfRegisteredTable";
 
 type Request = {
+    _id: string;
     name: string;
     phone: string;
     createdBy?: {

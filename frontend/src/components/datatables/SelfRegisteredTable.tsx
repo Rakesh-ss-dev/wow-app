@@ -9,7 +9,7 @@ import {
 } from "@tanstack/react-table";
 
 type Request = {
-    id: string;
+    _id: string;
     name: string;
     phone: string;
     createdBy?: {
@@ -42,7 +42,7 @@ const SelfRegisteredTable: React.FC<SelfRegisteredTableProps> = ({ data }) => {
                 id: "actions",
                 header: "Actions",
                 cell: ({ row }) => {
-                    const request: any = row.original;
+                    const request = row.original;
                     return (
                         <a href={`client-details/${request._id}`}>
                             <button
