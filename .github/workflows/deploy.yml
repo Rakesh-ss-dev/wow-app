@@ -3,12 +3,11 @@ name: Deploy MERN App
 on:
   push:
     branches:
-      - main
+      - main # Change to your main branch
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -20,31 +19,23 @@ jobs:
           username: ${{ secrets.AWS_SSH_USER }}
           key: ${{ secrets.AWS_SSH_KEY }}
           script: |
-            cd ~/wow-app
-
-            # Ensure repo exists
-            if [ ! -d ".git" ]; then
-              git clone https://github.com/Rakesh-ss-dev/wow-app.git ~/wow-app
-              cd ~/wow-app
-            else
-              # Pull latest code
-              git fetch --all
-              git reset --hard origin/main
-            fi
-
-            # --- Frontend Build ---
+            cd ~/wow-app || git clone https://github.com/Rakesh-ss-dev/wow-app.git ~/wow-app && cd ~/wow-app
+            git pull origin main
             cd frontend
-            npm install
-            npm run build
-
-            # Replace only dist contents
-            sudo rm -rf /var/www/html/wow-frontend/*
+            sudo npm install
+            sudo npm run build
             sudo cp -r dist/* /var/www/html/wow-frontend/
 
-            # --- Backend Build ---
+            # Backend setup
             cd ../backend
-            npm install
+            sudo npm install
             pm2 restart wow-backend || pm2 start server.js --name "wow-backend"
 
-            # --- Nginx Setup (unchanged, just restart if needed) ---
+            # Frontend setup
+
+
+            cd ../frontend
+            #Update Nginx Configuration
+            sudo rm -f /etc/nginx/sites-enabled/wow-app
+            sudo ln -s /etc/nginx/sites-available/wow-app /etc/nginx/sites-enabled/
             sudo systemctl restart nginx
