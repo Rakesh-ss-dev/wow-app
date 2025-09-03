@@ -25,8 +25,10 @@ export default function AuthLayout({
                   alt="Logo"
                 />
               </Link>
+              <p className="text-3xl text-gray-200">Warriors of Wellness</p>
               <p className="text-center text-gray-400 dark:text-white/60">
-                Empowering Health, Transforming Lives
+                An Expert in Health & Nutrition with the commitment of making you
+                live a Healthy Life
               </p>
             </div>
           </div>
