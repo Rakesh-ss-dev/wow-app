@@ -6,7 +6,7 @@ const PatientSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
     phone: { type: String, required: true, trim: true },
-    paymentId: { type: String, unique: false, required: false },
+    paymentId: { type: String, required: false, unique: true, sparse: true },
     package: { type: mongoose.Schema.Types.ObjectId, ref: "Package" },
     discount: { type: Number, default: 0 },
     installment: { type: String, default: "", trim: true },
