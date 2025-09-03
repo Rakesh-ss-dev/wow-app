@@ -19,31 +19,36 @@ const getPaymentDetails = async (patient) => {
       updated_at: new Date(paymentLink.updated_at * 1000),
       currency: paymentLink.currency,
       amount: (paymentLink.amount / 100).toFixed(2),
-      method: paymentLink.payment?.method || '',
+      method: paymentLink.payment?.method || "",
     };
   } catch (error) {
-    console.error(`❌ Error fetching for paymentId ${patient.paymentId}:`, error);
+    console.error(
+      `❌ Error fetching for paymentId ${patient.paymentId}:`,
+      error
+    );
     return null;
   }
 };
 async function syncRazorpayToPatients() {
   try {
     const patients = await Patients.find({
-        $or: [
-          { status: "created" },
-          { status: { $exists: false } },
-          { status: "" },
-          { status: null },
-        ],
-      });
-      
+      $or: [
+        { status: "created" },
+        { status: { $exists: false } },
+        { status: "" },
+        { status: null },
+        { paymentId: { $exists: true, $ne: null, $ne: "" } },
+      ],
+    });
 
     for (const patient of patients) {
       try {
         const paymentData = await getPaymentDetails(patient);
         if (!paymentData) continue;
 
-        console.log(`✅ Synced ${paymentData.name} | Status: ${paymentData.status} | Amount: ₹${paymentData.amount}`);
+        console.log(
+          `✅ Synced ${paymentData.name} | Status: ${paymentData.status} | Amount: ₹${paymentData.amount}`
+        );
 
         await Patients.findByIdAndUpdate(patient._id, {
           $set: {
@@ -51,7 +56,7 @@ async function syncRazorpayToPatients() {
             amount: paymentData.amount,
             method: paymentData.method,
             currency: paymentData.currency,
-            payed_at:paymentData.updated_at
+            payed_at: paymentData.updated_at,
           },
         });
       } catch (err) {
