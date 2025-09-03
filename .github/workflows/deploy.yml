@@ -29,9 +29,9 @@ jobs:
             # --------------------------
             cd frontend
             sudo rm -rf node_modules dist
-            npm cache clean --force
-            npm install
-            npm run build
+            sudo npm cache clean --force
+            sudo npm install
+            sudo npm run build
 
             # Replace frontend build
             sudo rm -rf /var/www/html/wow-frontend/*
