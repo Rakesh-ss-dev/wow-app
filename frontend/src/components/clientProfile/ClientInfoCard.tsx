@@ -12,7 +12,7 @@ const ClientInfoCard = () => {
   const token = localStorage.getItem("token");
   const patient: any = localStorage.getItem("patient");
   const parsedPatient = JSON.parse(patient);
-  const [name, setName] = useState(parsedPatient.name || "");
+  const [name, setName] = useState(parsedPatient?.name || "");
   const [dateOfBirth, setDateOfBirth] = useState(
     parsedPatient.date_of_birth || ""
   );
@@ -228,50 +228,52 @@ const ClientInfoCard = () => {
           </div>
         </div>
       </div>
-      <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-          <div>
-            <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-6">
-              Package Details
-            </h4>
+      {parsedPatient.package &&
+        <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-6">
+                Package Details
+              </h4>
+            </div>
           </div>
-        </div>
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
-          <div>
-            <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-              Package Name
-            </p>
-            <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-              {parsedPatient.package.name}
-            </p>
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
+            <div>
+              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
+                Package Name
+              </p>
+              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+                {parsedPatient.package?.name}
+              </p>
+            </div>
+            <div>
+              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
+                Amount
+              </p>
+              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+                {parsedPatient.amount}
+              </p>
+            </div>
+            <div>
+              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
+                Payed At
+              </p>
+              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+                {formattedDate}
+              </p>
+            </div>
+            <div>
+              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
+                Coach Name
+              </p>
+              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+                {parsedPatient.createdBy.name}
+              </p>
+            </div>
           </div>
-          <div>
-            <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-              Amount
-            </p>
-            <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-              {parsedPatient.amount}
-            </p>
-          </div>
-          <div>
-            <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-              Payed At
-            </p>
-            <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-              {formattedDate}
-            </p>
-          </div>
-          <div>
-            <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-              Coach Name
-            </p>
-            <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-              {parsedPatient.createdBy.name}
-            </p>
-          </div>
-        </div>
 
-      </div>
+        </div>
+      }
     </>
   );
 };
