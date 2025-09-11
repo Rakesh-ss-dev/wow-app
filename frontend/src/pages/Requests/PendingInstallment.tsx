@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import Button from "../../components/ui/button/Button";
-import formatReadableDateTime from "../../utils/formateDateTIme";
+import formatReadableDateTime from "../../utils/formateDateTime";
 
 // Define the shape of an installment object
 interface Installment {
