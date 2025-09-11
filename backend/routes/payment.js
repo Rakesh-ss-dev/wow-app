@@ -123,11 +123,7 @@ router.post("/create-payment-link", authMiddleware, async (req, res) => {
     const order = await razorpay.paymentLink.create(options);
 
     const ref = await Patient.findOne({ phone: referrerPhone });
-    if (!ref)
-      return res.status(500).json({
-        success: false,
-        message: "Reference user not found",
-      });
+
     // 4) Persist
     const patient = new Patient({
       name,
