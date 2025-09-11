@@ -1,18 +1,8 @@
 
 import { CalenderIcon } from "../../icons";
+import formatReadableDate from "../../utils/formateDate";
 import Button from "../ui/button/Button";
-const formatReadableDate = (isoString: string): string => {
-  if (!isoString) return "Invalid Date";
-  const date = new Date(isoString);
-  if (isNaN(date.getTime())) return "Invalid Date";
 
-  return date.toLocaleDateString("en-IN", {
-    timeZone: "Asia/Kolkata",
-    day: "2-digit",
-    month: "2-digit",
-    year: "2-digit",
-  });
-};
 interface UserCardProps {
   title: any;
   date: any;

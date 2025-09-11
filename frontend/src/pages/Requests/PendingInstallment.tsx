@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import Button from "../../components/ui/button/Button";
+import formatReadableDateTime from "../../utils/formateDateTIme";
 
 // Define the shape of an installment object
 interface Installment {
@@ -10,19 +11,7 @@ interface Installment {
   dueAmount: number;
   payed_at: string;
 }
-const formatReadableDate = (isoString: string): string => {
-  if (!isoString) return "Invalid Date";
-  const date = new Date(isoString);
-  return date.toLocaleString("en-IN", {
-    timeZone: "Asia/Kolkata",
-    day: "2-digit",
-    month: "2-digit",
-    year: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
-};
+
 
 const PendingInstallment = () => {
   const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
@@ -106,7 +95,7 @@ const PendingInstallment = () => {
                       {(item.amount - item.dueAmount).toFixed(2)}
                     </td>
                     <td className="px-6 py-4">
-                      {formatReadableDate(item.payed_at)}
+                      {formatReadableDateTime(item.payed_at)}
                     </td>
                     <td className="px-6 py-4">{item.dueAmount.toFixed(2)}</td>
                     <td className="px-6 py-4 text-center">

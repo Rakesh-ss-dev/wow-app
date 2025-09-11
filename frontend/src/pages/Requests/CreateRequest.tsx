@@ -11,6 +11,7 @@ import Button from "../../components/ui/button/Button";
 import Input from "../../components/form/input/InputField";
 import Select from "../../components/form/Select";
 import Checkbox from "../../components/form/input/Checkbox";
+import MultiSelect from "../../components/form/MutiSelect";
 
 const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
 
@@ -36,6 +37,14 @@ const options: Option[] = [
   { label: "WG5 Course - 9999", value: "WG5_Course", price: 9999 },
 ];
 
+const causeOptions = [
+  { text: "Weight Loss", value: "Weight Loss", selected: false },
+  { text: "Diabetes Reversal", value: "Diabetes Reversal", selected: false },
+  { text: "PCOD/PCOS Reversal", value: "PCOD/PCOS Reversal", selected: false },
+  { text: "Thyroid", value: "Thyroid", selected: false },
+  { text: "Others", value: "Others", selected: false }
+]
+
 const CreateRequest: React.FC = () => {
   // Form fields
   const [name, setName] = useState("");
@@ -43,7 +52,8 @@ const CreateRequest: React.FC = () => {
   const [category, setCategory] = useState("");
   const [discount, setDiscount] = useState<string>("");
   const [programStartDate, setProgramStartDate] = useState("");
-
+  const [referrerPhone, setReferrerPhone] = useState('');
+  const [cause, setCause] = useState<string[]>([]);
   // Calculations
   const [price, setPrice] = useState(0);
   const [discountAmount, setDiscountAmount] = useState(0);
@@ -152,6 +162,8 @@ const CreateRequest: React.FC = () => {
         discount: Number(discount) || 0,
         finalAmount: Number(finalAmount.toFixed(2)),
         programStartDate,
+        cause,
+        referrerPhone
       };
 
       if (isInstallmentChecked) {
@@ -173,6 +185,7 @@ const CreateRequest: React.FC = () => {
 
       setPaymentLink(res.data.payment_link);
       alert("Payment link generated successfully!");
+
     } catch (err: any) {
       if (axios.isAxiosError(err)) {
         console.error("Create link error:", err.response?.data || err.message);
@@ -214,6 +227,14 @@ const CreateRequest: React.FC = () => {
               min={new Date().toISOString().split("T")[0]}
               onChange={(e) => setProgramStartDate(e.target.value)}
             />
+            <Input type="text" value={referrerPhone} onChange={e => setReferrerPhone(e.target.value)} placeholder="Referred User Mobile Number" />
+            <div>
+              <MultiSelect
+                label="Reason for joining"
+                options={causeOptions}
+                onChange={(selected) => setCause(selected)}
+              />
+            </div>
             <Checkbox checked={isInstallmentChecked} onChange={changeInstallmentCheck} label="Installment" />
             {isInstallmentChecked && (
               <Input

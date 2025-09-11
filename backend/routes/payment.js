@@ -81,6 +81,8 @@ router.post("/create-payment-link", authMiddleware, async (req, res) => {
       tobePaid,
       installment,
       programStartDate,
+      cause,
+      referrerPhone,
     } = req.body;
 
     // 1) Validate package exists
@@ -120,6 +122,12 @@ router.post("/create-payment-link", authMiddleware, async (req, res) => {
     // 3) Create link with Razorpay
     const order = await razorpay.paymentLink.create(options);
 
+    const ref = await Patient.findOne({ phone: referrerPhone });
+    if (!ref)
+      return res.status(500).json({
+        success: false,
+        message: "Reference user not found",
+      });
     // 4) Persist
     const patient = new Patient({
       name,
@@ -131,6 +139,8 @@ router.post("/create-payment-link", authMiddleware, async (req, res) => {
       createdBy: req.user,
       amount: Number(parseFloat(finalAmount).toFixed(2)), // store number
       programStartDate,
+      cause,
+      ref,
       dueAmount:
         Number(tobePaid) === 0
           ? 0
