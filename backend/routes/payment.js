@@ -94,7 +94,7 @@ router.post("/create-payment-link", authMiddleware, async (req, res) => {
     }
 
     // 2) Build description + amount (in subunits)
-    let description = `Payment for ${category_from_db.name} | Tax: 18%`;
+    let description = `Payment for ${category_from_db.name} | Tax: 18% `;
     let amount =
       tobePaid && parseFloat(tobePaid) > 0
         ? parseFloat(tobePaid) * 100
@@ -103,7 +103,8 @@ router.post("/create-payment-link", authMiddleware, async (req, res) => {
     if (discount > 0) {
       description += ` | Discount: ${discount}%`;
     }
-
+    description +=
+      "\nBy proceeding, you agree to our \nTerms & Conditions: https://wowglobal.in/terms.html";
     const options = {
       amount: parseInt(amount, 10),
       currency: category_from_db.currency || "INR",
