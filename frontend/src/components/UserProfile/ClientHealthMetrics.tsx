@@ -93,12 +93,7 @@ const ClientHealthCard: React.FC<ClientHealthCardProp> = ({ userId }) => {
     fetchReferredUsers();
   }, []);
   if (loading) return <div className="p-4 text-gray-500">Loading.....</div>;
-  if (!healthData)
-    return (
-      <div className="p-4 text-gray-500">
-        Please Ask the user to update the health reports
-      </div>
-    );
+
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 p-4">
@@ -111,8 +106,9 @@ const ClientHealthCard: React.FC<ClientHealthCardProp> = ({ userId }) => {
           <div>
             <p className="mb-2">Name: {userData?.name}</p>
             <p className="mb-2">Phone: {userData?.phone}</p>
-            <p className="mb-2">Package: {userData?.package.name}</p>
-            <p className="mb-2">Active From: {new Date(userData?.activated_at).toLocaleDateString()}</p>
+            <p className="mb-2">Package: {userData?.package?.name}</p>
+
+            {userData?.activated_at && <p className="mb-2">Active From: {new Date(userData?.activated_at).toLocaleDateString()}</p>}
           </div>
           {referred.length > 0 &&
             <div>

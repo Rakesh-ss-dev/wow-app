@@ -918,7 +918,6 @@ router.get("/health-metrics/:userId", authMiddleware, async (req, res) => {
     const latest = await HealthReport.findOne({ userId: user._id })
       .sort({ date: -1 })
       .exec();
-    if (!latest) return res.status(404).json({ error: "No data found." });
     res.status(200).json({ latest, user });
   } catch (error) {
     res.status(500).json({ message: "Failed to fetch the report", error });
