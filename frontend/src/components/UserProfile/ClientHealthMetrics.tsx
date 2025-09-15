@@ -1,6 +1,8 @@
 
 import { useEffect, useState } from "react";
 import axiosInstance from "../../api/axios";
+import Badge from "../ui/badge/Badge";
+import { Link } from "react-router";
 
 type data = {
   height: any;
@@ -65,8 +67,21 @@ interface ClientHealthCardProp {
 }
 const ClientHealthCard: React.FC<ClientHealthCardProp> = ({ userId }) => {
   const [healthData, setHealthData] = useState<data | null>(null);
+  const [referred, setReferred] = useState([]);
   const [loading, setLoading] = useState(true);
   const [userData, setUserData] = useState<any>({});
+  const fetchReferredUsers = async () => {
+    try {
+      const response = await axiosInstance.get(`payment/referred_users/${userId}`);
+      if (response.data) {
+        setReferred(response.data);
+      } else {
+        console.error("Unexpected response format:", response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching referred users:", error);
+    }
+  }
   useEffect(() => {
     axiosInstance
       .get(`payment/health-metrics/${userId}`)
@@ -76,6 +91,7 @@ const ClientHealthCard: React.FC<ClientHealthCardProp> = ({ userId }) => {
       })
       .catch((err) => console.error(err))
       .finally(() => setLoading(false));
+    fetchReferredUsers();
   }, []);
   if (loading) return <div className="p-4 text-gray-500">Loading.....</div>;
   if (!healthData)
@@ -91,12 +107,21 @@ const ClientHealthCard: React.FC<ClientHealthCardProp> = ({ userId }) => {
         <h2 className="bg-brand-500 text-white rounded-t-2xl p-3">
           General Info
         </h2>
-        <div className="p-6">
-          <p className="mb-2">Name: {userData?.name}</p>
-          <p className="mb-2">Phone: {userData?.phone}</p>
-          <p className="mb-2">Package: {userData?.package.name}</p>
-          <p className="mb-2">Active From: {new Date(userData?.activated_at).toLocaleDateString()}</p>
 
+        <div className="p-6 flex flex-col md:flex-row justify-between">
+          <div>
+            <p className="mb-2">Name: {userData?.name}</p>
+            <p className="mb-2">Phone: {userData?.phone}</p>
+            <p className="mb-2">Package: {userData?.package.name}</p>
+            <p className="mb-2">Active From: {new Date(userData?.activated_at).toLocaleDateString()}</p>
+          </div>
+          {referred.length > 0 &&
+            <div>
+              Referred Users:
+              <div className="flex flex-wrap gap-2 mt-2">
+                {referred.map((user: any) => <Badge key={user._id}><a href={`${user._id}`}>{user.name}</a></Badge>)}
+              </div>
+            </div>}
         </div>
       </div>
 

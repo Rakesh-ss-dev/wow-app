@@ -118,9 +118,9 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
                     aria-haspopup="listbox"
                     aria-expanded={isOpen}
                     onClick={toggleDropdown}
-                    className={`mb-2 flex h-11 items-center rounded-lg border border-gray-300 py-1.5 pl-3 pr-3 shadow-theme-xs dark:border-gray-700 dark:bg-gray-900 ${disabled
-                            ? "cursor-not-allowed opacity-50 bg-gray-100 dark:bg-gray-800"
-                            : "cursor-pointer"
+                    className={`mb-2 flex h-20 items-center rounded-lg border border-gray-300 py-1.5 pl-3 pr-3 shadow-theme-xs dark:border-gray-700 dark:bg-gray-900 ${disabled
+                        ? "cursor-not-allowed opacity-50 bg-gray-100 dark:bg-gray-800"
+                        : "cursor-pointer"
                         }`}
                 >
                     <div className="flex flex-wrap flex-auto gap-2">
@@ -177,8 +177,8 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
                                 aria-selected={selectedOptions.includes(option.value)}
                                 onClick={() => handleSelect(option.value)}
                                 className={`cursor-pointer px-3 py-2 hover:bg-primary/10 ${selectedOptions.includes(option.value)
-                                        ? "bg-primary/5 font-medium"
-                                        : ""
+                                    ? "bg-primary/5 font-medium"
+                                    : ""
                                     }`}
                             >
                                 {option.text}

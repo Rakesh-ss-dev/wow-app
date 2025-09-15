@@ -55,7 +55,6 @@ const ClientWeightGraph = ({ userId }: ClientWeightGraphProps) => {
     const getWeightGraphData = async () => {
         try {
             const res = await axiosInstance.get(`/payment/getWeightGraphData/${userId}`);
-            console.log("Weight Graph Data:", res.data);
             setWeightGraphData(res.data);
         } catch (error) {
             console.error("Error fetching weight graph data:", error);

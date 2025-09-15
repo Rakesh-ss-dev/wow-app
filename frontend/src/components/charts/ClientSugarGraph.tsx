@@ -89,7 +89,6 @@ const ClientSugarGraph = ({ userId }: ClientSugarGraphProps) => {
     const fetchSugarData = async () => {
         try {
             const res = await axiosInstance.get(`/payment/getSugarData/${userId}`);
-            console.log("Sugar Data:", res.data);
             setSugarValues(res.data);
         } catch (error) {
             console.error("Error fetching sugar data:", error);

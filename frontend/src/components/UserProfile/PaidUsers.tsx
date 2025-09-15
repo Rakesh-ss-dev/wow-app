@@ -72,6 +72,7 @@ const PaidUsers = () => {
             title={request.name}
             date={request.payed_at}
             plan={request.package.name}
+            reasons={request.reasons}
             placeButton={true}
             buttonText={"Deactivate User"}
             clickFunction={() => handleClick(request._id)}

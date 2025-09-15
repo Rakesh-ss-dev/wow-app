@@ -19,6 +19,7 @@ const router = express.Router();
 
 require("dotenv").config();
 const { google } = require("googleapis");
+const { console } = require("inspector");
 const configPath = path.join(__dirname, "../report-config.json");
 const credentialsPath = path.join(
   __dirname,
@@ -963,6 +964,21 @@ router.get("/getSugarData/:userId", authMiddleware, async (req, res) => {
     res
       .status(500)
       .json({ message: "Failed to fetch sugar graph data", error });
+  }
+});
+
+router.get("/referred_users/:userId", async (req, res) => {
+  try {
+    console.log("Fetching referred users...");
+    const { userId } = req.params;
+    console.log(userId);
+    const users = await Patient.find({ ref: userId })
+      .populate("package")
+      .exec();
+    res.json(users);
+  } catch (error) {
+    console.error("Error fetching all users:", error);
+    res.status(500).json({ message: "Failed to fetch all users", error });
   }
 });
 
