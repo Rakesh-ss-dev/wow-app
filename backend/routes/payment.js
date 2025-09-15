@@ -971,7 +971,9 @@ router.get("/referred_users/:userId", async (req, res) => {
     console.log("Fetching referred users...");
     const { userId } = req.params;
     console.log(userId);
-    const users = await Patient.find({ ref: userId })
+    const users = await Patient.find({
+      ref: userId,
+    })
       .populate("package")
       .exec();
     res.json(users);
