@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react";
 import axiosInstance from "../../api/axios";
 import Badge from "../ui/badge/Badge";
-import { Link } from "react-router";
 
 type data = {
   height: any;
