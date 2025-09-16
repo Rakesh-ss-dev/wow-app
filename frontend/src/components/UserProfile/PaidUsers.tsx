@@ -3,12 +3,15 @@ import UserCard from "./UserCard";
 import { useEffect, useState } from "react";
 import { ChartSpline } from "lucide-react";
 import Input from "../form/input/InputField";
+import { filterRequests } from "../../utils/search";
 
 const PaidUsers = () => {
   const [requests, setRequests] = useState<any[]>([]);
   const [filteredRequests, setFilteredRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+
+
   const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
   const token = localStorage.getItem("token");
   const handleClick = async (id: any) => {
@@ -52,17 +55,7 @@ const PaidUsers = () => {
   }, [SERVER_URL, token]); // ✅ FIXED
 
   useEffect(() => {
-    if (searchTerm.trim() === "") {
-      setFilteredRequests(requests);
-    } else {
-      const lowerSearchTerm = searchTerm.toLowerCase();
-      const filtered = requests.filter(
-        (request) =>
-          request.name.toLowerCase().includes(lowerSearchTerm) ||
-          request.phone.toString().includes(lowerSearchTerm)
-      );
-      setFilteredRequests(filtered);
-    }
+    setFilteredRequests(filterRequests(requests, searchTerm, ["name", "phone"]));
   }, [searchTerm, requests]);
 
   if (loading)

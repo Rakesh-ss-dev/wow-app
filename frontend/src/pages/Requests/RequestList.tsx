@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import RequestDataTable from "../../components/datatables/RequestsDataTable";
 import axios from "axios";
+import { filterRequests } from "../../utils/search";
+import Input from "../../components/form/input/InputField";
 
 interface Request {
   name: string;
@@ -21,7 +23,8 @@ const RequestList: React.FC = () => {
   const [requests, setRequests] = useState<Request[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-
+  const [filteredRequests, setFilteredRequests] = useState<any[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
   useEffect(() => {
     const token = localStorage.getItem("token");
 
@@ -51,7 +54,9 @@ const RequestList: React.FC = () => {
 
     getRequests();
   }, []);
-
+  useEffect(() => {
+    setFilteredRequests(filterRequests(requests, searchTerm, ["name", "phone"]));
+  }, [searchTerm, requests]);
   return (
     <div className="max-w-full overflow-x-auto p-4">
       <div className="flex justify-between items-center mb-4">
@@ -63,13 +68,16 @@ const RequestList: React.FC = () => {
           Add Request
         </a>
       </div>
+      <div className="w-full mb-4">
+        <Input className="w-full" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search User name or Mobile Number" />
+      </div>
 
       {loading ? (
         <p className="text-gray-600">Loading requests...</p>
       ) : error ? (
         <p className="text-red-500">{error}</p>
       ) : requests.length > 0 ? (
-        <RequestDataTable data={requests} />
+        <RequestDataTable data={filteredRequests} />
       ) : (
         <p className="text-gray-600">No requests available</p>
       )}

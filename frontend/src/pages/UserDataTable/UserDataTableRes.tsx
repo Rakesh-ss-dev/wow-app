@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import UserDataTable from "../../components/datatables/UserDataTable";
 import axios from "axios";
+import Input from "../../components/form/input/InputField";
+import { filterRequests } from "../../utils/search";
 
 // Sample data
 
@@ -9,6 +11,8 @@ const token = localStorage.getItem("token");
 const UserDataTableRes: React.FC = () => {
 
   const [users, setUsers] = useState([]);
+  const [filteredRequests, setFilteredRequests] = useState<any[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const config = {
@@ -22,6 +26,9 @@ const UserDataTableRes: React.FC = () => {
     };
     getUsers();
   }, []);
+  useEffect(() => {
+    setFilteredRequests(filterRequests(users, searchTerm, ["name", "phone"]));
+  }, [searchTerm, users]);
 
   return (
     <div className="w-full max-w-4xl">
@@ -34,7 +41,10 @@ const UserDataTableRes: React.FC = () => {
           Add Coach
         </a>
       </div>
-      <UserDataTable data={users} />
+      <div className="w-full mb-4">
+        <Input className="w-full" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search User name or Mobile Number" />
+      </div>
+      <UserDataTable data={filteredRequests} />
     </div>
   );
 };

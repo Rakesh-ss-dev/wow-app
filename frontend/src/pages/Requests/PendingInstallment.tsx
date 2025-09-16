@@ -2,6 +2,8 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import Button from "../../components/ui/button/Button";
 import formatReadableDateTime from "../../utils/formateDateTime";
+import { filterRequests } from "../../utils/search";
+import Input from "../../components/form/input/InputField";
 
 // Define the shape of an installment object
 interface Installment {
@@ -10,6 +12,7 @@ interface Installment {
   amount: number;
   dueAmount: number;
   payed_at: string;
+  phone: string;
 }
 
 
@@ -19,6 +22,8 @@ const PendingInstallment = () => {
   const [installments, setInstallments] = useState<Installment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [filteredRequests, setFilteredRequests] = useState<any[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const sendRequest = async (id: string, dueAmount: number) => {
     try {
       const response = await axios.post(
@@ -60,7 +65,9 @@ const PendingInstallment = () => {
 
     getData();
   }, [SERVER_URL, token]);
-
+  useEffect(() => {
+    setFilteredRequests(filterRequests(installments, searchTerm, ["name", "phone"]));
+  }, [searchTerm, installments]);
   if (loading) return <p className="text-gray-600">Loading...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
 
@@ -71,6 +78,9 @@ const PendingInstallment = () => {
         <p className="text-gray-500">No pending installments.</p>
       ) : (
         <div className="overflow-x-auto">
+          <div className="w-full mb-4">
+            <Input className="w-full" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search User name or Mobile Number" />
+          </div>
           <table className="min-w-full text-center shadow-md rounded-lg overflow-hidden">
             <thead className="bg-brand-500 text-gray-700">
               <tr className="text-white text-sm font-medium">
@@ -83,7 +93,7 @@ const PendingInstallment = () => {
               </tr>
             </thead>
             <tbody>
-              {installments.map((item) => {
+              {filteredRequests.map((item) => {
                 return (
                   <tr
                     key={item._id}
