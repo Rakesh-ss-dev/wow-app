@@ -700,14 +700,14 @@ router.get("/get-installments", authMiddleware, async (req, res) => {
         installment: "Installment 1",
         dueAmount: { $gt: 0 },
         status: { $in: ["paid", "active", "old"] },
-      });
+      }).populate("package", "name amount");
     } else {
       requests = await Patient.find({
         installment: "Installment 1",
         createdBy: userData._id,
         dueAmount: { $gt: 0 },
         status: { $in: ["paid", "active", "old"] },
-      });
+      }).populate("package", "name amount");
     }
     res.json({ success: true, installments: requests });
   } catch (err) {

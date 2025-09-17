@@ -45,25 +45,30 @@ const PendingInstallment = () => {
   };
 
   useEffect(() => {
-    const getData = async () => {
+    const fetchInstallments = async () => {
       try {
-        const response = await axios.get(
-          `${SERVER_URL}/payment/get-installments`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        const response = await axios.get(`${SERVER_URL}/payment/get-installments`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
-        setInstallments(response.data?.installments || []);
-      } catch (err: any) {
+        const installmentsData: Installment[] = response.data?.installments || [];
+
+        // ✅ Sort descending by created date (latest first)
+        const sortedData = installmentsData.sort((a, b) => {
+          const dateA = new Date(a.payed_at).getTime();
+          const dateB = new Date(b.payed_at).getTime();
+          return dateB - dateA; // descending order
+        });
+
+        setInstallments(sortedData);
+      } catch (err) {
         console.error("Error fetching installments:", err);
         setError("Failed to fetch installments.");
       } finally {
         setLoading(false);
       }
     };
-
-    getData();
+    fetchInstallments();
   }, [SERVER_URL, token]);
   useEffect(() => {
     setFilteredRequests(filterRequests(installments, searchTerm, ["name", "phone"]));
@@ -87,8 +92,9 @@ const PendingInstallment = () => {
                 <th className="px-6 py-3 ">Name</th>
                 <th className="px-6 py-3">Amount</th>
                 <th className="px-6 py-3">Paid Amount</th>
-                <th className="px-6 py-3">Paid At</th>
                 <th className="px-6 py-3">Due Amount</th>
+                <th className="px-6 py-3">Paid At</th>
+
                 <th className="px-6 py-3">Request Pending Installment</th>
               </tr>
             </thead>
@@ -99,15 +105,20 @@ const PendingInstallment = () => {
                     key={item._id}
                     className="border-b text-sm text-gray-600 hover:bg-gray-50"
                   >
+
                     <td className="px-6 py-4 ">{item.name}</td>
-                    <td className="px-6 py-4">{item.amount}</td>
                     <td className="px-6 py-4">
-                      {(item.amount - item.dueAmount).toFixed(2)}
+                      {item.package?.amount
+                        ? ((item.package.amount - (item.package.amount * (Number(item.discount ?? 0) / 100))) +
+                          ((item.package.amount - (item.package.amount * (Number(item.discount ?? 0) / 100))) * 0.18)).toLocaleString()
+                        : "—"}
                     </td>
+                    <td className="px-6 py-4">{item.amount}</td>
+                    <td className="px-6 py-4">{item.dueAmount.toFixed(2)}</td>
                     <td className="px-6 py-4">
                       {formatReadableDateTime(item.payed_at)}
                     </td>
-                    <td className="px-6 py-4">{item.dueAmount.toFixed(2)}</td>
+
                     <td className="px-6 py-4 text-center">
                       <Button
                         onClick={() => sendRequest(item._id, item.dueAmount)}
