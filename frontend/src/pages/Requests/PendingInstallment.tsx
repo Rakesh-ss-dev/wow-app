@@ -109,8 +109,10 @@ const PendingInstallment = () => {
                     <td className="px-6 py-4 ">{item.name}</td>
                     <td className="px-6 py-4">
                       {item.package?.amount
-                        ? ((item.package.amount - (item.package.amount * (Number(item.discount ?? 0) / 100))) +
-                          ((item.package.amount - (item.package.amount * (Number(item.discount ?? 0) / 100))) * 0.18)).toLocaleString()
+                        ? (
+                          (item.package.amount - (item.package.amount * (Number(item.discount ?? 0) / 100))) +
+                          ((item.package.amount - (item.package.amount * (Number(item.discount ?? 0) / 100))) * 0.18)
+                        ).toFixed(2)
                         : "—"}
                     </td>
                     <td className="px-6 py-4">{item.amount}</td>
