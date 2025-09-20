@@ -7,6 +7,7 @@ const PatientSchema = new mongoose.Schema(
     name: { type: String, required: true, trim: true },
     countryCode: { type: String, default: "+91", trim: true },
     phone: { type: String, required: true, trim: true },
+    city: { type: String, default: "", trim: true },
     paymentId: { type: String, required: false, unique: true, sparse: true },
     package: { type: mongoose.Schema.Types.ObjectId, ref: "Package" },
     discount: { type: Number, default: 0 },

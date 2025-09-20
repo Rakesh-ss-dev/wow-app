@@ -55,6 +55,7 @@ const CreateRequest: React.FC = () => {
   const [programStartDate, setProgramStartDate] = useState("");
   const [referrerPhone, setReferrerPhone] = useState('');
   const [cause, setCause] = useState<string[]>([]);
+  const [city, setCity] = useState('');
   // Calculations
   const [price, setPrice] = useState(0);
   const [discountAmount, setDiscountAmount] = useState(0);
@@ -164,6 +165,7 @@ const CreateRequest: React.FC = () => {
         name,
         phone,
         countryCode,
+        city,
         category, // MUST match Package.name in DB
         discount: Number(discount) || 0,
         finalAmount: Number(finalAmount.toFixed(2)),
@@ -213,34 +215,50 @@ const CreateRequest: React.FC = () => {
             Initiate Payment
           </h3>
           <form className="space-y-4" onSubmit={handleSubmit}>
-            <Input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" required />
+            <div>
+              <Input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" required />
+              {name === "" && <p className="text-red-400 text-sm">Name is required</p>}
+            </div>
             <div className="flex gap-3">
               <div className="w-1/4">
                 <Input type="text" value={countryCode} onChange={(e) => setCountryCode(e.target.value)} placeholder="Country Code" required />
               </div>
               <div className="w-3/4">
                 <Input type="text" value={phone} onChange={(e) => validateMobile(e.target.value)} placeholder="Phone" required />
+                {!isPhoneValid && phone !== "" && <p className="text-red-400 text-sm">Invalid phone number</p>}
               </div>
             </div>
-
+            <div>
+              <Input type="text" value={city} onChange={(e) => setCity(e.target.value)} placeholder="City" required />
+              {city === "" && <p className="text-red-400 text-sm">City is required</p>}
+            </div>
             {/* Your Select should pass back the selected .value string */}
-            <Select options={options} onChange={validateSelect} />
-            <Input
-              type="number"
-              min="0"
-              max="100"
-              value={discount}
-              onChange={(e) => setDiscount(e.target.value)}
-              placeholder="Discount (%)"
-              step=".01"
-            />
-            <Input
-              type="date"
-              placeholder="Program Start Date"
-              value={programStartDate}
-              min={new Date().toISOString().split("T")[0]}
-              onChange={(e) => setProgramStartDate(e.target.value)}
-            />
+            <div>
+              <Select options={options} onChange={validateSelect} />
+              {!isCategoryValid && <p className="text-red-400 text-sm">Please select a category</p>}
+            </div>
+            <div>
+              <Input
+                type="number"
+                min="0"
+                max="100"
+                value={discount}
+                onChange={(e) => setDiscount(e.target.value)}
+                placeholder="Discount (%)"
+                step=".01"
+              />
+
+            </div>
+            <div>
+              <Input
+                type="date"
+                placeholder="Program Start Date"
+                value={programStartDate}
+                min={new Date().toISOString().split("T")[0]}
+                onChange={(e) => setProgramStartDate(e.target.value)}
+              />
+
+            </div>
             <Input type="text" value={referrerPhone} onChange={e => setReferrerPhone(e.target.value)} placeholder="Referred User Mobile Number" />
             <div>
               <MultiSelect
@@ -248,6 +266,7 @@ const CreateRequest: React.FC = () => {
                 options={causeOptions}
                 onChange={(selected) => validateCauses(selected)}
               />
+              {!isCauseValid && <p className="text-red-400 text-sm">Please select at least one cause</p>}
             </div>
             <Checkbox checked={isInstallmentChecked} onChange={changeInstallmentCheck} label="Installment" />
             {isInstallmentChecked && (
@@ -258,7 +277,7 @@ const CreateRequest: React.FC = () => {
                 placeholder="Installment Amount"
               />
             )}
-            <Button type="submit" disabled={!isPhoneValid || !isCategoryValid || !name || !isCauseValid}>
+            <Button type="submit" disabled={!isPhoneValid || !isCategoryValid || !name || !isCauseValid || !city || loading} className="w-full mt-2">
               {loading ? "Processing..." : "Send Payment Link"}
             </Button>
           </form>

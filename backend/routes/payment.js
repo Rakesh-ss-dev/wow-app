@@ -75,6 +75,7 @@ router.post("/create-payment-link", authMiddleware, async (req, res) => {
   try {
     const {
       name,
+      city,
       phone,
       category,
       discount,
@@ -132,6 +133,7 @@ router.post("/create-payment-link", authMiddleware, async (req, res) => {
       name,
       phone,
       countryCode,
+      city,
       package: category_from_db,
       paymentId: order.id,
       discount: Number(discount) || 0,
