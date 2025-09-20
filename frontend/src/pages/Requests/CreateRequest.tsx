@@ -48,6 +48,7 @@ const causeOptions = [
 const CreateRequest: React.FC = () => {
   // Form fields
   const [name, setName] = useState("");
+  const [countryCode, setCountryCode] = useState("+91");
   const [phone, setPhone] = useState("");
   const [category, setCategory] = useState("");
   const [discount, setDiscount] = useState<string>("");
@@ -66,6 +67,7 @@ const CreateRequest: React.FC = () => {
   const [isPhoneValid, setIsPhoneValid] = useState(false);
   const [isCategoryValid, setIsCategoryValid] = useState(false);
   const [isInstallmentChecked, setIsInstallmentChecked] = useState(false);
+  const [isCauseValid, setIsCauseValid] = useState(false);
   const [paymentLink, setPaymentLink] = useState("");
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -96,8 +98,8 @@ const CreateRequest: React.FC = () => {
 
   // Mobile validation (India)
   const validateMobile = (number: string) => {
-    const mobilePattern = /^[6-9]\d{9}$/;
-    const cleaned = number.replace(/\s+/g, "");
+    const cleaned = number.replace(/\D/g, "");
+    const mobilePattern = /^\d{6,15}$/;
     setIsPhoneValid(mobilePattern.test(cleaned));
     setPhone(cleaned);
   };
@@ -107,7 +109,10 @@ const CreateRequest: React.FC = () => {
     setIsCategoryValid(!!value);
     setCategory(value);
   };
-
+  const validateCauses = (selected: string[]) => {
+    setIsCauseValid(selected.length > 0);
+    setCause(selected);
+  }
   // Toggle installment
   const changeInstallmentCheck = () => {
     setIsInstallmentChecked((prev) => {
@@ -158,6 +163,7 @@ const CreateRequest: React.FC = () => {
       let data: any = {
         name,
         phone,
+        countryCode,
         category, // MUST match Package.name in DB
         discount: Number(discount) || 0,
         finalAmount: Number(finalAmount.toFixed(2)),
@@ -208,7 +214,15 @@ const CreateRequest: React.FC = () => {
           </h3>
           <form className="space-y-4" onSubmit={handleSubmit}>
             <Input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" required />
-            <Input type="text" value={phone} onChange={(e) => validateMobile(e.target.value)} placeholder="Phone" required />
+            <div className="flex gap-3">
+              <div className="w-1/4">
+                <Input type="text" value={countryCode} onChange={(e) => setCountryCode(e.target.value)} placeholder="Country Code" required />
+              </div>
+              <div className="w-3/4">
+                <Input type="text" value={phone} onChange={(e) => validateMobile(e.target.value)} placeholder="Phone" required />
+              </div>
+            </div>
+
             {/* Your Select should pass back the selected .value string */}
             <Select options={options} onChange={validateSelect} />
             <Input
@@ -232,7 +246,7 @@ const CreateRequest: React.FC = () => {
               <MultiSelect
                 label="Reason for joining"
                 options={causeOptions}
-                onChange={(selected) => setCause(selected)}
+                onChange={(selected) => validateCauses(selected)}
               />
             </div>
             <Checkbox checked={isInstallmentChecked} onChange={changeInstallmentCheck} label="Installment" />
@@ -244,7 +258,7 @@ const CreateRequest: React.FC = () => {
                 placeholder="Installment Amount"
               />
             )}
-            <Button type="submit" disabled={!isPhoneValid || !isCategoryValid || !name}>
+            <Button type="submit" disabled={!isPhoneValid || !isCategoryValid || !name || !isCauseValid}>
               {loading ? "Processing..." : "Send Payment Link"}
             </Button>
           </form>

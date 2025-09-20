@@ -84,6 +84,7 @@ router.post("/create-payment-link", authMiddleware, async (req, res) => {
       programStartDate,
       cause,
       referrerPhone,
+      countryCode,
     } = req.body;
 
     // 1) Validate package exists
@@ -113,7 +114,7 @@ router.post("/create-payment-link", authMiddleware, async (req, res) => {
       description,
       customer: {
         name,
-        contact: `+91${phone}`, // keep as-is per your flow
+        contact: `${countryCode}${phone}`, // keep as-is per your flow
       },
       notify: { sms: true, email: true, whatsapp: true },
       reminder_enable: true,
@@ -130,6 +131,7 @@ router.post("/create-payment-link", authMiddleware, async (req, res) => {
     const patient = new Patient({
       name,
       phone,
+      countryCode,
       package: category_from_db,
       paymentId: order.id,
       discount: Number(discount) || 0,
