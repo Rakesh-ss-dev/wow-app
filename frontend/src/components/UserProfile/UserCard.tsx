@@ -53,7 +53,7 @@ const UserCard: React.FC<UserCardProps> = ({
             </div>
           </>)}
           {city && (
-            <div className="mt-4 flex items-center "> <Home /> {city} </div>
+            <div className="mt-4 flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400"> <Home /> {city} </div>
           )}
         </div>
 
