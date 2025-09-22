@@ -97,26 +97,38 @@ const ClientHealthCard: React.FC<ClientHealthCardProp> = ({ userId }) => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 p-4">
-      <div className="rounded-2xl shadow-md col-span-full">
-        <h2 className="bg-brand-500 text-white rounded-t-2xl p-3">
-          General Info
-        </h2>
+      <div className="flex gap-4 md:gap-6 mb-6 md:mb-0 md:col-span-3">
+        <div className="rounded-2xl shadow-md col-span-full w-1/2">
+          <h2 className="bg-brand-500 text-white rounded-t-2xl p-3">
+            General Info
+          </h2>
 
-        <div className="p-6 flex flex-col md:flex-row justify-between">
-          <div>
-            <p className="mb-2">Name: {userData?.name}</p>
-            <p className="mb-2">Phone: {userData?.phone}</p>
-            <p className="mb-2">Package: {userData?.package?.name}</p>
-
-            {userData?.activated_at && <p className="mb-2">Active From: {new Date(userData?.activated_at).toLocaleDateString()}</p>}
-          </div>
-          {referred.length > 0 &&
+          <div className="p-6 flex flex-col md:flex-row justify-between">
             <div>
-              Referred Users:
+              <p className="mb-2">Name: {userData?.name}</p>
+              <p className="mb-2">Phone: {userData?.phone}</p>
+              <p className="mb-2">Package: {userData?.package?.name}</p>
+
+              {userData?.activated_at && <p className="mb-2">Active From: {new Date(userData?.activated_at).toLocaleDateString()}</p>}
+            </div>
+          </div>
+
+        </div>
+        <div className="rounded-2xl shadow-md col-span-full w-1/2">
+          <h2 className="bg-brand-500 text-white rounded-t-2xl p-3">
+            Referred Users: {referred.length}
+          </h2>
+
+          <div className="p-6 flex flex-col md:flex-row justify-between">
+            <div>
               <div className="flex flex-wrap gap-2 mt-2">
-                {referred.map((user: any) => <Badge key={user._id}><a href={`${user._id}`}>{user.name}</a></Badge>)}
+                {referred.length > 0 &&
+                  referred.map((user: any) => <Badge key={user._id}><a href={`${user._id}`}>{user.name}</a></Badge>)}
               </div>
-            </div>}
+
+            </div>
+          </div>
+
         </div>
       </div>
       {referred.length > 0 && (

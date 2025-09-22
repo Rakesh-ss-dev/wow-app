@@ -10,6 +10,8 @@ interface Request {
   package: {
     name: string;
   };
+  city: string;
+  _id: string;
   createdAt: string;
   payed_at: string;
   createdBy?: {
@@ -55,7 +57,7 @@ const PendingRequestList: React.FC = () => {
     getRequests();
   }, []);
   useEffect(() => {
-    setFilteredRequests(filterRequests(requests, searchTerm, ["name", "phone"]));
+    setFilteredRequests(filterRequests(requests, searchTerm, ["name", "phone", "city"]));
   }, [searchTerm, requests]);
   return (
     <div className="max-w-full overflow-x-auto p-4">

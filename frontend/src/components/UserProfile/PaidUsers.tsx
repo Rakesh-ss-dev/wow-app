@@ -10,8 +10,6 @@ const PaidUsers = () => {
   const [filteredRequests, setFilteredRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-
-
   const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
   const token = localStorage.getItem("token");
   const handleClick = async (id: any) => {
@@ -55,7 +53,7 @@ const PaidUsers = () => {
   }, [SERVER_URL, token]); // ✅ FIXED
 
   useEffect(() => {
-    setFilteredRequests(filterRequests(requests, searchTerm, ["name", "phone"]));
+    setFilteredRequests(filterRequests(requests, searchTerm, ["name", "phone", "city"]));
   }, [searchTerm, requests]);
 
   if (loading)
@@ -88,6 +86,7 @@ const PaidUsers = () => {
               plan={request.package.name}
               reasons={request.reasons}
               placeButton={true}
+              city={request.city}
               buttonText={"Deactivate User"}
               clickFunction={() => handleClick(request._id)}
             />

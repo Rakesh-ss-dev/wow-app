@@ -1,4 +1,5 @@
 
+import { Home } from "lucide-react";
 import { CalenderIcon } from "../../icons";
 import formatReadableDate from "../../utils/formateDate";
 import Badge from "../ui/badge/Badge";
@@ -12,6 +13,7 @@ interface UserCardProps {
   placeButton: boolean;
   clickFunction: any;
   reasons?: string[];
+  city?: string;
 }
 
 const UserCard: React.FC<UserCardProps> = ({
@@ -22,6 +24,7 @@ const UserCard: React.FC<UserCardProps> = ({
   placeButton,
   clickFunction,
   reasons = [],
+  city,
 }) => {
   return (
     <div className="relative h-full p-5 bg-white border border-gray-200 task rounded-xl shadow-theme-sm dark:border-gray-800 dark:bg-white/5">
@@ -49,6 +52,9 @@ const UserCard: React.FC<UserCardProps> = ({
               ))}
             </div>
           </>)}
+          {city && (
+            <div className="mt-4"> <Home /> {city} </div>
+          )}
         </div>
 
 

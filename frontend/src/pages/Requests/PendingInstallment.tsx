@@ -13,6 +13,7 @@ interface Installment {
   dueAmount: number;
   payed_at: string;
   phone: string;
+  city: string;
 }
 
 
@@ -71,7 +72,7 @@ const PendingInstallment = () => {
     fetchInstallments();
   }, [SERVER_URL, token]);
   useEffect(() => {
-    setFilteredRequests(filterRequests(installments, searchTerm, ["name", "phone"]));
+    setFilteredRequests(filterRequests(installments, searchTerm, ["name", "phone", "city"]));
   }, [searchTerm, installments]);
   if (loading) return <p className="text-gray-600">Loading...</p>;
   if (error) return <p className="text-red-500">{error}</p>;

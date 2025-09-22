@@ -27,7 +27,7 @@ const UserDataTableRes: React.FC = () => {
     getUsers();
   }, []);
   useEffect(() => {
-    setFilteredRequests(filterRequests(users, searchTerm, ["name", "phone"]));
+    setFilteredRequests(filterRequests(users, searchTerm, ["name", "phone", "city"]));
   }, [searchTerm, users]);
 
   return (

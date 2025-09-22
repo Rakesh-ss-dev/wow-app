@@ -8,6 +8,7 @@ type Request = {
     _id: string;
     name: string;
     phone: string;
+    city: string;
     createdBy?: {
         name: string;
     };
@@ -33,7 +34,7 @@ const SelfRegistered = () => {
         fetchRequests();
     }, []); // fetch once on mount
     useEffect(() => {
-        setFilteredRequests(filterRequests(requests, searchTerm, ["name", "phone"]));
+        setFilteredRequests(filterRequests(requests, searchTerm, ["name", "phone", "city"]));
     }, [searchTerm, requests]);
     return (
         <div className="p-6">
