@@ -86,6 +86,7 @@ router.post("/create-payment-link", authMiddleware, async (req, res) => {
       cause,
       referrerPhone,
       countryCode,
+      tax,
     } = req.body;
 
     // 1) Validate package exists
@@ -97,7 +98,7 @@ router.post("/create-payment-link", authMiddleware, async (req, res) => {
     }
 
     // 2) Build description + amount (in subunits)
-    let description = `Payment for ${category_from_db.name} | Tax: 18% `;
+    let description = `Payment for ${category_from_db.name} | Tax: 5% `;
     let amount =
       tobePaid && parseFloat(tobePaid) > 0
         ? parseFloat(tobePaid) * 100
@@ -143,6 +144,7 @@ router.post("/create-payment-link", authMiddleware, async (req, res) => {
       programStartDate,
       cause,
       ref,
+      tax,
       dueAmount:
         Number(tobePaid) === 0
           ? 0
@@ -172,7 +174,7 @@ router.post("/request-installment", authMiddleware, async (req, res) => {
         .json({ success: false, message: "Patient not found" });
     }
     const categoryfromdb = await Package.findById(patient.package);
-    let description = `Payment for your Golden 90 ${categoryfromdb.name} | Tax: 18%`;
+    let description = `Payment for your Golden 90 ${categoryfromdb.name} | Tax: 5%`;
     let amount = dueAmount.toFixed(2) * 100;
     if (patient.discount > 0) {
       description += ` | Discount: ${patient.discount}%`;
@@ -205,6 +207,7 @@ router.post("/request-installment", authMiddleware, async (req, res) => {
       installment: "Installment 2",
       createdBy: req.user,
       amount: patient.amount,
+      tax: patient.tax ? patient.tax : 0.05,
       dueAmount: 0,
       ref: id,
     });
@@ -259,7 +262,7 @@ router.post("/success", async (req, res) => {
         amount = parseFloat(payment.package.amount || 0).toFixed(2);
         discount = parseFloat(payment.discount || 0).toFixed(2);
         discountAmount = (amount * (discount / 100)).toFixed(2);
-        taxAmount = ((amount - discountAmount) * 0.18).toFixed(2);
+        taxAmount = ((amount - discountAmount) * payment.tax).toFixed(2);
       } catch (err) {
         console.error("Error calculating amounts:", err);
         return res
@@ -385,7 +388,7 @@ router.post("/generate-invoice", async (req, res) => {
     const discount = payment.discount.toFixed(2);
     const discountAmount = (amount * (discount / 100)).toFixed(2);
     const tempAmount = (amount - discountAmount).toFixed(2);
-    const taxAmount = (tempAmount * 0.18).toFixed(2);
+    const taxAmount = (tempAmount * payment.tax).toFixed(2);
     const finalAmount = (
       parseFloat(amount) -
       parseFloat(discountAmount) +
@@ -489,6 +492,7 @@ router.post("/user-status", async (req, res) => {
               "PaymentID",
               "Package",
               "Discount",
+              "Tax",
               "Created_Date",
               "Paid_Date",
               "Currency",
@@ -527,6 +531,9 @@ router.post("/user-status", async (req, res) => {
             reqItem.paymentId || "",
             reqItem.package?.name || "",
             reqItem.discount !== undefined ? `${reqItem.discount}%` : "",
+            reqItem.tax !== undefined
+              ? `${(reqItem.tax * 100).toFixed(2)}%`
+              : "",
             reqItem.createdAt
               ? new Date(reqItem.createdAt).toLocaleDateString("en-IN")
               : "",
@@ -536,20 +543,20 @@ router.post("/user-status", async (req, res) => {
             reqItem.currency || "",
 
             amountINR,
-            `=ROUND(J${rowNum}*1.18 - J${rowNum}, 2)`,
-            `=ROUND(J${rowNum}*0.0275, 2)`,
-            `=ROUND((J${rowNum}-K${rowNum}-L${rowNum})*0.3, 2)`,
-            `=ROUND((J${rowNum}-K${rowNum}-L${rowNum})*0.7, 2)`,
-            `=ROUND(N${rowNum}*0.02, 2)`,
-            `=ROUND(N${rowNum}-O${rowNum}, 2)`,
+            `=ROUND(K${rowNum}*${1 + Number(reqItem.tax)} - K${rowNum}, 2)`,
+            `=ROUND(K${rowNum}*0.0275, 2)`,
+            `=ROUND((K${rowNum}-L${rowNum}-M${rowNum})*0.3, 2)`,
+            `=ROUND((K${rowNum}-L${rowNum}-M${rowNum})*0.7, 2)`,
+            `=ROUND(O${rowNum}*0.02, 2)`,
+            `=ROUND(O${rowNum}-P${rowNum}, 2)`,
 
             amountUSD,
-            `=ROUND(Q${rowNum}*1.18 - Q${rowNum}, 2)`,
-            `=ROUND(Q${rowNum}*0.0275, 2)`,
-            `=ROUND((Q${rowNum}-R${rowNum}-S${rowNum})*0.3, 2)`,
-            `=ROUND((Q${rowNum}-R${rowNum}-S${rowNum})*0.7, 2)`,
-            `=ROUND(U${rowNum}*0.02, 2)`,
-            `=ROUND(U${rowNum}-V${rowNum}, 2)`,
+            `=ROUND(R${rowNum}*${1 + Number(reqItem.tax)} - R${rowNum}, 2)`,
+            `=ROUND(R${rowNum}*0.0275, 2)`,
+            `=ROUND((R${rowNum}-S${rowNum}-T${rowNum})*0.3, 2)`,
+            `=ROUND((R${rowNum}-S${rowNum}-T${rowNum})*0.7, 2)`,
+            `=ROUND(V${rowNum}*0.02, 2)`,
+            `=ROUND(V${rowNum}-W${rowNum}, 2)`,
           ]);
         }
 
@@ -567,14 +574,15 @@ router.post("/user-status", async (req, res) => {
           "",
           "",
           "",
+          "",
           "INR",
-          `=SUM(J${startRow}:J${endRow})`,
           `=SUM(K${startRow}:K${endRow})`,
           `=SUM(L${startRow}:L${endRow})`,
           `=SUM(M${startRow}:M${endRow})`,
           `=SUM(N${startRow}:N${endRow})`,
           `=SUM(O${startRow}:O${endRow})`,
           `=SUM(P${startRow}:P${endRow})`,
+          `=SUM(Q${startRow}:Q${endRow})`,
           "",
           "",
           "",
@@ -594,6 +602,7 @@ router.post("/user-status", async (req, res) => {
           "",
           "",
           "",
+          "",
           "USD",
           "",
           "",
@@ -602,13 +611,13 @@ router.post("/user-status", async (req, res) => {
           "",
           "",
           "",
-          `=SUM(Q${startRow}:Q${endRow})`,
           `=SUM(R${startRow}:R${endRow})`,
           `=SUM(S${startRow}:S${endRow})`,
           `=SUM(T${startRow}:T${endRow})`,
           `=SUM(U${startRow}:U${endRow})`,
           `=SUM(V${startRow}:V${endRow})`,
           `=SUM(W${startRow}:W${endRow})`,
+          `=SUM(X${startRow}:X${endRow})`,
         ]);
 
         rows.push([]);

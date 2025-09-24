@@ -26,6 +26,7 @@ const PatientSchema = new mongoose.Schema(
     activated_at: { type: Date },
     programStartDate: { type: Date },
     dueAmount: { type: Number, default: 0 },
+    tax: { type: Number, default: 0.18 },
     cause: { type: [String], default: [] },
     ref: {
       type: mongoose.Schema.Types.ObjectId,

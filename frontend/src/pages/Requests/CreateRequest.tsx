@@ -12,6 +12,7 @@ import Input from "../../components/form/input/InputField";
 import Select from "../../components/form/Select";
 import Checkbox from "../../components/form/input/Checkbox";
 import MultiSelect from "../../components/form/MutiSelect";
+import axiosInstance from "../../api/axios";
 
 const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
 
@@ -22,20 +23,8 @@ interface Option {
 }
 
 // Make sure each `value` EXACTLY equals the Package.name stored in DB
-const options: Option[] = [
-  { label: "Golden 90 - 9,110", value: "Basic", price: 9110 },
-  { label: "Golden 90 Premium - 11,665", value: "Premium", price: 11665 },
-  { label: "Golden 90 Elite - 16,665", value: "Elite", price: 16665 },
-  { label: "Golden 90 Couple - 12,833", value: "Couple", price: 12833 },
-  { label: "Golden 90-Premium Couple - 16,448", value: "Premium_Couple", price: 16448 },
-  { label: "Golden 90 Elite Couple - 23,498", value: "Elite_Couple", price: 23498 },
-  { label: "Golden 90 International (USA) - $200", value: "International_USA", price: 200 },
-  { label: "International Premium (USA) - $300", value: "International_300", price: 300 },
-  { label: "International Elite (USA) - $400", value: "International_400", price: 400 },
-  { label: "DHMPC - DIAMOND HEALTH MASTERY PLAN - 24999", value: "DHMPC", price: 24999 },
-  { label: "DHMPC - DIAMOND HEALTH MASTERY PLAN for COUPLE - 39999", value: "DHMPC_Couple", price: 39999 },
-  { label: "WG5 Course - 9999", value: "WG5_Course", price: 9999 },
-];
+
+
 
 const causeOptions = [
   { text: "Weight Loss", value: "Weight Loss", selected: false },
@@ -63,7 +52,7 @@ const CreateRequest: React.FC = () => {
   const [finalAmount, setFinalAmount] = useState(0);
   const [installmentAmount, setInstallmentAmount] = useState<number>(0);
   const [installment, setInstallment] = useState("");
-
+  const [optionsState, setOptionsState] = useState<Option[]>([]);
   // UI state
   const [isPhoneValid, setIsPhoneValid] = useState(false);
   const [isCategoryValid, setIsCategoryValid] = useState(false);
@@ -72,7 +61,7 @@ const CreateRequest: React.FC = () => {
   const [paymentLink, setPaymentLink] = useState("");
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
-
+  const taxPercent = 0.05;
   // Clipboard fallback
   const copyFallback = (text: string) => {
     const textarea = document.createElement("textarea");
@@ -84,7 +73,23 @@ const CreateRequest: React.FC = () => {
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
-
+  const fetchPackages = async () => {
+    try {
+      const res = await axiosInstance.get(`/package/get-packages`);
+      const packages = res.data.packages;
+      const formattedOptions = packages.map((pkg: any) => ({
+        label: `${pkg.name} - ${pkg.currency} ${pkg.amount}`,
+        value: pkg.name,
+        price: pkg.amount,
+      }));
+      setOptionsState(formattedOptions);
+    } catch (err) {
+      console.error("Error fetching packages:", err);
+    }
+  };
+  useEffect(() => {
+    fetchPackages();
+  }, []);
   const copyToClipboard = async () => {
     if (!paymentLink) return console.error("No payment link available");
     try {
@@ -130,12 +135,12 @@ const CreateRequest: React.FC = () => {
 
   // Recalculate totals
   useEffect(() => {
-    const selected = options.find((o) => o.value === category);
+    const selected = optionsState.find((o) => o.value === category);
     if (!selected) return;
 
     const base = selected.price;
     const disc = base * (Number(discount || 0) / 100);
-    const tx = (base - disc) * 0.18;
+    const tx = (base - disc) * taxPercent;
     const total = base - disc + tx;
 
     setPrice(base);
@@ -171,7 +176,8 @@ const CreateRequest: React.FC = () => {
         finalAmount: Number(finalAmount.toFixed(2)),
         programStartDate,
         cause,
-        referrerPhone
+        referrerPhone,
+        tax: taxPercent
       };
 
       if (isInstallmentChecked) {
@@ -234,7 +240,7 @@ const CreateRequest: React.FC = () => {
             </div>
             {/* Your Select should pass back the selected .value string */}
             <div>
-              <Select options={options} onChange={validateSelect} />
+              <Select options={optionsState} onChange={validateSelect} />
               {!isCategoryValid && <p className="text-red-400 text-sm">Please select a category</p>}
             </div>
             <div>
@@ -309,7 +315,7 @@ const CreateRequest: React.FC = () => {
               <TableCell className="px-4 py-3">{discountAmount.toFixed(2)}</TableCell>
             </TableRow>
             <TableRow>
-              <TableCell className="px-4 py-3 text-gray-500 text-start">Tax (18%)</TableCell>
+              <TableCell className="px-4 py-3 text-gray-500 text-start">Tax (5%)</TableCell>
               <TableCell className="px-4 py-3">{tax.toFixed(2)}</TableCell>
             </TableRow>
             <TableRow>

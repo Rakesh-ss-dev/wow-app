@@ -112,7 +112,7 @@ const PendingInstallment = () => {
                       {item.package?.amount
                         ? (
                           (item.package.amount - (item.package.amount * (Number(item.discount ?? 0) / 100))) +
-                          ((item.package.amount - (item.package.amount * (Number(item.discount ?? 0) / 100))) * 0.18)
+                          ((item.package.amount - (item.package.amount * (Number(item.discount ?? 0) / 100))) * item.tax)
                         ).toFixed(2)
                         : "—"}
                     </td>
