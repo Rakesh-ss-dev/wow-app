@@ -401,7 +401,7 @@ router.post("/generate-invoice", async (req, res) => {
     } else {
       paymentStatus = req.body.razorpay_payment_link_status;
     }
-    image = await loadImage("invoice/Invoice.jpg");
+    image = await loadImage("invoice/WowInvoice.jpg");
     const invoiceData = [
       { text: req.body.razorpay_payment_id, x: 240, y: 465 },
       { text: paymentDate, x: 130, y: 490 },

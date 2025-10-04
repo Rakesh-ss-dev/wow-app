@@ -221,14 +221,15 @@ const RequestDataTable: React.FC<RequestDataTableProps> = ({ data }) => {
                     {requestDetails.package.name}
                   </TableCell>
                 </TableRow>
-                <TableRow>
+
+                {requestDetails.discount > 0 && <TableRow>
                   <TableCell className="px-4 py-3 sm:px-6 text-start">
                     Discount
                   </TableCell>
                   <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                     {requestDetails.discount}%
                   </TableCell>
-                </TableRow>
+                </TableRow>}
                 <TableRow>
                   <TableCell className="px-4 py-3 sm:px-6 text-start">
                     Amount Paid
