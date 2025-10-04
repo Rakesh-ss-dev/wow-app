@@ -401,36 +401,36 @@ router.post("/generate-invoice", async (req, res) => {
     } else {
       paymentStatus = req.body.razorpay_payment_link_status;
     }
-    image = await loadImage("invoice/WowInvoice.jpg");
+    image = await loadImage("invoice/WowInvoice@2x-100.jpg");
     const invoiceData = [
-      { text: req.body.razorpay_payment_id, x: 240, y: 465 },
-      { text: paymentDate, x: 130, y: 490 },
-      { text: "1", x: 90, y: 730 },
-      { text: paymentDate, x: 200, y: 730 },
-      { text: payment.package.name, x: 450, y: 730 },
-      { text: "1", x: 730, y: 730 },
-      { text: amount, x: 880, y: 730 },
-      { text: amount, x: 800, y: 880 },
-      { text: discountAmount, x: 800, y: 915 },
-      { text: tempAmount, x: 800, y: 970 },
-      { text: taxAmount, x: 800, y: 1005 },
-      { text: finalAmount, x: 800, y: 1060 },
-      { text: finalAmount, x: 800, y: 1095 },
-      { text: "1", x: 150, y: 1300 },
-      { text: finalAmount, x: 430, y: 1300 },
-      { text: paymentDate, x: 660, y: 1300 },
-      { text: paymentStatus, x: 880, y: 1300 },
+      { text: req.body.razorpay_payment_id, x: 500, y: 930 },
+      { text: paymentDate, x: 265, y: 985 },
+      { text: "1", x: 190, y: 1450 },
+      { text: paymentDate, x: 330, y: 1450 },
+      { text: payment.package.name, x: 750, y: 1450 },
+      { text: "1", x: 1480, y: 1450 },
+      { text: amount, x: 1750, y: 1450 },
+      { text: amount, x: 1650, y: 1760 },
+      { text: discountAmount, x: 1650, y: 1835 },
+      { text: tempAmount, x: 1650, y: 1935 },
+      { text: taxAmount, x: 1650, y: 2010 },
+      { text: finalAmount, x: 1650, y: 2110 },
+      { text: finalAmount, x: 1650, y: 2185 },
+      { text: "1", x: 350, y: 2600 },
+      { text: finalAmount, x: 800, y: 2600 },
+      { text: paymentDate, x: 1240, y: 2600 },
+      { text: paymentStatus, x: 1780, y: 2600 },
     ];
     const pdfDoc = new PDFDocument({ size: [image.width, image.height] });
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", "attachment; filename=invoice.pdf");
     pdfDoc.pipe(res);
-    pdfDoc.image("invoice/Invoice.jpg", 0, 0, {
+    pdfDoc.image("invoice/WowInvoice@2x-100.jpg", 0, 0, {
       width: image.width,
       height: image.height,
     });
     pdfDoc.registerFont("Poppins", "fonts/Poppins-Regular.ttf");
-    pdfDoc.font("Poppins").fontSize(20).fillColor("black");
+    pdfDoc.font("Poppins").fontSize(50).fillColor("black");
     invoiceData.forEach(({ text, x, y }) => {
       pdfDoc.text(text, x, y);
     });
