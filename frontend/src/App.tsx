@@ -26,6 +26,7 @@ import SugarInputForm from "./pages/ClientPages/SugarInputForm";
 import WeightInputForm from "./pages/ClientPages/WeightInputForm";
 import SignUp from "./pages/AuthPages/SignUp";
 import SelfRegistered from "./pages/SelfRegistered";
+import BodyMetricIndex from "./pages/ClientPages/BodyMetricIndex";
 
 const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
 
@@ -83,6 +84,7 @@ export default function App() {
           <Route path="/view-reports" element={<UserDashboard />} />
           <Route path="/view-profile" element={<ClientProfile />} />
           <Route path="/sugar-input" element={<SugarInputForm />} />
+          <Route path="/body-metrics" element={<BodyMetricIndex />} />
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>

@@ -10,6 +10,7 @@ import {
   DocsIcon,
   ListIcon
 } from "../icons";
+import { ChartNoAxesCombined } from "lucide-react";
 
 type NavItem = {
   name: string;
@@ -28,6 +29,11 @@ const navItems: NavItem[] = [
     icon: <ListIcon />,
     name: "Sugar Inputs",
     path: "/sugar-input"
+  },
+  {
+    icon: <ChartNoAxesCombined width={15} />,
+    name: "Body Metrics Index",
+    path: "/body-metrics"
   },
   {
     icon: <DocsIcon />,

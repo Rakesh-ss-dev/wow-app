@@ -20,6 +20,7 @@ interface InputProps {
   error?: boolean;
   required?: boolean;
   hint?: string;
+  readOnly?: boolean;
 }
 
 const Input: FC<InputProps> = ({
@@ -40,6 +41,7 @@ const Input: FC<InputProps> = ({
   success = false,
   error = false,
   hint,
+  readOnly = false,
 }) => {
   let inputClasses = `h-11 w-full rounded-lg border px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-none focus:ring dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 ${className}`;
 
@@ -57,8 +59,8 @@ const Input: FC<InputProps> = ({
     <div className="relative">
       {type === "date" ? (
         <Flatpickr
-          options={{ 
-            dateFormat: "Y-m-d", 
+          options={{
+            dateFormat: "Y-m-d",
             disableMobile: true
           }}
           placeholder={placeholder}
@@ -81,14 +83,14 @@ const Input: FC<InputProps> = ({
           required={required}
           disabled={disabled}
           className={inputClasses}
+          readOnly={readOnly}
         />
       )}
 
       {hint && (
         <p
-          className={`mt-1.5 text-xs ${
-            error ? "text-error-500" : success ? "text-success-500" : "text-gray-500"
-          }`}
+          className={`mt-1.5 text-xs ${error ? "text-error-500" : success ? "text-success-500" : "text-gray-500"
+            }`}
         >
           {hint}
         </p>

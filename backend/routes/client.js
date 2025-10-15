@@ -8,6 +8,7 @@ const HealthReport = require("../models/HealthReport");
 const DailyWeight = require("../models/DailyWeight");
 const Diabetes = require("../models/Diabetes");
 const User = require("../models/User");
+const BodyMetrics = require("../models/BodyMetricIndex");
 
 router.post("/register", async (req, res) => {
   try {
@@ -207,6 +208,7 @@ router.get("/health-metrics", clientMiddleware, async (req, res) => {
     res.status(500).json({ message: "Failed to fetch the report", error });
   }
 });
+
 router.post("/weight/submit", clientMiddleware, async (req, res) => {
   const today = new Date();
   const dateOnly = new Date(
@@ -293,6 +295,50 @@ router.get("/sugar-values", clientMiddleware, async (req, res) => {
   try {
     const sugar_values = await Diabetes.find({ userId: req.user });
     res.json(sugar_values);
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+router.post("/body-metrics", clientMiddleware, async (req, res) => {
+  try {
+    const { weight, height, bmi } = req.body;
+    const user = req.user;
+    const today = new Date();
+    const dateOnly = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate()
+    );
+    const bodyMetrics = await BodyMetrics.findOneAndUpdate(
+      {
+        userId: user,
+        date: dateOnly,
+      },
+      {
+        $set: {
+          height,
+          weight,
+          bmi,
+        },
+      },
+      { upsert: true, new: true }
+    );
+
+    await bodyMetrics.save();
+    res
+      .status(201)
+      .json({ success: true, message: "Body metrics submitted successfully!" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+router.get("/body-metrics", clientMiddleware, async (req, res) => {
+  try {
+    const bodyMetrics = await BodyMetrics.find({ userId: req.user }).sort({
+      date: -1,
+    });
+    res.status(200).json(bodyMetrics);
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
