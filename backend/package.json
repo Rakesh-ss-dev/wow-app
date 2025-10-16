@@ -23,10 +23,11 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.9.5",
     "node-cron": "^3.0.3",
-    "nodemailer": "^7.0.9",
+    "nodemailer": "^6.10.0",
     "path": "^0.12.7",
     "pdfkit": "^0.16.0",
     "razorpay": "^2.9.5",
-    "socket.io": "^4.8.1"
+    "socket.io": "^4.8.1",
+    "xlsx": "^0.18.5"
   }
 }
