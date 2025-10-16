@@ -78,8 +78,8 @@ const BodyMetricIndex = () => {
     return (
 
         <div className="flex flex-col gap-4">
-            <div className="flex justify-between flex-column md:flex-row gap-4">
-                <div className="w-1/3">
+            <div className="flex justify-between flex-col md:flex-row gap-4">
+                <div className="w-full md:w-1/3">
                     <ComponentCard title="Body Metric Index">
                         <form onSubmit={submitHandler} className="flex flex-col gap-4">
                             <div className="grid grid-cols-1 gap-4">
@@ -102,7 +102,7 @@ const BodyMetricIndex = () => {
                         </form>
                     </ComponentCard>
                 </div>
-                <div className="w-2/3">
+                <div className="w-full md:w-2/3">
                     <ComponentCard title="Body Metric Index">
                         <Chart
                             className="apex-charts w-full"
