@@ -4,7 +4,6 @@ import { ApexOptions } from "apexcharts";
 import ClientSugarGraph from "../charts/ClientSugarGraph";
 import ClientWeightGraph from "../charts/ClientWeightGraph";
 import axiosInstance from "../../api/axios";
-import ClientBMIGraph from "../charts/ClientBMIGraph";
 
 // Data structure from server
 interface HealthData {
