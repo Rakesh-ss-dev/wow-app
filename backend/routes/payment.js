@@ -978,6 +978,23 @@ router.get("/getSugarData/:userId", authMiddleware, async (req, res) => {
       .json({ message: "Failed to fetch sugar graph data", error });
   }
 });
+router.get("/getBMIGraphData/:userId", authMiddleware, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ message: "Invalid user ID format" });
+    }
+    const user = await Patient.findById(userId).populate("package").exec();
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    const bmi_values = await BodyMetrics.find({ userId: user });
+    res.json(bmi_values);
+  } catch (error) {
+    console.error("Error fetching BMI graph data:", error);
+    res.status(500).json({ message: "Failed to fetch BMI graph data", error });
+  }
+});
 
 router.get("/referred_users/:userId", async (req, res) => {
   try {

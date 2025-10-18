@@ -4,6 +4,7 @@ import { ApexOptions } from "apexcharts";
 import ClientSugarGraph from "../charts/ClientSugarGraph";
 import ClientWeightGraph from "../charts/ClientWeightGraph";
 import axiosInstance from "../../api/axios";
+import ClientBMIGraph from "../charts/ClientBMIGraph";
 
 // Data structure from server
 interface HealthData {
@@ -153,8 +154,8 @@ const ClientMetricCharts: React.FC<ClientMetricChartProp> = ({ userId }) => {
   if (loading) return <p>Loading charts...</p>;
   return (
     <div className="">
+      {/* <ClientBMIGraph userId={userId} /> */}
       <div className="flex">
-
         <ClientWeightGraph userId={userId} />
         <ClientSugarGraph userId={userId} />
       </div>

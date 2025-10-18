@@ -22,19 +22,102 @@ const BodyMetricIndex = () => {
                 height: 300,
                 toolbar: { show: false },
                 zoom: { enabled: false },
-                fontFamily: 'Outfit, sans-serif',
+                fontFamily: "Outfit, sans-serif",
             },
+
             stroke: { curve: "smooth" },
             colors: ["#598D7B"],
+
+            grid: {
+                borderColor: "#e0e0e0",
+                strokeDashArray: 4,
+            },
+
             xaxis: {
                 type: "category",
                 labels: { rotate: -45 },
             },
+
             yaxis: {
                 title: { text: yTitle },
                 labels: {
                     formatter: (value: number) => value.toFixed(2),
                 },
+                min: 0,
+                max: 40, // ensures all BMI zones are visible
+            },
+
+            annotations: {
+                yaxis: [
+                    {
+                        y: 0,
+                        y2: 18.5,
+                        borderColor: "transparent",
+                        fillColor: "#42A5F5",
+                        opacity: 0.15,
+                        label: {
+                            text: "Underweight",
+                            position: "right",
+                            offsetX: 0,
+                            style: {
+                                color: "#42A5F5",
+                                background: "transparent",
+                                fontWeight: 600,
+                            },
+                        },
+                    },
+                    {
+                        y: 18.5,
+                        y2: 24.9,
+                        borderColor: "transparent",
+                        fillColor: "#66BB6A",
+                        opacity: 0.15,
+                        label: {
+                            text: "Normal Weight",
+                            position: "right",
+                            offsetX: 0,
+                            style: {
+                                color: "#388E3C",
+                                background: "transparent",
+                                fontWeight: 600,
+                            },
+                        },
+                    },
+                    {
+                        y: 25,
+                        y2: 29.9,
+                        borderColor: "transparent",
+                        fillColor: "#FFA726",
+                        opacity: 0.15,
+                        label: {
+                            text: "Overweight",
+                            position: "right",
+                            offsetX: 0,
+                            style: {
+                                color: "#FFA726",
+                                background: "transparent",
+                                fontWeight: 600,
+                            },
+                        },
+                    },
+                    {
+                        y: 30,
+                        y2: 40,
+                        borderColor: "transparent",
+                        fillColor: "#EF5350",
+                        opacity: 0.15,
+                        label: {
+                            text: "Obesity",
+                            position: "right",
+                            offsetX: 0,
+                            style: {
+                                color: "#C62828",
+                                background: "transparent",
+                                fontWeight: 600,
+                            },
+                        },
+                    },
+                ],
             },
         };
     };
@@ -71,6 +154,7 @@ const BodyMetricIndex = () => {
         const res = await axiosInstance.post('/client/body-metrics', { height, weight, bmi });
         if (res.data.success) {
             alert(res.data.message)
+            getValues();
         } else {
             alert("Error in submitting data")
         }
@@ -95,7 +179,7 @@ const BodyMetricIndex = () => {
                                     <Label className="font-medium">BMI</Label>
                                     <Input type="number" value={bmi} readOnly />
                                     <p className="text-sm text-gray-500 mt-3">Your Body Mass Index (BMI) is a measure of body fat based on your height and weight.</p>
-                                    <p className="mt-3 text-center">{bmi ? (bmi < 18.5 ? <span className="text-red-600">Underweight</span> : bmi < 24.9 ? <span className="text-green-500">Normal weight</span> : bmi < 29.9 ? <span className="text-orange-500">Overweight</span> : <span className="text-red-700">Obesity</span>) : ""}</p>
+                                    <p className="mt-3 text-center">{bmi ? (bmi < 18.5 ? <span className="text-[#42A5F5]">Underweight</span> : bmi < 24.9 ? <span className="text-[#66BB6A]">Normal weight</span> : bmi < 29.9 ? <span className="text-[#FFA726]">Overweight</span> : <span className="text-[#EF5350]">Obesity</span>) : ""}</p>
                                 </div>
                                 <Button >Submit</Button>
                             </div>
@@ -109,9 +193,14 @@ const BodyMetricIndex = () => {
                             options={chartOptions("Weight (kg)")}
                             series={prepareSeries(value)}
                             type="area"
-
                             height={300}
                         />
+                        <div className="flex gap-2 mt-4 text-sm justify-between items-center">
+                            <p className="text-[#42A5F5]">Less than 18.5: Underweight</p>
+                            <p className="text-[#66BB6A]">18.5 - 24.9: Normal weight</p>
+                            <p className="text-[#FFA726]">25 - 29.9: Overweight</p>
+                            <p className="text-[#EF5350]">30 or greater: Obesity</p>
+                        </div>
                     </ComponentCard>
                 </div>
             </div>
