@@ -32,7 +32,7 @@ const navItems: NavItem[] = [
   },
   {
     icon: <ChartNoAxesCombined width={15} />,
-    name: "Body Metrics Index",
+    name: "Body Mass Index",
     path: "/body-metrics"
   },
   {

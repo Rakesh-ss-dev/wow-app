@@ -328,7 +328,7 @@ router.post("/body-metrics", clientMiddleware, async (req, res) => {
     await bodyMetrics.save();
     res
       .status(201)
-      .json({ success: true, message: "Body metrics submitted successfully!" });
+      .json({ success: true, message: "BMI submitted successfully!" });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

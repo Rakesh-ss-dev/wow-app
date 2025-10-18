@@ -133,7 +133,7 @@ const ClientBMIGraph = ({ userId }: ClientBMIGraphProps) => {
     const prepareSeries = (data: BodyMetric[]) => {
         return [
             {
-                name: "Body Metric Index",
+                name: "Body Mass Index",
                 data: data.map((entry) => ({
                     x: new Date(entry.date).toLocaleDateString(),
                     y: entry.bmi,

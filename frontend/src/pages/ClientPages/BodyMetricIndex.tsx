@@ -124,7 +124,7 @@ const BodyMetricIndex = () => {
     const prepareSeries = (data: BodyMetric[]) => {
         return [
             {
-                name: "Body Metric Index",
+                name: "Body Mass Index",
                 data: data.map((entry) => ({
                     x: new Date(entry.date).toLocaleDateString(),
                     y: entry.bmi,
@@ -164,7 +164,7 @@ const BodyMetricIndex = () => {
         <div className="flex flex-col gap-4">
             <div className="flex justify-between flex-col md:flex-row gap-4">
                 <div className="w-full md:w-1/3">
-                    <ComponentCard title="Body Metric Index">
+                    <ComponentCard title="Body Mass Index">
                         <form onSubmit={submitHandler} className="flex flex-col gap-4">
                             <div className="grid grid-cols-1 gap-4">
                                 <div>
@@ -187,7 +187,7 @@ const BodyMetricIndex = () => {
                     </ComponentCard>
                 </div>
                 <div className="w-full md:w-2/3">
-                    <ComponentCard title="Body Metric Index">
+                    <ComponentCard title="Body Mass Index">
                         <Chart
                             className="apex-charts w-full"
                             options={chartOptions("Weight (kg)")}
