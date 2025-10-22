@@ -3,6 +3,7 @@ import UserDataTable from "../../components/datatables/UserDataTable";
 import axios from "axios";
 import Input from "../../components/form/input/InputField";
 import { filterRequests } from "../../utils/search";
+import ComponentCard from "../../components/common/ComponentCard";
 
 // Sample data
 
@@ -27,13 +28,15 @@ const UserDataTableRes: React.FC = () => {
     getUsers();
   }, []);
   useEffect(() => {
-    setFilteredRequests(filterRequests(users, searchTerm, ["name", "phone", "city"]));
+    setFilteredRequests(filterRequests(users, searchTerm, ["name", "email", "mobile"]));
   }, [searchTerm, users]);
 
   return (
-    <div className="w-full max-w-4xl">
+    <ComponentCard title="Coaches List">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold dark:text-gray-400">Coaches</h2>
+        <div className="w-1/2">
+          <Input className="" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search coach name, email or Mobile Number" />
+        </div>
         <a
           href='/create-coach'
           className="px-4 py-2 bg-brand-600 text-white rounded hover:bg-brand-700"
@@ -41,11 +44,8 @@ const UserDataTableRes: React.FC = () => {
           Add Coach
         </a>
       </div>
-      <div className="w-full mb-4">
-        <Input className="w-full" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search User name or Mobile Number" />
-      </div>
       <UserDataTable data={filteredRequests} />
-    </div>
+    </ComponentCard>
   );
 };
 

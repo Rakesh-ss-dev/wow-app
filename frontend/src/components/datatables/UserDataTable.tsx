@@ -8,6 +8,7 @@ import {
   SortingState,
   ColumnDef,
 } from "@tanstack/react-table";
+import formatReadableDate from "../../utils/formateDate";
 
 // Define User type
 type User = {
@@ -16,6 +17,7 @@ type User = {
   email: string;
   mobile: string;
   role: string;
+  createdAt: string;
 };
 
 // Define component props
@@ -37,6 +39,11 @@ const UserDataTable: React.FC<UserDataTableProps> = ({ data }) => {
     {
       accessorKey: "mobile",
       header: "Mobile",
+    },
+    {
+      accessorKey: "createdAt",
+      header: "Created At",
+      cell: ({ getValue }) => formatReadableDate(getValue<string>()),
     },
   ];
 
@@ -64,14 +71,8 @@ const UserDataTable: React.FC<UserDataTableProps> = ({ data }) => {
                 <th
                   key={header.id}
                   className="py-3 px-6 text-left cursor-pointer"
-                  onClick={header.column.getToggleSortingHandler()}
                 >
                   {flexRender(header.column.columnDef.header, header.getContext())}
-                  {header.column.getIsSorted()
-                    ? header.column.getIsSorted() === "desc"
-                      ? " 🔽"
-                      : " 🔼"
-                    : ""}
                 </th>
               ))}
             </tr>
