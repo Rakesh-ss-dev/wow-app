@@ -71,8 +71,13 @@ const UserDataTable: React.FC<UserDataTableProps> = ({ data }) => {
                 <th
                   key={header.id}
                   className="py-3 px-6 text-left cursor-pointer"
+                  onClick={header.column.getToggleSortingHandler()}
                 >
                   {flexRender(header.column.columnDef.header, header.getContext())}
+                  <span className="ml-2">
+                    {header.column.getIsSorted() === "asc" && "🔼"}
+                    {header.column.getIsSorted() === "desc" && "🔽"}
+                  </span>
                 </th>
               ))}
             </tr>
