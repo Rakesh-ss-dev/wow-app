@@ -64,7 +64,8 @@ const ClientWeightGraph = ({ userId }: ClientWeightGraphProps) => {
         getWeightGraphData();
     }, [userId]);
     return (
-        <ComponentCard title="Daily Weight Report" className="w-full md:w-1/2 m-5">
+        <ComponentCard title="Daily Weight Report" createLink={`/add-weight/${userId}`} createTitle="Add Weight" className="w-full md:w-1/2 m-5">
+
             <div className="w-full">
                 <Chart
                     options={WeightChartOptions("Weight (kg)")}

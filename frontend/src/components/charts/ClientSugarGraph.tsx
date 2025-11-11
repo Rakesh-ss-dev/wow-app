@@ -98,7 +98,7 @@ const ClientSugarGraph = ({ userId }: ClientSugarGraphProps) => {
         fetchSugarData();
     }, [userId]);
     return (
-        <ComponentCard title="Daily Sugar Report" className="w-full md:w-1/2 m-5">
+        <ComponentCard title="Daily Sugar Report" createLink={`/add-sugar/${userId}`} createTitle="Add Sugar" className="w-full md:w-1/2 m-5">
             <div className="w-full">
                 <Chart
                     options={sugarChartOptions("Sugar Level (mg/dL)")}

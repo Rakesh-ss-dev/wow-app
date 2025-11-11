@@ -7,7 +7,6 @@ const http = require("http");
 const app = express();
 const server = http.createServer(app);
 
-
 app.use(express.json());
 app.use(cors());
 
@@ -19,12 +18,14 @@ mongoose
 const authRoutes = require("./routes/auth");
 const packageRoutes = require("./routes/package");
 const paymentRoutes = require("./routes/payment");
-const clientRoutes = require('./routes/client'); 
+const clientRoutes = require("./routes/client");
+const userRoutes = require("./routes/user");
 
 app.use("/api/auth", authRoutes);
 app.use("/api/package", packageRoutes);
 app.use("/api/payment", paymentRoutes);
-app.use("/api/client",clientRoutes);
+app.use("/api/client", clientRoutes);
+app.use("/api/user", userRoutes);
 
 require("./cronJobs"); // Make sure filename is exactly cronJob.js
 

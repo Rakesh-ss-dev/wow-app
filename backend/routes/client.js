@@ -209,29 +209,6 @@ router.get("/health-metrics", clientMiddleware, async (req, res) => {
   }
 });
 
-router.post("/weight/submit", clientMiddleware, async (req, res) => {
-  const today = new Date();
-  const dateOnly = new Date(
-    today.getFullYear(),
-    today.getMonth(),
-    today.getDate()
-  );
-  try {
-    const { weight } = req.body;
-    const user = req.user;
-    const weightInput = await DailyWeight.findOneAndUpdate(
-      { userId: user, date: dateOnly },
-      { $set: { weight: weight } },
-      { upsert: true, new: true }
-    );
-    res
-      .status(201)
-      .json({ success: true, message: "Weight submitted successfully!" });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-});
-
 router.get("/weights", clientMiddleware, async (req, res) => {
   try {
     const weights = await DailyWeight.find({ userId: req.user }).sort({

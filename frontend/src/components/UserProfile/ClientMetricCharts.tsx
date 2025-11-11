@@ -4,6 +4,7 @@ import { ApexOptions } from "apexcharts";
 import ClientSugarGraph from "../charts/ClientSugarGraph";
 import ClientWeightGraph from "../charts/ClientWeightGraph";
 import axiosInstance from "../../api/axios";
+import ComponentCard from "../common/ComponentCard";
 
 // Data structure from server
 interface HealthData {
@@ -154,26 +155,27 @@ const ClientMetricCharts: React.FC<ClientMetricChartProp> = ({ userId }) => {
   return (
     <div className="">
       {/* <ClientBMIGraph userId={userId} /> */}
-      <div className="flex">
+      <div className="flex flex-col md:flex-row">
         <ClientWeightGraph userId={userId} />
         <ClientSugarGraph userId={userId} />
       </div>
-      <h2 className="my-5 text-center">Individual Property Graphs</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 p-4">
-        {chartConfigs.map(({ title, unit, path }) => (
-          <div key={path} className="rounded-2xl shadow-md bg-white">
-            <p className="bg-brand-500 text-white rounded-t-2xl p-3">{title}</p>
-            <div className="p-6">
-              <ReactApexChart
-                options={chartOptions(unit, path)}
-                series={prepareSeries(healthData, path)}
-                type="line"
-                height={200}
-              />
+      <ComponentCard title="Individual Property Graphs" createTitle="Add Values" createLink={`/add-values/${userId}`}>
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 p-4">
+          {chartConfigs.map(({ title, unit, path }) => (
+            <div key={path} className="rounded-2xl shadow-md bg-white">
+              <p className="bg-brand-500 text-white rounded-t-2xl p-3">{title}</p>
+              <div className="p-6">
+                <ReactApexChart
+                  options={chartOptions(unit, path)}
+                  series={prepareSeries(healthData, path)}
+                  type="line"
+                  height={200}
+                />
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      </ComponentCard>
     </div >
   );
 };

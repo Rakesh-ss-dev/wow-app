@@ -1,0 +1,150 @@
+
+import { ChangeEvent, FormEvent, useState } from 'react';
+import ComponentCard from '../common/ComponentCard'
+import Input from '../form/input/InputField'
+import axiosInstance from '../../api/axios';
+import { useNavigate, useParams } from 'react-router';
+interface HealthReportData {
+    height: number | "";
+    weight: number | "";
+    vitaminD: number | "";
+    vitaminB12: number | "";
+    iron: number | "";
+    hba1c: number | "";
+    triglycerides: number | "";
+    hdl: number | "";
+    tsh: number | "";
+    uricAcid: number | "";
+}
+
+const initialFormData: HealthReportData = {
+    height: "",
+    weight: "",
+    vitaminD: "",
+    vitaminB12: "",
+    iron: "",
+    hba1c: "",
+    triglycerides: "",
+    hdl: "",
+    tsh: "",
+    uricAcid: "",
+};
+const AddValues = () => {
+    const { userId } = useParams();
+    const navigate = useNavigate();
+    const handleSubmit = async (e: FormEvent) => {
+        e.preventDefault();
+        try {
+            const response = await axiosInstance.post(
+                `/user/add-values/${userId}`,
+                formData,
+            );
+            alert(response.data.message);
+            navigate(`/client-details/${userId}`)
+        } catch (error: any) {
+            if (error.response) {
+                alert(
+                    error.response.data.message || "Something went wrong on the server."
+                );
+            } else if (error.request) {
+                alert("No response from the server. Please check your connection.");
+            } else {
+                alert("Error: " + error.message);
+            }
+        }
+    };
+    const [formData, setFormData] = useState<HealthReportData>(initialFormData);
+    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setFormData({
+            ...formData,
+            [name]: value === "" ? "" : parseFloat(value),
+        });
+    };
+    return (
+        <ComponentCard className="w-full mx-auto md:w-1/2" title="Health Report Form">
+            <form
+                onSubmit={handleSubmit}
+                className="grid grid-cols-1 md:grid-cols-2 gap-4"
+            >
+                <Input
+                    type="number"
+                    placeholder="Vitamin D (ng/mL)"
+                    name="vitaminD"
+                    value={formData.vitaminD}
+                    onChange={handleChange}
+                    required
+                />
+                <Input
+                    type="number"
+                    placeholder="Vitamin B12 (pg/mL)"
+                    name="vitaminB12"
+                    value={formData.vitaminB12}
+                    onChange={handleChange}
+                    required
+                />
+                <Input
+                    type="number"
+                    placeholder="Iron (ng/mL)"
+                    name="iron"
+                    value={formData.iron}
+                    onChange={handleChange}
+                    required
+                />
+
+                <Input
+                    type="number"
+                    placeholder="HbA1c (%)"
+                    name="hba1c"
+                    value={formData.hba1c}
+                    onChange={handleChange}
+                    required
+                />
+                <Input
+                    type="number"
+                    placeholder="Triglycerides (mg/dL)"
+                    name="triglycerides"
+                    value={formData.triglycerides}
+                    onChange={handleChange}
+                    required
+                />
+                <Input
+                    type="number"
+                    placeholder="HDL (mg/dL)"
+                    name="hdl"
+                    value={formData.hdl}
+                    onChange={handleChange}
+                    required
+                />
+
+                <Input
+                    type="number"
+                    placeholder="TSH (µIU/mL)"
+                    name="tsh"
+                    value={formData.tsh}
+                    onChange={handleChange}
+                    required
+                />
+                <Input
+                    type="number"
+                    placeholder="Uric Acid (mg/dL)"
+                    name="uricAcid"
+                    value={formData.uricAcid}
+                    onChange={handleChange}
+                    required
+                />
+
+                <div className="md:col-span-2 flex justify-center mt-6">
+                    <button
+                        type="submit"
+                        className="bg-brand-600 hover:bg-brand-700 text-white font-semibold py-2 px-6 rounded-xl"
+                    >
+                        Submit Report
+                    </button>
+                </div>
+            </form>
+        </ComponentCard>
+    )
+}
+
+export default AddValues

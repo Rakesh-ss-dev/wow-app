@@ -27,6 +27,9 @@ import WeightInputForm from "./pages/ClientPages/WeightInputForm";
 import SignUp from "./pages/AuthPages/SignUp";
 import SelfRegistered from "./pages/SelfRegistered";
 import BodyMetricIndex from "./pages/ClientPages/BodyMetricIndex";
+import AddWeight from "./components/clientProfile/AddWeight";
+import AddSugar from "./components/clientProfile/AddSugar";
+import AddValues from "./components/clientProfile/AddValues";
 
 const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
 
@@ -76,6 +79,10 @@ export default function App() {
           <Route path="/client-details/:userId" element={<ClientDetails />} />
           <Route path="/installments" element={<PendingInstallment />} />
           <Route path="/self-registered" element={<SelfRegistered />} />
+          <Route path="/add-weight/:userId" element={<AddWeight />} />
+          <Route path='/add-sugar/:userId' element={<AddSugar />} />
+          <Route path='/add-values/:userId' element={<AddValues />} />
+
         </Route>
 
         <Route element={<ProtectedRoute allowedRole="patient"><UserLayout /></ProtectedRoute>}>
