@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import ComponentCard from "../components/common/ComponentCard";
+import PageMeta from "../components/common/PageMeta";
 
 const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
 
@@ -36,29 +37,32 @@ const MyComponent = () => {
   }, []);
 
   return (
-    <ComponentCard className="w-3/4 mx-auto md:w-1/2" title="Wow Monthly Report">
-      <div className="space-y-6 text-center">
-        {loading ? (
-          <p className="text-gray-600">🔄 Generating and uploading report...</p>
-        ) : (
-          <>
-            <p className="text-gray-800">{message}</p>
-            {sheetUrl && (
-              <div className="mt-4">
-                <a
-                  href={sheetUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 underline"
-                >
-                  📄 Open Google Sheet
-                </a>
-              </div>
-            )}
-          </>
-        )}
-      </div>
-    </ComponentCard>
+    <>
+      <PageMeta title="Report Form" description="Generate and view reports" />
+      <ComponentCard className="w-3/4 mx-auto md:w-1/2" title="Wow Monthly Report">
+        <div className="space-y-6 text-center">
+          {loading ? (
+            <p className="text-gray-600">🔄 Generating and uploading report...</p>
+          ) : (
+            <>
+              <p className="text-gray-800">{message}</p>
+              {sheetUrl && (
+                <div className="mt-4">
+                  <a
+                    href={sheetUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 underline"
+                  >
+                    📄 Open Google Sheet
+                  </a>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      </ComponentCard>
+    </>
   );
 };
 

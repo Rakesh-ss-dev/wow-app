@@ -49,12 +49,10 @@ const navItems: NavItem[] = [
     name: "Pending Installments",
     path: "/installments",
   },
-
   {
     icon: <UserCircleIcon />,
     name: "Coaches",
     path: "/coaches",
-    role: "Super-User",
   },
   {
     icon: <UserCircleIcon />,

@@ -56,6 +56,7 @@ router.post("/add-user", authMiddleware, async (req, res) => {
       password: hashedPassword,
       mobile: mobile,
       name,
+      createdBy: req.user._id,
     });
     await user.save();
     res.json({ success: true, message: "User created successfully!" });
@@ -66,7 +67,17 @@ router.post("/add-user", authMiddleware, async (req, res) => {
 
 router.get("/users", authMiddleware, async (req, res) => {
   try {
-    const users = await User.find({ isSuperUser: false }).exec();
+    let users;
+    if (req.user.isSuperUser) {
+      users = await User.find({
+        isSuperUser: false,
+      }).exec();
+    } else {
+      users = await User.find({
+        isSuperUser: false,
+        createdBy: req.user._id,
+      }).exec();
+    }
     res.json({ success: true, users: users });
   } catch (error) {
     res.status(500).json({ error: error.message });

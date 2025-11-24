@@ -1,16 +1,14 @@
-import axios from "axios";
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import Button from "../../components/ui/button/Button";
 import Label from "../../components/form/Label";
 import Input from "../../components/form/input/InputField";
 import ComponentCard from "../../components/common/ComponentCard";
+import axiosInstance from "../../api/axios";
+import PageMeta from "../../components/common/PageMeta";
 
 const CreateCoach: React.FC = () => {
   const navigate = useNavigate();
-  const token = localStorage.getItem("token");
-  const config = { headers: { Authorization: `Bearer ${token}` } };
-  const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
   const [email, setEmail] = useState<string>("");
   const [name, setName] = useState<string>("");
   const [mobile, setMobile] = useState<string>("");
@@ -22,7 +20,6 @@ const CreateCoach: React.FC = () => {
 
   const validatePassword = (password: string): void => {
     const errorList: string[] = [];
-
     if (password.length < 8)
       errorList.push("Password must be at least 8 characters.");
     if (!/[A-Z]/.test(password))
@@ -56,10 +53,9 @@ const CreateCoach: React.FC = () => {
   ): Promise<void> => {
     e.preventDefault();
     try {
-      const res = await axios.post(
-        `${SERVER_URL}/auth/add-user`,
+      const res = await axiosInstance.post(
+        `/auth/add-user`,
         { name, email, mobile, password },
-        config
       );
       alert(res.data.message);
       navigate("/coaches");
@@ -70,77 +66,80 @@ const CreateCoach: React.FC = () => {
   };
 
   return (
-    <ComponentCard className="w-3/4 mx-auto md:w-1/2" title="Create Coach">
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <div>
-          <div className="mb-2 block">
-            <Label htmlFor="name">Name :</Label>
+    <>
+      <PageMeta title="Create Coach" description="Create a new coach account" />
+      <ComponentCard className="w-3/4 mx-auto md:w-1/2" title="Create Coach">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <div>
+            <div className="mb-2 block">
+              <Label htmlFor="name">Name :</Label>
+            </div>
+            <Input
+              id="name"
+              type="text"
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
           </div>
-          <Input
-            id="name"
-            type="text"
-            required
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </div>
-        <div>
-          <div className="mb-2 block">
-            <Label htmlFor="email">Email :</Label>
+          <div>
+            <div className="mb-2 block">
+              <Label htmlFor="email">Email :</Label>
+            </div>
+            <Input
+              id="email"
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
           </div>
-          <Input
-            id="email"
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-        <div>
-          <div className="mb-2 block">
-            <Label htmlFor="mobile">Mobile Number :</Label>
+          <div>
+            <div className="mb-2 block">
+              <Label htmlFor="mobile">Mobile Number :</Label>
+            </div>
+            <Input
+              id="mobile"
+              type="text"
+              required
+              value={mobile}
+              onChange={(e) => validateMobile(e.target.value)}
+            />
+            {isValidMobile && mobile !== "" ? (
+              ""
+            ) : (
+              <p className="text-red-400 text-sm">{mobileError}</p>
+            )}
           </div>
-          <Input
-            id="mobile"
-            type="text"
-            required
-            value={mobile}
-            onChange={(e) => validateMobile(e.target.value)}
-          />
-          {isValidMobile && mobile !== "" ? (
-            ""
-          ) : (
-            <p className="text-red-400 text-sm">{mobileError}</p>
-          )}
-        </div>
-        <div>
-          <div className="mb-2 block">
-            <Label htmlFor="password">Password :</Label>
+          <div>
+            <div className="mb-2 block">
+              <Label htmlFor="password">Password :</Label>
+            </div>
+            <Input
+              id="password"
+              type="password"
+              required
+              value={password}
+              onChange={(e) => validatePassword(e.target.value)}
+            />
+            {isValidPassword ? (
+              ""
+            ) : (
+              <ul>
+                {passwordErrors.map((error, index) => (
+                  <li key={index} className="text-red-400 text-sm">
+                    {error}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
-          <Input
-            id="password"
-            type="password"
-            required
-            value={password}
-            onChange={(e) => validatePassword(e.target.value)}
-          />
-          {isValidPassword ? (
-            ""
-          ) : (
-            <ul>
-              {passwordErrors.map((error, index) => (
-                <li key={index} className="text-red-400 text-sm">
-                  {error}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-        <Button disabled={!isValidPassword || !isValidMobile} type="submit">
-          Submit
-        </Button>
-      </form>
-    </ComponentCard>
+          <Button disabled={!isValidPassword || !isValidMobile} type="submit">
+            Submit
+          </Button>
+        </form>
+      </ComponentCard>
+    </>
   );
 };
 

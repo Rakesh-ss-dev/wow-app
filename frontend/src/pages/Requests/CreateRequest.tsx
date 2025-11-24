@@ -13,6 +13,7 @@ import Select from "../../components/form/Select";
 import Checkbox from "../../components/form/input/Checkbox";
 import MultiSelect from "../../components/form/MutiSelect";
 import axiosInstance from "../../api/axios";
+import PageMeta from "../../components/common/PageMeta";
 
 const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
 
@@ -214,130 +215,136 @@ const CreateRequest: React.FC = () => {
   };
 
   return (
-    <div className="flex h-full items-center justify-center flex-col md:flex-row p-4">
-      <div className="relative max-h-full w-full max-w-md p-4">
-        <div className="rounded-lg bg-white shadow-sm dark:bg-gray-700 p-5">
-          <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-            Initiate Payment
-          </h3>
-          <form className="space-y-4" onSubmit={handleSubmit}>
-            <div>
-              <Input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" required />
-              {name === "" && <p className="text-red-400 text-sm">Name is required</p>}
-            </div>
-            <div className="flex gap-3">
-              <div className="w-1/4">
-                <Input type="text" value={countryCode} onChange={(e) => setCountryCode(e.target.value)} placeholder="Country Code" required />
+    <>
+      <PageMeta
+        title="Create Request"
+        description="This is the Create Request page for WOW"
+      />
+      <div className="flex h-full items-center justify-center flex-col md:flex-row p-4">
+        <div className="relative max-h-full w-full max-w-md p-4">
+          <div className="rounded-lg bg-white shadow-sm dark:bg-gray-700 p-5">
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+              Initiate Payment
+            </h3>
+            <form className="space-y-4" onSubmit={handleSubmit}>
+              <div>
+                <Input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" required />
+                {name === "" && <p className="text-red-400 text-sm">Name is required</p>}
               </div>
-              <div className="w-3/4">
-                <Input type="text" value={phone} onChange={(e) => validateMobile(e.target.value)} placeholder="Phone" required />
-                {!isPhoneValid && phone !== "" && <p className="text-red-400 text-sm">Invalid phone number</p>}
+              <div className="flex gap-3">
+                <div className="w-1/4">
+                  <Input type="text" value={countryCode} onChange={(e) => setCountryCode(e.target.value)} placeholder="Country Code" required />
+                </div>
+                <div className="w-3/4">
+                  <Input type="text" value={phone} onChange={(e) => validateMobile(e.target.value)} placeholder="Phone" required />
+                  {!isPhoneValid && phone !== "" && <p className="text-red-400 text-sm">Invalid phone number</p>}
+                </div>
               </div>
-            </div>
-            <div>
-              <Input type="text" value={city} onChange={(e) => setCity(e.target.value)} placeholder="City" required />
-              {city === "" && <p className="text-red-400 text-sm">City is required</p>}
-            </div>
-            {/* Your Select should pass back the selected .value string */}
-            <div>
-              <Select options={optionsState} onChange={validateSelect} />
-              {!isCategoryValid && <p className="text-red-400 text-sm">Please select a category</p>}
-            </div>
-            <div>
-              <Input
-                type="number"
-                min="0"
-                max="100"
-                value={discount}
-                onChange={(e) => setDiscount(e.target.value)}
-                placeholder="Discount (%)"
-                step=".01"
-              />
+              <div>
+                <Input type="text" value={city} onChange={(e) => setCity(e.target.value)} placeholder="City" required />
+                {city === "" && <p className="text-red-400 text-sm">City is required</p>}
+              </div>
+              {/* Your Select should pass back the selected .value string */}
+              <div>
+                <Select options={optionsState} onChange={validateSelect} />
+                {!isCategoryValid && <p className="text-red-400 text-sm">Please select a category</p>}
+              </div>
+              <div>
+                <Input
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={discount}
+                  onChange={(e) => setDiscount(e.target.value)}
+                  placeholder="Discount (%)"
+                  step=".01"
+                />
 
-            </div>
-            <div>
-              <Input
-                type="date"
-                placeholder="Program Start Date"
-                value={programStartDate}
-                min={new Date().toISOString().split("T")[0]}
-                onChange={(e) => setProgramStartDate(e.target.value)}
-              />
+              </div>
+              <div>
+                <Input
+                  type="date"
+                  placeholder="Program Start Date"
+                  value={programStartDate}
+                  min={new Date().toISOString().split("T")[0]}
+                  onChange={(e) => setProgramStartDate(e.target.value)}
+                />
 
-            </div>
-            <Input type="text" value={referrerPhone} onChange={e => setReferrerPhone(e.target.value)} placeholder="Referred User Mobile Number" />
-            <div>
-              <MultiSelect
-                label="Reason for joining"
-                options={causeOptions}
-                onChange={(selected) => validateCauses(selected)}
-              />
-              {!isCauseValid && <p className="text-red-400 text-sm">Please select at least one cause</p>}
-            </div>
-            <Checkbox checked={isInstallmentChecked} onChange={changeInstallmentCheck} label="Installment" />
-            {isInstallmentChecked && (
-              <Input
-                type="number"
-                value={installmentAmount}
-                onChange={(e) => setInstallmentAmount(Number(e.target.value))}
-                placeholder="Installment Amount"
-              />
-            )}
-            <Button type="submit" disabled={!isPhoneValid || !isCategoryValid || !name || !isCauseValid || !city || loading} className="w-full mt-2">
-              {loading ? "Processing..." : "Send Payment Link"}
-            </Button>
-          </form>
-
-          {paymentLink && (
-            <div className="flex items-center justify-between bg-white p-4 shadow-md rounded-lg mt-4">
-              <a href={paymentLink} target="_blank" className="truncate font-medium text-blue-600 underline" rel="noreferrer">
-                {paymentLink}
-              </a>
-              <Button onClick={copyToClipboard} className="flex items-center">
-                {copied ? <ClipboardCheck size={18} /> : <Clipboard size={18} />}
-                <span className="ml-2">{copied ? "Copied!" : "Copy Link"}</span>
+              </div>
+              <Input type="text" value={referrerPhone} onChange={e => setReferrerPhone(e.target.value)} placeholder="Referred User Mobile Number" />
+              <div>
+                <MultiSelect
+                  label="Reason for joining"
+                  options={causeOptions}
+                  onChange={(selected) => validateCauses(selected)}
+                />
+                {!isCauseValid && <p className="text-red-400 text-sm">Please select at least one cause</p>}
+              </div>
+              <Checkbox checked={isInstallmentChecked} onChange={changeInstallmentCheck} label="Installment" />
+              {isInstallmentChecked && (
+                <Input
+                  type="number"
+                  value={installmentAmount}
+                  onChange={(e) => setInstallmentAmount(Number(e.target.value))}
+                  placeholder="Installment Amount"
+                />
+              )}
+              <Button type="submit" disabled={!isPhoneValid || !isCategoryValid || !name || !isCauseValid || !city || loading} className="w-full mt-2">
+                {loading ? "Processing..." : "Send Payment Link"}
               </Button>
-            </div>
-          )}
+            </form>
+
+            {paymentLink && (
+              <div className="flex items-center justify-between bg-white p-4 shadow-md rounded-lg mt-4">
+                <a href={paymentLink} target="_blank" className="truncate font-medium text-blue-600 underline" rel="noreferrer">
+                  {paymentLink}
+                </a>
+                <Button onClick={copyToClipboard} className="flex items-center">
+                  {copied ? <ClipboardCheck size={18} /> : <Clipboard size={18} />}
+                  <span className="ml-2">{copied ? "Copied!" : "Copy Link"}</span>
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Summary */}
+        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
+          <Table>
+            <TableBody>
+              <TableRow>
+                <TableCell className="px-4 py-3 text-gray-500 text-start">Amount</TableCell>
+                <TableCell className="px-4 py-3">{price.toFixed(2)}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className="px-4 py-3 text-gray-500 text-start">Discount</TableCell>
+                <TableCell className="px-4 py-3">{discountAmount.toFixed(2)}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className="px-4 py-3 text-gray-500 text-start">Tax (5%)</TableCell>
+                <TableCell className="px-4 py-3">{tax.toFixed(2)}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className="px-4 py-3 text-gray-500 text-start">Final Price</TableCell>
+                <TableCell className="px-4 py-3">{finalAmount.toFixed(2)}</TableCell>
+              </TableRow>
+              {isInstallmentChecked && (
+                <>
+                  <TableRow>
+                    <TableCell className="px-4 py-3 text-gray-500 text-start">To be Paid</TableCell>
+                    <TableCell className="px-4 py-3">{installmentAmount.toFixed(2)}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="px-4 py-3 text-gray-500 text-start">Balance</TableCell>
+                    <TableCell className="px-4 py-3">{(finalAmount - installmentAmount).toFixed(2)}</TableCell>
+                  </TableRow>
+                </>
+              )}
+            </TableBody>
+          </Table>
         </div>
       </div>
-
-      {/* Summary */}
-      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
-        <Table>
-          <TableBody>
-            <TableRow>
-              <TableCell className="px-4 py-3 text-gray-500 text-start">Amount</TableCell>
-              <TableCell className="px-4 py-3">{price.toFixed(2)}</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className="px-4 py-3 text-gray-500 text-start">Discount</TableCell>
-              <TableCell className="px-4 py-3">{discountAmount.toFixed(2)}</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className="px-4 py-3 text-gray-500 text-start">Tax (5%)</TableCell>
-              <TableCell className="px-4 py-3">{tax.toFixed(2)}</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className="px-4 py-3 text-gray-500 text-start">Final Price</TableCell>
-              <TableCell className="px-4 py-3">{finalAmount.toFixed(2)}</TableCell>
-            </TableRow>
-            {isInstallmentChecked && (
-              <>
-                <TableRow>
-                  <TableCell className="px-4 py-3 text-gray-500 text-start">To be Paid</TableCell>
-                  <TableCell className="px-4 py-3">{installmentAmount.toFixed(2)}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell className="px-4 py-3 text-gray-500 text-start">Balance</TableCell>
-                  <TableCell className="px-4 py-3">{(finalAmount - installmentAmount).toFixed(2)}</TableCell>
-                </TableRow>
-              </>
-            )}
-          </TableBody>
-        </Table>
-      </div>
-    </div>
+    </>
   );
 };
 

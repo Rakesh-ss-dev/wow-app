@@ -3,6 +3,8 @@ import RequestDataTable from "../../components/datatables/RequestsDataTable";
 import axios from "axios";
 import Input from "../../components/form/input/InputField";
 import { filterRequests } from "../../utils/search";
+import ComponentCard from "../../components/common/ComponentCard";
+import PageMeta from "../../components/common/PageMeta";
 
 interface Request {
   name: string;
@@ -19,7 +21,6 @@ interface Request {
   };
 }
 
-const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
 
 const PendingRequestList: React.FC = () => {
   const [requests, setRequests] = useState<Request[]>([]);
@@ -35,16 +36,9 @@ const PendingRequestList: React.FC = () => {
       setLoading(false);
       return;
     }
-
-    const config = {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    };
-
     const getRequests = async () => {
       try {
-        const res = await axios.get(`${SERVER_URL}/payment/get_pending_requests`, config);
+        const res = await axios.get(`/payment/get_pending_requests`);
         setRequests(res.data.requests || []);
       } catch (err) {
         console.error("Failed to fetch requests:", err);
@@ -60,30 +54,24 @@ const PendingRequestList: React.FC = () => {
     setFilteredRequests(filterRequests(requests, searchTerm, ["name", "phone", "city"]));
   }, [searchTerm, requests]);
   return (
-    <div className="max-w-full overflow-x-auto p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold dark:text-gray-400">Requests</h2>
-        <a
-          href="/create-request"
-          className="px-4 py-2 bg-brand-500 text-white rounded hover:bg-brand-700 transition"
-        >
-          Add Request
-        </a>
-      </div>
-      <div className="w-full mb-4">
-        <Input className="w-full" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search User name or Mobile Number" />
-      </div>
+    <>
+      <PageMeta title="Pending Requests" description="List of pending requests" />
+      <ComponentCard title="Pending Requests" createLink={`/create-request`} createTitle="Add Request">
+        <div className="w-full mb-4">
+          <Input className="w-full" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search User name or Mobile Number" />
+        </div>
 
-      {loading ? (
-        <p className="text-gray-600">Loading requests...</p>
-      ) : error ? (
-        <p className="text-red-500">{error}</p>
-      ) : requests.length > 0 ? (
-        <RequestDataTable data={filteredRequests} />
-      ) : (
-        <p className="text-gray-600">No requests available</p>
-      )}
-    </div>
+        {loading ? (
+          <p className="text-gray-600">Loading requests...</p>
+        ) : error ? (
+          <p className="text-red-500">{error}</p>
+        ) : requests.length > 0 ? (
+          <RequestDataTable data={filteredRequests} />
+        ) : (
+          <p className="text-gray-600">No requests available</p>
+        )}
+      </ComponentCard>
+    </>
   );
 };
 

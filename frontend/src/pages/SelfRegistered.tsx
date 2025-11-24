@@ -3,6 +3,8 @@ import axiosInstance from "../api/axios";
 import SelfRegisteredTable from "../components/datatables/SelfRegisteredTable";
 import { filterRequests } from "../utils/search";
 import Input from "../components/form/input/InputField";
+import ComponentCard from "../components/common/ComponentCard";
+import PageMeta from "../components/common/PageMeta";
 
 type Request = {
     _id: string;
@@ -37,17 +39,20 @@ const SelfRegistered = () => {
         setFilteredRequests(filterRequests(requests, searchTerm, ["name", "phone", "city"]));
     }, [searchTerm, requests]);
     return (
-        <div className="p-6">
-            {loading ? (
-                <p>Loading...</p>
-            ) : (
-                <div className="w-full mb-4">
-                    <Input className="w-full" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search User name or Mobile Number" />
-                    <SelfRegisteredTable data={filteredRequests} />
-                </div>
+        <>
+            <PageMeta title="Self Registered Users" description="List of self registered users" />
+            <ComponentCard title="Self Registered Users">
+                {loading ? (
+                    <p>Loading...</p>
+                ) : (
+                    <div className="w-full mb-4">
+                        <Input className="w-full" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search User name or Mobile Number" />
+                        <SelfRegisteredTable data={filteredRequests} />
+                    </div>
 
-            )}
-        </div>
+                )}
+            </ComponentCard>
+        </>
     );
 };
 
