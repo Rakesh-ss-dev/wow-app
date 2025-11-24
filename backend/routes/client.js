@@ -220,6 +220,27 @@ router.get("/weights", clientMiddleware, async (req, res) => {
   }
 });
 
+router.post("/weight/submit", clientMiddleware, async (req, res) => {
+  const { weight } = req.body;
+  const user = req.user;
+  const today = new Date();
+  const dateOnly = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate()
+  );
+  try {
+    const dailyWeight = await DailyWeight.findOneAndUpdate(
+      { userId: user, date: dateOnly },
+      { $set: { weight: weight } },
+      { upsert: true, new: true }
+    );
+    res.json(dailyWeight);
+  } catch (err) {
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
 router.post("/fastingSugar/submit", clientMiddleware, async (req, res) => {
   const { fastingValue } = req.body;
   const user = req.user;

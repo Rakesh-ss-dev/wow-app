@@ -72,11 +72,9 @@ const WeightInputForm = () => {
                 `/client/weight/submit`,
                 { weight: value },
             );
-            if (response.status === 201) {
+            if (response.status === 200) {
                 alert("Weight submitted successfully!");
                 fetchData();
-            } else {
-                alert("Failed to submit weight.");
             }
         } catch (error) {
             console.error("Error submitting weight:", error);
