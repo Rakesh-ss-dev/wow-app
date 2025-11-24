@@ -39,7 +39,7 @@ const MyComponent = () => {
   return (
     <>
       <PageMeta title="Report Form" description="Generate and view reports" />
-      <ComponentCard className="w-3/4 mx-auto md:w-1/2" title="Wow Monthly Report">
+      <ComponentCard title="Wow Monthly Report">
         <div className="space-y-6 text-center">
           {loading ? (
             <p className="text-gray-600">🔄 Generating and uploading report...</p>
