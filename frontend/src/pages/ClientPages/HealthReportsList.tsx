@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import HealthReportsDataTable from "../../components/datatables/HealthReportsDataTable";
-
-const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
+import axiosInstance from "../../api/axios";
 
 const HealthReportsList = () => {
   const [reports, setReports] = useState<any[]>([]);
@@ -12,13 +10,7 @@ const HealthReportsList = () => {
   useEffect(() => {
     const fetchReports = async () => {
       try {
-        const token = localStorage.getItem("token");
-        const config = {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        };
-        const res = await axios.get(`${SERVER_URL}/client/getRequests`, config);
+        const res = await axiosInstance.get(`/client/getRequests`);
         setReports(res.data || []);
       } catch (err) {
         setError("Failed to load reports.");
@@ -33,7 +25,7 @@ const HealthReportsList = () => {
     <div className="max-w-full overflow-x-auto p-4">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold dark:text-gray-400">Reports</h2>
-        
+
       </div>
       {loading ? (
         <p>Loading...</p>

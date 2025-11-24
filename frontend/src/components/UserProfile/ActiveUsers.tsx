@@ -1,19 +1,16 @@
-import axios from "axios";
 import UserCard from "./UserCard";
 import { useEffect, useState } from "react";
+import axiosInstance from "../../api/axios";
 const ActiveUsers = () => {
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
-  const token = localStorage.getItem("token");
-  const handleClick = async (e:any,id: any) => {
+  const handleClick = async (e: any, id: any) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await axios.post(
-        `${SERVER_URL}/payment/deactivate_user`,
-        { id },
-        { headers: { Authorization: `Bearer ${token}` } }
+      const res = await axiosInstance.post(
+        `/payment/deactivate_user`,
+        { id }
       );
       alert(res.data.message);
     } catch (err) {
@@ -25,10 +22,8 @@ const ActiveUsers = () => {
   useEffect(() => {
     const getUsers = async () => {
       try {
-        const res = await axios(`${SERVER_URL}/payment/get_active_users`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        
+        const res = await axiosInstance.get(`/payment/get_active_users`);
+
         if (res.data?.requests) {
           const sortedRequests = [...res.data.requests].sort(
             (a, b) => new Date(b.activated_at).getTime() - new Date(a.activated_at).getTime()
@@ -72,7 +67,7 @@ const ActiveUsers = () => {
             plan={request.package.name}
             placeButton={true}
             buttonText="Deactivate User"
-            clickFunction={(e:any) => handleClick(e,request._id)}
+            clickFunction={(e: any) => handleClick(e, request._id)}
           />
         </a>
       ))}

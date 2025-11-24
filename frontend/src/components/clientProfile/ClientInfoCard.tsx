@@ -5,11 +5,9 @@ import Label from "../form/Label";
 import Button from "../ui/button/Button";
 import { Modal } from "../ui/modal";
 import Select from "../form/Select";
-import axios from "axios";
+import axiosInstance from "../../api/axios";
 
 const ClientInfoCard = () => {
-  const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
-  const token = localStorage.getItem("token");
   const patient: any = localStorage.getItem("patient");
   const parsedPatient = JSON.parse(patient);
   const [name, setName] = useState(parsedPatient?.name || "");
@@ -53,10 +51,9 @@ const ClientInfoCard = () => {
   const handleSave = async (e: any) => {
     e.preventDefault();
     try {
-      const res = await axios.post(
-        `${SERVER_URL}/client/update`,
+      const res = await axiosInstance.post(
+        `/client/update`,
         { name, dateOfBirth, gender, email, bloodGroup },
-        { headers: { Authorization: `Bearer ${token}` } }
       );
       alert(res.data.message);
       localStorage.setItem("patient", JSON.stringify(res.data.patient));

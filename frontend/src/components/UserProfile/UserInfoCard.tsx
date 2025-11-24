@@ -4,24 +4,22 @@ import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
 import { useEffect, useState } from "react";
-import axios from "axios";
+
+import axiosInstance from "../../api/axios";
 
 export default function UserInfoCard() {
   const { isOpen, openModal, closeModal } = useModal();
-  const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
-  const token = localStorage.getItem("token");
 
   const handleSave = async (e: any) => {
     e.preventDefault();
     try {
-      const res = await axios.post(
-        `${SERVER_URL}/auth/update-user`,
+      const res = await axiosInstance.post(
+        `/auth/update-user`,
         {
           name: parsedUser.name,
           email: parsedUser.email,
           mobile: parsedUser.mobile,
         },
-        { headers: { Authorization: `Bearer ${token}` } }
       );
       alert(res.data.message);
       closeModal();

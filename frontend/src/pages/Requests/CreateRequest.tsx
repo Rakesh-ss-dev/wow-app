@@ -15,8 +15,6 @@ import MultiSelect from "../../components/form/MutiSelect";
 import axiosInstance from "../../api/axios";
 import PageMeta from "../../components/common/PageMeta";
 
-const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
-
 interface Option {
   label: string;
   value: string; // MUST match Package.name in your DB
@@ -165,8 +163,6 @@ const CreateRequest: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const token = localStorage.getItem("token");
-
       let data: any = {
         name,
         phone,
@@ -192,10 +188,9 @@ const CreateRequest: React.FC = () => {
         data.tobePaid = 0;
       }
 
-      const res = await axios.post(
-        `${SERVER_URL}/payment/create-payment-link`,
+      const res = await axiosInstance.post(
+        `/payment/create-payment-link`,
         data,
-        { headers: { Authorization: `Bearer ${token}` } }
       );
 
       setPaymentLink(res.data.payment_link);

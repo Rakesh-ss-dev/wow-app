@@ -1,9 +1,9 @@
-import axios from "axios";
 import UserCard from "./UserCard";
 import { useEffect, useState } from "react";
 import { ChartSpline } from "lucide-react";
 import Input from "../form/input/InputField";
 import { filterRequests } from "../../utils/search";
+import axiosInstance from "../../api/axios";
 
 const PaidUsers = () => {
   const [requests, setRequests] = useState<any[]>([]);
@@ -15,10 +15,9 @@ const PaidUsers = () => {
   const handleClick = async (id: any) => {
     setLoading(true);
     try {
-      const res = await axios.post(
-        `${SERVER_URL}/payment/deactivate_user`,
+      const res = await axiosInstance.post(
+        `/payment/deactivate_user`,
         { id },
-        { headers: { Authorization: `Bearer ${token}` } }
       );
       alert(res.data.message);
     } catch (err) {
@@ -30,9 +29,7 @@ const PaidUsers = () => {
   useEffect(() => {
     const getUsers = async () => {
       try {
-        const res = await axios(`${SERVER_URL}/payment/get_paid_users`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await axiosInstance.get(`/payment/get_paid_users`);
         if (res.data?.requests) {
           const sortedRequests = [...res.data.requests].sort(
             (a, b) => new Date(b.payed_at).getTime() - new Date(a.payed_at).getTime()

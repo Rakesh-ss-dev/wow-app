@@ -1,9 +1,7 @@
 import { useEffect, useState, useRef } from "react";
-import axios from "axios";
 import ComponentCard from "../components/common/ComponentCard";
 import PageMeta from "../components/common/PageMeta";
-
-const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
+import axiosInstance from "../api/axios";
 
 const MyComponent = () => {
   const [loading, setLoading] = useState(true);
@@ -18,7 +16,7 @@ const MyComponent = () => {
 
     const fetchReport = async () => {
       try {
-        const response = await axios.post(`${SERVER_URL}/payment/user-status`);
+        const response = await axiosInstance.post(`/payment/user-status`);
         if (response.data.success) {
           setMessage(`✅ Report updated: ${response.data.message}`);
           setSheetUrl(response.data.sheetUrl);

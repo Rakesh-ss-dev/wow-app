@@ -4,8 +4,8 @@ import { Modal } from "../ui/modal";
 import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
 import { EyeCloseIcon, EyeIcon } from "../../icons";
-import axios from "axios";
 import { useNavigate } from "react-router";
+import axiosInstance from "../../api/axios";
 
 export default function UserAddressCard() {
   const navigate = useNavigate();
@@ -62,19 +62,16 @@ export default function UserAddressCard() {
     setErrors(newErrors);
     setIsFormValid(Object.keys(newErrors).length === 0);
   };
-  const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
-  const token = localStorage.getItem("token");
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isFormValid) {
       try {
-        const { data } = await axios.post(
-          `${SERVER_URL}/auth/change-password`,
+        const { data } = await axiosInstance.post(
+          `/auth/change-password`,
           {
             oldPassword,
             newPassword,
           },
-          { headers: { Authorization: `Bearer ${token}` } }
         );
         alert(data.message || "Password changed successfully!");
         setOldPassword("");

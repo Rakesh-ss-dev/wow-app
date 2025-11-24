@@ -3,11 +3,10 @@ import ComponentCard from "../../components/common/ComponentCard";
 import { Box } from "@mui/material";
 import CircularSlider from "@fseehawer/react-circular-slider";
 import Button from "../../components/ui/button/Button";
-import axios from "axios";
 import Chart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
+import axiosInstance from "../../api/axios";
 
-const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
 
 interface WeightEntry {
     date: string;
@@ -55,33 +54,23 @@ const WeightInputForm = () => {
     const [value, setValue] = useState(75);
     const decimalSteps = Array.from({ length: 1601 }, (_, i) => (40 + i * 0.1).toFixed(1));
     const [graphData, setGraphData] = useState<WeightEntry[]>([]);
-
-    const token = localStorage.getItem("token");
-    const config = {
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
-    };
-
     const fetchData = async () => {
         try {
-            const res = await axios.get<WeightEntry[]>(`${SERVER_URL}/client/weights/`, config);
+            const res = await axiosInstance.get<WeightEntry[]>(`/client/weights/`);
             setGraphData(res.data);
         } catch (err) {
             console.error("Error fetching weight data", err);
         }
     };
-
     useEffect(() => {
         fetchData();
     }, []);
 
     const handleSubmit = async () => {
         try {
-            const response = await axios.post(
-                `${SERVER_URL}/client/weight/submit`,
+            const response = await axiosInstance.post(
+                `/client/weight/submit`,
                 { weight: value },
-                config
             );
             if (response.status === 201) {
                 alert("Weight submitted successfully!");
@@ -110,7 +99,7 @@ const WeightInputForm = () => {
                         trackSize={20}
                         data={decimalSteps}
                         dataIndex={Math.round((value - 40) * 10)} // 0.1 precision → multiply by 10
-                        onChange={(val:any) => setValue(parseFloat(val))}
+                        onChange={(val: any) => setValue(parseFloat(val))}
                         knobSize={35}
                         knobPosition="bottom"
                     />

@@ -1,8 +1,8 @@
 import React, { useState, ChangeEvent, FormEvent } from "react";
 import Input from "../../components/form/input/InputField";
-import axios from "axios";
 import { useNavigate } from "react-router";
 import ComponentCard from "../../components/common/ComponentCard";
+import axiosInstance from "../../api/axios";
 interface HealthReportData {
   height: number | "";
   weight: number | "";
@@ -30,10 +30,6 @@ const initialFormData: HealthReportData = {
 };
 
 const HealthReportForm: React.FC = () => {
-
-  const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
-  const token = localStorage.getItem("token");
-  const config = { headers: { Authorization: `Bearer ${token}` } };
   const navigate = useNavigate();
   const [formData, setFormData] = useState<HealthReportData>(initialFormData);
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -47,10 +43,9 @@ const HealthReportForm: React.FC = () => {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.post(
-        `${SERVER_URL}/client/addReport`,
+      const response = await axiosInstance.post(
+        `/client/addReport`,
         formData,
-        config
       );
       alert(response.data.message);
       navigate("/view-reports");

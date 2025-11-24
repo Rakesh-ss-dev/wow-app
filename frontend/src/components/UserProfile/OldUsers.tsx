@@ -1,8 +1,8 @@
-import axios from "axios";
 import UserCard from "./UserCard";
 import { useEffect, useState } from "react";
 import Input from "../form/input/InputField";
 import { filterRequests } from "../../utils/search";
+import axiosInstance from "../../api/axios";
 
 const OldUsers = () => {
   const [requests, setRequests] = useState<any[]>([]);
@@ -10,15 +10,12 @@ const OldUsers = () => {
   const [filteredRequests, setFilteredRequests] = useState<any[]>([]);
 
   const [searchTerm, setSearchTerm] = useState("");
-  const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
-  const token = localStorage.getItem("token");
   const handleClick = async (id: any) => {
     setLoading(true);
     try {
-      await axios.post(
-        `${SERVER_URL}/payment/make_active`,
+      await axiosInstance.post(
+        `/payment/make_active`,
         { id, from: "old" },
-        { headers: { Authorization: `Bearer ${token}` } }
       );
       alert("User Activated");
     } catch (err) {
@@ -30,9 +27,7 @@ const OldUsers = () => {
   useEffect(() => {
     const getUsers = async () => {
       try {
-        const res = await axios(`${SERVER_URL}/payment/get_old_users`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await axiosInstance.get(`/payment/get_old_users`);
         if (res.data?.requests) {
           const sortedRequests = [...res.data.requests].sort(
             (a, b) =>

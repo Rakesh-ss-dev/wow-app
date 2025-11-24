@@ -8,10 +8,10 @@ import {
   CellContext,
   ColumnDef,
 } from "@tanstack/react-table";
-import axios from "axios";
 import { useModal } from "../../hooks/useModal";
 import { Modal } from "../ui/modal";
 import { Table, TableBody, TableCell, TableRow } from "../ui/table";
+import axiosInstance from "../../api/axios";
 
 type Request = {
   name: string;
@@ -45,18 +45,15 @@ const formatReadableDate = (isoString: string): string => {
 const RequestDataTable: React.FC<RequestDataTableProps> = ({ data }) => {
   const user = localStorage.getItem("user");
   const parsedUser = user ? JSON.parse(user) : null;
-  const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
   const { isOpen, openModal, closeModal } = useModal();
   const [requestDetails, setRequestDetails] = useState<any>({});
 
   const handleViewDetails = async (request: Request) => {
-    const token = localStorage.getItem("token");
-    const res = await axios.post(
-      `${SERVER_URL}/payment/getPaymentDetails`,
+    const res = await axiosInstance.post(
+      `/payment/getPaymentDetails`,
       {
         request,
-      },
-      { headers: { Authorization: `Bearer ${token}` } }
+      }
     );
     setRequestDetails(res.data.request);
     openModal();
