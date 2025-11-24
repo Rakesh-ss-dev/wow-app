@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
 import RequestDataTable from "../../components/datatables/RequestsDataTable";
-import axios from "axios";
 import { filterRequests } from "../../utils/search";
 import Input from "../../components/form/input/InputField";
 import PageMeta from "../../components/common/PageMeta";
-import { Component } from "lucide-react";
 import ComponentCard from "../../components/common/ComponentCard";
+import axiosInstance from "../../api/axios";
 
 interface Request {
   name: string;
@@ -22,41 +21,27 @@ interface Request {
   };
 }
 
-const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
 
 const RequestList: React.FC = () => {
   const [requests, setRequests] = useState<Request[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [filteredRequests, setFilteredRequests] = useState<any[]>([]);
+
   const [searchTerm, setSearchTerm] = useState("");
-  useEffect(() => {
-    const token = localStorage.getItem("token");
 
-    if (!token) {
-      setError("Authentication token not found. Please log in.");
+  const getRequests = async () => {
+    try {
+      const res = await axiosInstance.get(`/payment/get_requests`);
+      setRequests(res.data.requests || []);
+    } catch (err) {
+      console.error("Failed to fetch requests:", err);
+      setError("Failed to load requests. Please try again later.");
+    } finally {
       setLoading(false);
-      return;
     }
-
-    const config = {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    };
-
-    const getRequests = async () => {
-      try {
-        const res = await axios.get(`${SERVER_URL}/payment/get_requests`, config);
-        setRequests(res.data.requests || []);
-      } catch (err) {
-        console.error("Failed to fetch requests:", err);
-        setError("Failed to load requests. Please try again later.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
+  };
+  useEffect(() => {
     getRequests();
   }, []);
   useEffect(() => {

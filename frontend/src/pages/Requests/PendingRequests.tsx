@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import RequestDataTable from "../../components/datatables/RequestsDataTable";
-import axios from "axios";
 import Input from "../../components/form/input/InputField";
 import { filterRequests } from "../../utils/search";
 import ComponentCard from "../../components/common/ComponentCard";
 import PageMeta from "../../components/common/PageMeta";
+import axiosInstance from "../../api/axios";
 
 interface Request {
   name: string;
@@ -38,7 +38,7 @@ const PendingRequestList: React.FC = () => {
     }
     const getRequests = async () => {
       try {
-        const res = await axios.get(`/payment/get_pending_requests`);
+        const res = await axiosInstance.get(`/payment/get_pending_requests`);
         setRequests(res.data.requests || []);
       } catch (err) {
         console.error("Failed to fetch requests:", err);
