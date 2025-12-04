@@ -9,7 +9,10 @@ router.get("/:coachId/clients", authMiddleware, async (req, res) => {
     const clients = await Patients.find({
       createdBy: coachId,
       status: { $in: ["paid", "active", "old"] },
-    }).exec();
+    })
+      .populate("package", "name amount")
+      .populate("createdBy", "name email")
+      .exec();
     res.status(200).json({ success: true, clients });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
