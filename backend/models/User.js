@@ -8,6 +8,7 @@ const UserSchema = new mongoose.Schema(
     mobile: { type: String },
     isSuperUser: { type: Boolean, default: false },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    isSubUser: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

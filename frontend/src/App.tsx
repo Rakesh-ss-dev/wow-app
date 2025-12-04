@@ -30,6 +30,7 @@ import BodyMetricIndex from "./pages/ClientPages/BodyMetricIndex";
 import AddWeight from "./components/clientProfile/AddWeight";
 import AddSugar from "./components/clientProfile/AddSugar";
 import AddValues from "./components/clientProfile/AddValues";
+import CoachClients from "./pages/Requests/CoachClients";
 
 const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
 
@@ -82,6 +83,7 @@ export default function App() {
           <Route path="/add-weight/:userId" element={<AddWeight />} />
           <Route path='/add-sugar/:userId' element={<AddSugar />} />
           <Route path='/add-values/:userId' element={<AddValues />} />
+          <Route path="/coach/:coachId/clients" element={<CoachClients />} />
 
         </Route>
 

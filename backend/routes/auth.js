@@ -56,6 +56,7 @@ router.post("/add-user", authMiddleware, async (req, res) => {
       password: hashedPassword,
       mobile: mobile,
       name,
+      isSubUser: req.user.isSuperUser ? false : true,
       createdBy: req.user._id,
     });
     await user.save();

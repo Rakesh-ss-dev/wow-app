@@ -9,15 +9,17 @@ import {
   ColumnDef,
 } from "@tanstack/react-table";
 import formatReadableDate from "../../utils/formateDate";
+import { Link } from "react-router";
 
 // Define User type
 type User = {
-  id: string;
+  _id: string;
   name: string;
   email: string;
   mobile: string;
   role: string;
   createdAt: string;
+
 };
 
 // Define component props
@@ -31,6 +33,7 @@ const UserDataTable: React.FC<UserDataTableProps> = ({ data }) => {
     {
       accessorKey: "name",
       header: "Name",
+      cell: ({ row }) => <Link className="font-medium" to={`/coach/${row.original?._id}/clients`}>{row.original.name}</Link>
     },
     {
       accessorKey: "email",

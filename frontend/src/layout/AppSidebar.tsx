@@ -19,6 +19,7 @@ import {
   DollarLineIcon,
   ListIcon,
 } from "../icons";
+import { ClipboardPlus, UserRoundCheck } from "lucide-react";
 
 type NavItem = {
   name: string;
@@ -55,7 +56,12 @@ const navItems: NavItem[] = [
     path: "/coaches",
   },
   {
-    icon: <UserCircleIcon />,
+    icon: <ClipboardPlus width='1em' />,
+    name: "Nutritionists",
+    path: "/nutritionists",
+  },
+  {
+    icon: <UserRoundCheck width='1em' />,
     name: "Self Registered",
     path: "/self-registered",
   },
@@ -67,12 +73,15 @@ const navItems: NavItem[] = [
   },
 ];
 
+
 const AppSidebar: React.FC = () => {
   const [parsedUser, setParsedUser] = useState(() => {
     const user = localStorage.getItem("user");
     return user ? JSON.parse(user) : null;
   });
-
+  if (parsedUser?.isSubUser) {
+    navItems.splice(4, 1);
+  }
   useEffect(() => {
     const handleStorageChange = () => {
       const user = localStorage.getItem("user");
@@ -85,7 +94,6 @@ const AppSidebar: React.FC = () => {
       window.removeEventListener("storage", handleStorageChange);
     };
   }, []);
-
   const filteredNavItems = useMemo(() => {
     const userRole = parsedUser?.isSuperUser ? "Super-User" : undefined;
     return navItems.filter((item) => !item.role || item.role === userRole);

@@ -26,7 +26,9 @@ app.use("/api/package", packageRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use("/api/client", clientRoutes);
 app.use("/api/user", userRoutes);
-
+app.use("/api/nutrition", require("./routes/nutrition"));
+app.use("/api/coach", require("./routes/coach"));
+// Import and initialize cron jobs
 require("./cronJobs"); // Make sure filename is exactly cronJob.js
 
 // Start server with WebSocket support

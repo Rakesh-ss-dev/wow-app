@@ -12,7 +12,8 @@ const UserDataTableRes: React.FC = () => {
   const [users, setUsers] = useState([]);
   const [filteredRequests, setFilteredRequests] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-
+  const user = localStorage.getItem("user");
+  const parsedUser = user ? JSON.parse(user) : null;
   useEffect(() => {
 
     const getUsers = async () => {
@@ -33,12 +34,14 @@ const UserDataTableRes: React.FC = () => {
           <div className="w-1/2">
             <Input className="" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search coach name, email or Mobile Number" />
           </div>
-          <a
-            href='/create-coach'
-            className="px-4 py-2 bg-brand-600 text-white rounded hover:bg-brand-700"
-          >
-            Add Coach
-          </a>
+          {parsedUser?.isSubUser ? null : (
+            <a
+              href='/create-coach'
+              className="px-4 py-2 bg-brand-600 text-white rounded hover:bg-brand-700"
+            >
+              Add Coach
+            </a>
+          )}
         </div>
         <UserDataTable data={filteredRequests} />
       </ComponentCard>
