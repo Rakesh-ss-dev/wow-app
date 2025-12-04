@@ -12,49 +12,85 @@ const router = express.Router();
 function replacePlaceholders(template, data) {
   return template.replace(/\[([^\]]+)\]/g, (match, key) => data[key] || match);
 }
-// Login
+
+const handleLogin = async (Model, email, password) => {
+  const user = await Model.findOne({ email }).select("+password").exec();
+
+  if (!user) {
+    // User not found for this role/model
+    return { status: 400, error: "Invalid credentials" };
+  }
+
+  const isMatch = await bcrypt.compare(password, user.password);
+
+  if (!isMatch) {
+    // Password mismatch
+    return { status: 400, error: "Invalid credentials" };
+  }
+
+  // Generate JWT
+  const token = jwt.sign(
+    { id: user._id, role: user.role || Model }, // Include role in token payload
+    process.env.JWT_SECRET,
+    { expiresIn: "1d" }
+  );
+
+  return { status: 200, token, user, role: user.role || Model };
+};
+
+// --- Login Route ---
 router.post("/login", async (req, res) => {
   const { email, password, role } = req.body;
+
   try {
-    if (role == "Coach") {
-      const user = await User.findOne({ email });
-      if (!user) return res.status(400).json({ error: "User not found" });
-
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch)
-        return res.status(400).json({ error: "Invalid credentials" });
-
-      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-        expiresIn: "1d",
-      });
-
-      res.json({ token, user });
-    } else if (role == "Nutritionist") {
-      const user = await Nutritionist.findOne({ email });
-      if (!user) return res.status(400).json({ error: "User not found" });
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch)
-        return res.status(400).json({ error: "Invalid credentials" });
-      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-        expiresIn: "1d",
-      });
-      res.json({ token, user });
+    let Model;
+    if (role === "Coach") {
+      Model = User; // Use the Coach model
+    } else if (role === "Nutritionist") {
+      Model = Nutritionist; // Use the Nutritionist model
     } else {
       return res.status(400).json({ error: "Invalid role specified" });
     }
+
+    const result = await handleLogin(Model, email, password);
+
+    // Handle failure from helper function
+    if (result.error) {
+      return res.status(result.status).json({ error: result.error });
+    }
+
+    res.json({ token: result.token, user: result.user });
   } catch (error) {
+    console.error(error); // Log the server error for debugging
     res.status(500).json({ error: "Server error" });
   }
 });
-router.get("/check-token", (req, res) => {
+
+const verifyToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
   const token = authHeader && authHeader.split(" ")[1];
-  if (!token) return res.status(401).json({ message: "No token provided" });
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    if (err) return res.status(403).json({ message: "Invalid token" });
-    res.status(200).json({ message: "Token valid", user });
+
+  if (!token) {
+    return res
+      .status(401)
+      .json({ message: "Access Denied: No token provided" });
+  }
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(403).json({ message: "Invalid token" });
+    }
+    // Attach the decoded payload (id and role) to the request object
+    req.user = decoded;
+    next();
   });
+};
+
+router.get("/check-token", verifyToken, (req, res) => {
+  res.status(200).json({ message: "Token valid", user: req.user });
 });
+
+// module.exports = router;
 router.post("/add-user", authMiddleware, async (req, res) => {
   const { email, password, mobile, name } = req.body;
   try {
