@@ -12,8 +12,10 @@ import { useModal } from "../../hooks/useModal";
 import { Modal } from "../ui/modal";
 import { Table, TableBody, TableCell, TableRow } from "../ui/table";
 import axiosInstance from "../../api/axios";
+import { Link } from "react-router";
 
 type Request = {
+  _id: string;
   name: string;
   phone: string;
   package: {
@@ -63,6 +65,7 @@ const RequestDataTable: React.FC<RequestDataTableProps> = ({ data }) => {
     {
       accessorKey: "name",
       header: "Client",
+      cell: ({ row }) => <Link className="font-medium" to={`/client-details/${row.original._id}`}>{row.original.name}</Link>,
     },
     {
       accessorKey: "phone",
