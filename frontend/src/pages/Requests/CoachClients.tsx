@@ -48,8 +48,8 @@ const CoachClients = () => {
     }, [searchTerm, requests]);
     return (
         <>
-            <PageMeta title="Requests List" description="List of all requests" />
-            <ComponentCard title="Requests List" createLink={`/create-request`} createTitle="Add Request">
+            <PageMeta title="Coach Clients" description="List of all coach clients" />
+            <ComponentCard title="Coach Clients">
                 <div className="max-w-full overflow-x-auto p-4">
 
                     <div className="w-full mb-4">
