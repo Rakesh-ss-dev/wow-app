@@ -6,6 +6,7 @@ const authMiddleware = require("../middleware/authMiddleware");
 const generator = require("generate-password");
 const fs = require("fs");
 const nodemailer = require("nodemailer");
+const Nutritionist = require("../models/Nutritionist");
 
 const router = express.Router();
 function replacePlaceholders(template, data) {
@@ -13,19 +14,34 @@ function replacePlaceholders(template, data) {
 }
 // Login
 router.post("/login", async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, role } = req.body;
   try {
-    const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ error: "User not found" });
+    if (role == "Coach") {
+      const user = await User.findOne({ email });
+      if (!user) return res.status(400).json({ error: "User not found" });
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ error: "Invalid credentials" });
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch)
+        return res.status(400).json({ error: "Invalid credentials" });
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1d",
-    });
+      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+        expiresIn: "1d",
+      });
 
-    res.json({ token, user });
+      res.json({ token, user });
+    } else if (role == "Nutritionist") {
+      const user = await Nutritionist.findOne({ email });
+      if (!user) return res.status(400).json({ error: "User not found" });
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch)
+        return res.status(400).json({ error: "Invalid credentials" });
+      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+        expiresIn: "1d",
+      });
+      res.json({ token, user });
+    } else {
+      return res.status(400).json({ error: "Invalid role specified" });
+    }
   } catch (error) {
     res.status(500).json({ error: "Server error" });
   }

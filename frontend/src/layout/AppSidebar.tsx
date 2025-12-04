@@ -59,6 +59,7 @@ const navItems: NavItem[] = [
     icon: <ClipboardPlus width='1em' />,
     name: "Nutritionists",
     path: "/nutritionists",
+    role: "Super-User",
   },
   {
     icon: <UserRoundCheck width='1em' />,

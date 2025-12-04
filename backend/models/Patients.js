@@ -17,7 +17,7 @@ const PatientSchema = new mongoose.Schema(
     status: { type: String, default: "created" },
     currency: { type: String, default: "INR" },
     method: { type: String, default: "" },
-    password: { type: String, default: "" },
+    password: { type: String, default: "", select: false },
     email: { type: String, default: "" },
     date_of_birth: { type: Date, default: "" },
     bloodGroup: { type: String, default: "" },

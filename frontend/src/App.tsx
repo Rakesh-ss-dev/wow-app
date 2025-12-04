@@ -31,6 +31,8 @@ import AddWeight from "./components/clientProfile/AddWeight";
 import AddSugar from "./components/clientProfile/AddSugar";
 import AddValues from "./components/clientProfile/AddValues";
 import CoachClients from "./pages/Requests/CoachClients";
+import NutritionList from "./components/Nutritionist/NutritionList";
+import NutritionForm from "./components/Nutritionist/NutritionForm";
 
 const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
 
@@ -84,6 +86,8 @@ export default function App() {
           <Route path='/add-sugar/:userId' element={<AddSugar />} />
           <Route path='/add-values/:userId' element={<AddValues />} />
           <Route path="/coach/:coachId/clients" element={<CoachClients />} />
+          <Route path="/nutritionists" element={<NutritionList />} />
+          <Route path="create-nutritionist" element={<NutritionForm />} />
 
         </Route>
 

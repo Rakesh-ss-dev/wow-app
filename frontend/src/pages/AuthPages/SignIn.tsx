@@ -17,6 +17,7 @@ export default function SignIn() {
   const [forgotEmail, setForgotEmail] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
   const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
   const handleForgetPassword = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -36,6 +37,7 @@ export default function SignIn() {
       const res = await axios.post(`${SERVER_URL}/auth/login`, {
         email,
         password,
+        role: "Coach",
       });
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
@@ -95,6 +97,16 @@ export default function SignIn() {
                         </span>
                       </div>
                     </div>
+                    {/* <div>
+                      <Label>
+                        Role <span className="text-error-500">*</span>{" "}
+                      </Label>
+                      <Select
+                        options={options}
+                        onChange={(selectedOption: any) => { setRole(selectedOption); }}
+                        placeholder="Select your role"
+                      />
+                    </div> */}
                     <div className="flex items-center justify-between">
                       <p
                         onClick={openModal}
