@@ -63,13 +63,13 @@ const PendingRequestList: React.FC = () => {
         </div>
 
         {loading ? (
-          <p className="text-gray-600">Loading requests...</p>
+          <p className="text-gray-600">Loading clients...</p>
         ) : error ? (
           <p className="text-red-500">{error}</p>
         ) : requests.length > 0 ? (
           <RequestDataTable data={filteredRequests} />
         ) : (
-          <p className="text-gray-600">No requests available</p>
+          <p className="text-gray-600">No Clients available</p>
         )}
       </ComponentCard>
     </>
