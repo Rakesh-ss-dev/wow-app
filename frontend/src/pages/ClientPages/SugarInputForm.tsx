@@ -19,7 +19,6 @@ const SugarInputForm = () => {
     try {
       const res = await axiosInstance.get<SugarEntries[]>(`/client/sugar-values/`);
       setSugarValues(res.data);
-      console.log(res.data);
     } catch (err) {
       console.error("Error fetching weight data", err);
     }

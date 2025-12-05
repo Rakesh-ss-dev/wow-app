@@ -225,7 +225,6 @@ router.post("/getPaymentDetails", authMiddleware, async (req, res) => {
   try {
     const { request } = req.body;
     const paymentLink = await razorpay.paymentLink.fetch(request.paymentId);
-    console.log("Payment Link Details:", paymentLink);
     let output = {
       ...request,
       status: paymentLink.status,
@@ -680,7 +679,8 @@ router.post("/user-status", async (req, res) => {
 router.get("/get_requests", authMiddleware, async (req, res) => {
   try {
     const user = req.user;
-    const userData = await User.findById(user);
+    const targetUserId = user.assignedTo ? user.assignedTo : user._id;
+    const userData = await User.findById(targetUserId);
     let requests;
     if (userData.isSuperUser) {
       requests = await Patient.find({
@@ -706,7 +706,8 @@ router.get("/get_requests", authMiddleware, async (req, res) => {
 router.get("/get-installments", authMiddleware, async (req, res) => {
   try {
     const user = req.user;
-    const userData = await User.findById(user);
+    const targetUserId = user.assignedTo ? user.assignedTo : user._id;
+    const userData = await User.findById(targetUserId);
     let requests;
     if (userData.isSuperUser) {
       requests = await Patient.find({
@@ -732,7 +733,8 @@ router.get("/get-installments", authMiddleware, async (req, res) => {
 router.get("/get_active_users", authMiddleware, async (req, res) => {
   try {
     const user = req.user;
-    const userData = await User.findById(user);
+    const targetUserId = user.assignedTo ? user.assignedTo : user._id;
+    const userData = await User.findById(targetUserId);
     let requests;
     if (userData.isSuperUser) {
       requests = await Patient.find({
@@ -760,7 +762,8 @@ router.get("/get_active_users", authMiddleware, async (req, res) => {
 router.get("/get_paid_users", authMiddleware, async (req, res) => {
   try {
     const user = req.user;
-    const userData = await User.findById(user);
+    const targetUserId = user.assignedTo ? user.assignedTo : user._id;
+    const userData = await User.findById(targetUserId);
     let requests;
     if (userData.isSuperUser) {
       requests = await Patient.find({
@@ -787,7 +790,8 @@ router.get("/get_paid_users", authMiddleware, async (req, res) => {
 router.get("/get_old_users", authMiddleware, async (req, res) => {
   try {
     const user = req.user;
-    const userData = await User.findById(user);
+    const targetUserId = user.assignedTo ? user.assignedTo : user._id;
+    const userData = await User.findById(targetUserId);
     let requests;
     if (userData.isSuperUser) {
       requests = await Patient.find({
@@ -850,7 +854,8 @@ router.post("/deactivate_user", authMiddleware, async (req, res) => {
 router.get("/get_pending_requests", authMiddleware, async (req, res) => {
   try {
     const user = req.user;
-    const userData = await User.findById(user);
+    const targetUserId = user.assignedTo ? user.assignedTo : user._id;
+    const userData = await User.findById(targetUserId);
     let requests;
     if (userData.isSuperUser) {
       requests = await Patient.find({
@@ -877,7 +882,8 @@ router.get("/get_pending_requests", authMiddleware, async (req, res) => {
 router.get("/getSelfRegistered", authMiddleware, async (req, res) => {
   try {
     const user = req.user;
-    const userData = await User.findById(user);
+    const targetUserId = user.assignedTo ? user.assignedTo : user._id;
+    const userData = await User.findById(targetUserId);
     let requests;
     if (userData.isSuperUser) {
       requests = await Patient.find({
@@ -998,9 +1004,7 @@ router.get("/getBMIGraphData/:userId", authMiddleware, async (req, res) => {
 
 router.get("/referred_users/:userId", async (req, res) => {
   try {
-    console.log("Fetching referred users...");
     const { userId } = req.params;
-    console.log(userId);
     const users = await Patient.find({
       ref: userId,
     })

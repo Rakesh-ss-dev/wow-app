@@ -27,7 +27,7 @@ const RequestList: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [filteredRequests, setFilteredRequests] = useState<any[]>([]);
-
+  const user: any = JSON.parse(localStorage.getItem("user") || "{}");
   const [searchTerm, setSearchTerm] = useState("");
 
   const getRequests = async () => {
@@ -50,7 +50,7 @@ const RequestList: React.FC = () => {
   return (
     <>
       <PageMeta title="Requests List" description="List of all requests" />
-      <ComponentCard title="Requests List" createLink={`/create-request`} createTitle="Add Request">
+      <ComponentCard title="Requests List" {...(user.role == "Nutritionist" ? {} : { createLink: `/create-request`, createTitle: "Add Request" })} >
         <div className="max-w-full overflow-x-auto p-4">
 
           <div className="w-full mb-4">

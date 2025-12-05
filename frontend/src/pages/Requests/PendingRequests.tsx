@@ -28,6 +28,7 @@ const PendingRequestList: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [filteredRequests, setFilteredRequests] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const user: any = JSON.parse(localStorage.getItem("user") || "{}");
   useEffect(() => {
     const token = localStorage.getItem("token");
 
@@ -56,7 +57,7 @@ const PendingRequestList: React.FC = () => {
   return (
     <>
       <PageMeta title="Pending Requests" description="List of pending requests" />
-      <ComponentCard title="Pending Requests" createLink={`/create-request`} createTitle="Add Request">
+      <ComponentCard title="Pending Requests" {...(user.role == "Nutritionist" ? {} : { createLink: `/create-request`, createTitle: "Add Request" })}>
         <div className="w-full mb-4">
           <Input className="w-full" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search User name or Mobile Number" />
         </div>

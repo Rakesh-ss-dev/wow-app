@@ -66,7 +66,7 @@ const NutritionForm = () => {
                 </div>
                 <div>
                     <Label htmlFor="city">Coach :</Label>
-                    <Select options={coaches} onChange={(selectedValue) => { console.log(selectedValue); setSelectedCoach(selectedValue); }} placeholder="Select Coach" />
+                    <Select options={coaches} onChange={(selectedValue) => setSelectedCoach(selectedValue)} placeholder="Select Coach" />
                 </div>
                 <div>
                     <Label htmlFor="password">Password :</Label>

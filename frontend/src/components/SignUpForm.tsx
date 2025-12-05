@@ -24,7 +24,6 @@ export default function SignUpForm() {
         coachMobile,
         password
       });
-      console.log("User registered successfully:", response.data);
       alert("Registration successful! Please log in.");
       navigate("/");
     } catch (error: any) {

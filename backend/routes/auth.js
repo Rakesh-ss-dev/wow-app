@@ -34,8 +34,7 @@ const handleLogin = async (Model, email, password) => {
     process.env.JWT_SECRET,
     { expiresIn: "1d" }
   );
-
-  return { status: 200, token, user, role: user.role || Model };
+  return { status: 200, token, user, role: user.role || Model.modelName };
 };
 
 // --- Login Route ---
@@ -58,8 +57,10 @@ router.post("/login", async (req, res) => {
     if (result.error) {
       return res.status(result.status).json({ error: result.error });
     }
-
-    res.json({ token: result.token, user: result.user });
+    res.json({
+      token: result.token,
+      user: { ...result.user.toObject(), role: result.role },
+    });
   } catch (error) {
     console.error(error); // Log the server error for debugging
     res.status(500).json({ error: "Server error" });
@@ -121,10 +122,16 @@ router.post("/add-user", authMiddleware, async (req, res) => {
 router.get("/users", authMiddleware, async (req, res) => {
   try {
     let users;
+
     if (req.user.isSuperUser) {
       users = await User.find({
         isSuperUser: false,
       }).exec();
+    } else if (req.user.assignedTo) {
+      users = await User.find({
+        isSuperUser: false,
+        createdBy: req.user.assignedTo,
+      });
     } else {
       users = await User.find({
         isSuperUser: false,

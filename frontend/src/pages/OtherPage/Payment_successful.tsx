@@ -46,8 +46,7 @@ const Payment_successful = () => {
           body: JSON.stringify(paramsObject),
         });
         if (!response.ok) throw new Error("Failed to send data");
-        const result = await response.json();
-        console.log("Response from backend:", result);
+        await response.json();
         setIsDownloadActive(true);
       } catch (error) {
         console.error("Error sending data:", error);

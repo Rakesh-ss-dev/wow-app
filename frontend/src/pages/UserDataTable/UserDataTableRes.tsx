@@ -34,7 +34,7 @@ const UserDataTableRes: React.FC = () => {
           <div className="w-1/2">
             <Input className="" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search coach name, email or Mobile Number" />
           </div>
-          {parsedUser?.isSubUser ? null : (
+          {parsedUser?.isSubUser || parsedUser?.role == "Nutritionist" ? null : (
             <a
               href='/create-coach'
               className="px-4 py-2 bg-brand-600 text-white rounded hover:bg-brand-700"

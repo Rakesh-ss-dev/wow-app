@@ -80,7 +80,6 @@ const AppSidebar: React.FC = () => {
     const user = localStorage.getItem("user");
     return user ? JSON.parse(user) : null;
   });
-  console.log(parsedUser);
   if (parsedUser?.isSubUser) {
     navItems.splice(4, 1);
   }

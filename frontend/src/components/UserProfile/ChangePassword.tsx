@@ -80,7 +80,6 @@ export default function UserAddressCard() {
         closeModal();
         logout();
       } catch (error: any) {
-        console.log(error);
         alert(error.response?.data?.error || "Something went wrong!");
       }
     }

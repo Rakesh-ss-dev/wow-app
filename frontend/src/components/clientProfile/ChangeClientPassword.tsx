@@ -76,7 +76,6 @@ export default function UserAddressCard() {
         alert(data.message || "Password changed successfully!");
         logout();
       } catch (error: any) {
-        console.log(error);
         alert(error.response?.data?.error || "Something went wrong!");
       }
     }

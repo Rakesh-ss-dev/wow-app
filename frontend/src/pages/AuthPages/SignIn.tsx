@@ -9,6 +9,7 @@ import PageMeta from "../../components/common/PageMeta";
 import axios from "axios";
 import { useModal } from "../../hooks/useModal";
 import { Modal } from "../../components/ui/modal";
+import Select from "../../components/form/Select";
 
 export default function SignIn() {
   const navigate = useNavigate();
@@ -17,7 +18,11 @@ export default function SignIn() {
   const [forgotEmail, setForgotEmail] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
+  const [role, setRole] = useState<any>(null);
+  const options = [
+    { value: 'Coach', label: 'Coach' },
+    { value: 'Nutritionist', label: 'Nutritionist' },
+  ];
   const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
   const handleForgetPassword = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -37,7 +42,7 @@ export default function SignIn() {
       const res = await axios.post(`${SERVER_URL}/auth/login`, {
         email,
         password,
-        role: "Coach",
+        role
       });
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
@@ -97,7 +102,7 @@ export default function SignIn() {
                         </span>
                       </div>
                     </div>
-                    {/* <div>
+                    <div>
                       <Label>
                         Role <span className="text-error-500">*</span>{" "}
                       </Label>
@@ -106,7 +111,7 @@ export default function SignIn() {
                         onChange={(selectedOption: any) => { setRole(selectedOption); }}
                         placeholder="Select your role"
                       />
-                    </div> */}
+                    </div>
                     <div className="flex items-center justify-between">
                       <p
                         onClick={openModal}
