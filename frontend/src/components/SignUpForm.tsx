@@ -18,13 +18,14 @@ export default function SignUpForm() {
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const response: any = await axiosInstance.post("/client/register", {
+      await axiosInstance.post("/client/register", {
         name,
         mobile,
         coachMobile,
         password
       });
       alert("Registration successful! Please log in.");
+
       navigate("/");
     } catch (error: any) {
       alert(error.response.data.error || "Registration failed. Please try again.");

@@ -280,7 +280,6 @@ router.post("/randomSugar/submit", clientMiddleware, async (req, res) => {
       { $set: { randomValue: randomValue } },
       { upsert: true, new: true }
     );
-    console.log(randomValue);
     res
       .status(201)
       .json({ success: true, message: "Random value submitted successfully!" });

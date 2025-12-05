@@ -57,9 +57,11 @@ router.post("/login", async (req, res) => {
     if (result.error) {
       return res.status(result.status).json({ error: result.error });
     }
+    const finalUser = { ...result.user.toObject(), role: result.role };
+    delete finalUser.password;
     res.json({
       token: result.token,
-      user: { ...result.user.toObject(), role: result.role },
+      user: { ...finalUser },
     });
   } catch (error) {
     console.error(error); // Log the server error for debugging
