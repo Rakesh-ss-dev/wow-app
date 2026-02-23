@@ -32,11 +32,11 @@ jobs:
             sudo cp -r dist/* /var/www/html/wow-frontend/
             
             # KEY STEP: Delete frontend modules to free space for the backend
-            rm -rf node_modules 
+            sudo rm -rf node_modules 
 
             # Setup Backend
             cd ../backend
-            rm -rf node_modules
+            sudo rm -rf node_modules
             npm install --production # Smaller footprint
             
             # Restart and verify
