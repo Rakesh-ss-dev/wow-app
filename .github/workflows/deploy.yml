@@ -21,27 +21,45 @@ jobs:
           key: ${{ secrets.AWS_SSH_KEY }}
           script: |
             cd ~/wow-app
-            # Force reset the repo
-            sudo git fetch --all
-            sudo git reset --hard origin/main
+            # Reset permissions and pull latest code
             sudo chown -R $USER:$USER ~/wow-app
-            
+            git fetch --all
+            git reset --hard origin/main
+
+            # ---------------------------------------------------------
+            # 1. Database Health Check (Ensure MongoDB is running)
+            # ---------------------------------------------------------
+            # We check for 'mongod'. If it's stopped, we start it.
+            sudo systemctl start mongod || echo "MongoDB already running or name differs"
+            sudo systemctl enable mongod
+
+            # ---------------------------------------------------------
+            # 2. Frontend: Clean, Install, Build
+            # ---------------------------------------------------------
             cd frontend
-            sudo rm -rf node_modules dist  # Force remove even if owned by root
+            rm -rf node_modules dist
             npm install
             npm run build
             
-            # Move to web directory
+            # Move to Nginx web directory
             sudo rm -rf /var/www/html/wow-frontend/*
             sudo cp -r dist/* /var/www/html/wow-frontend/
             
-            # Immediate cleanup to save disk space
-            sudo rm -rf node_modules dist
+            # Cleanup frontend bloat to save disk space
+            rm -rf node_modules dist
 
+            # ---------------------------------------------------------
+            # 3. Backend: Setup and PM2 Restart
+            # ---------------------------------------------------------
             cd ../backend
-            sudo rm -rf node_modules
+            rm -rf node_modules
             npm install --omit=dev
             
-            # PM2 and Nginx
+            # Restart the backend process
             pm2 restart wow-backend || pm2 start server.js --name "wow-backend"
+            
+            # ---------------------------------------------------------
+            # 4. System Finalize
+            # ---------------------------------------------------------
             sudo systemctl restart nginx
+            pm2 save # Remembers the process list after server reboots
