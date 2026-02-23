@@ -8,9 +8,7 @@ type DateInput = string | number | Date | FirestoreTimestampLike;
 
 const formatReadableDateTime = (input: DateInput): string => {
     if (input == null) return "Invalid Date";
-
     let date: Date;
-
     try {
         if (input instanceof Date) {
             date = input;
