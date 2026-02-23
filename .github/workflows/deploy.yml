@@ -21,24 +21,27 @@ jobs:
           key: ${{ secrets.AWS_SSH_KEY }}
           script: |
             cd ~/wow-app
-            git fetch --all
-            git reset --hard origin/main
-
-            # Build Frontend
+            # Force reset the repo
+            sudo git fetch --all
+            sudo git reset --hard origin/main
+            sudo chown -R $USER:$USER ~/wow-app
+            
             cd frontend
+            sudo rm -rf node_modules dist  # Force remove even if owned by root
             npm install
             npm run build
+            
+            # Move to web directory
             sudo rm -rf /var/www/html/wow-frontend/*
             sudo cp -r dist/* /var/www/html/wow-frontend/
             
-            # KEY STEP: Delete frontend modules to free space for the backend
-            sudo rm -rf node_modules 
+            # Immediate cleanup to save disk space
+            sudo rm -rf node_modules dist
 
-            # Setup Backend
             cd ../backend
             sudo rm -rf node_modules
-            npm install --production # Smaller footprint
+            npm install --omit=dev
             
-            # Restart and verify
+            # PM2 and Nginx
             pm2 restart wow-backend || pm2 start server.js --name "wow-backend"
             sudo systemctl restart nginx
