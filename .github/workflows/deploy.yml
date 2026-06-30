@@ -13,53 +13,66 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
+      # ---------------------------------------------------------
+      # 1. Build Frontend on GitHub's Runner (Saves AWS Disk Space)
+      # ---------------------------------------------------------
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Build Frontend
+        run: |
+          cd frontend
+          npm install
+          npm run build
+
+      # ---------------------------------------------------------
+      # 2. Deploy to AWS via SSH
+      # ---------------------------------------------------------
       - name: Deploy to AWS
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.AWS_SSH_HOST }}
           username: ${{ secrets.AWS_SSH_USER }}
           key: ${{ secrets.AWS_SSH_KEY }}
+          # We pass the repository files via rsync or let the server pull code, 
+          # but notice how the server script becomes much lighter:
           script: |
             cd ~/wow-app
-            # Reset permissions and pull latest code
             sudo chown -R $USER:$USER ~/wow-app
             git fetch --all
             git reset --hard origin/main
 
-            # ---------------------------------------------------------
-            # 1. Database Health Check (Ensure MongoDB is running)
-            # ---------------------------------------------------------
-            # We check for 'mongod'. If it's stopped, we start it.
-            sudo systemctl start mongod || echo "MongoDB already running or name differs"
+            # 1. Database Health Check
+            sudo systemctl start mongod || echo "MongoDB already running"
             sudo systemctl enable mongod
 
-            # ---------------------------------------------------------
-            # 2. Frontend: Clean, Install, Build
-            # ---------------------------------------------------------
-            cd frontend
-            rm -rf node_modules dist
-            npm install
-            npm run build
-            
-            # Move to Nginx web directory
-            sudo rm -rf /var/www/html/wow-frontend/*
-            sudo cp -r dist/* /var/www/html/wow-frontend/
-            
-            # Cleanup frontend bloat to save disk space
-            rm -rf node_modules dist
-
-            # ---------------------------------------------------------
-            # 3. Backend: Setup and PM2 Restart
-            # ---------------------------------------------------------
-            cd ../backend
+            # 2. Backend Setup (Production dependencies only)
+            cd backend
             rm -rf node_modules
             npm install --omit=dev
-            
-            # Restart the backend process
             pm2 restart wow-backend || pm2 start server.js --name "wow-backend"
-            
-            # ---------------------------------------------------------
-            # 4. System Finalize
-            # ---------------------------------------------------------
-            sudo systemctl restart nginx
-            pm2 save # Remembers the process list after server reboots
+            pm2 save
+
+      # ---------------------------------------------------------
+      # 3. Upload ONLY the compiled Frontend build to AWS Nginx
+      # ---------------------------------------------------------
+      - name: Copy Frontend Build to AWS Nginx
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.AWS_SSH_HOST }}
+          username: ${{ secrets.AWS_SSH_USER }}
+          key: ${{ secrets.AWS_SSH_KEY }}
+          source: "frontend/dist/*"
+          target: "/var/www/html/wow-frontend/"
+          strip_components: 2 # Removes 'frontend/dist' wrapping folders
+
+      # 4. Final Nginx restart on server
+      - name: Reload Nginx
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.AWS_SSH_HOST }}
+          username: ${{ secrets.AWS_SSH_USER }}
+          key: ${{ secrets.AWS_SSH_KEY }}
+          script: sudo systemctl restart nginx
